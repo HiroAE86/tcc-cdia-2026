@@ -1,4 +1,4 @@
-% ============================================================================
+﻿% ============================================================================
 % TCC — Predição de Direção de Preços de Ações com NLP e Sentimento de Notícias
 % Formato: abnTeX2 (ABNT NBR 14724:2011)
 % Compilar: pdflatex tcc.tex && bibtex tcc && pdflatex tcc.tex && pdflatex tcc.tex
@@ -94,11 +94,11 @@
 
 % --- Resumo ---
 \begin{resumo}
-Este trabalho investiga se notícias financeiras brasileiras podem melhorar a predição de direção de preços de ações da B3, utilizando como estudo de caso três ações de grande capitalização: ITUB4 (Itaú Unibanco), PETR4 (Petrobras) e VALE3 (Vale). O \textit{pipeline} proposto coleta artigos do portal InfoMoney, extrai representações de sentimento via FinBERT-PT-BR --- um modelo BERT especializado em textos financeiros em português \cite{souza2023} --- e combina as \textit{features} resultantes com dados de mercado do Yahoo Finance para treinar classificadores binários (sobe/desce).
+A predição de direção de preços em mercados financeiros emergentes por meio de análise de sentimento em notícias permanece um problema em aberto, especialmente no contexto brasileiro, onde modelos de linguagem específicos para o domínio financeiro em português são escassos. Este trabalho investiga se notícias financeiras brasileiras melhoram a predição de direção de preços de ações da B3, tomando como estudo de caso três ações de grande capitalização --- ITUB4 (Itaú Unibanco), PETR4 (Petrobras) e VALE3 (Vale). O \textit{pipeline} proposto coleta artigos do portal InfoMoney, extrai representações de sentimento via FinBERT-PT-BR --- um modelo BERT especializado em textos financeiros em português \cite{souza2023} --- e combina as \textit{features} resultantes com dados de mercado do Yahoo Finance para treinar classificadores binários (sobe/desce).
 
-O trabalho documenta uma autocorreção metodológica incomum: sob avaliação por janela única (\textit{walk-forward split} 70/15/15), o modelo Transformer \cite{vaswani2017} atinge ROC-AUC de 0,709, aparentemente demonstrando que o sentimento financeiro específico supera \textit{embeddings} genéricos de alta dimensionalidade. Porém, uma investigação sistemática com mais de 1.500 execuções de modelo --- incluindo análise \textit{multi-seed} (20 sementes), validação cruzada \textit{expanding-window} (até 52 \textit{folds}), testes de Wilcoxon \textit{signed-rank}, intervalos de confiança \textit{bootstrap} e \textit{ablation} de \textit{features} --- revela que o resultado é um artefato: o Transformer exibe colapso bimodal (AUC oscilando entre 0,08 e 0,93 conforme a semente), e sob avaliação multi-fold o sentimento adiciona $\Delta = +0{,}003$ ao \textit{baseline} autoregressivo (Wilcoxon $p = 0{,}49$, IC 95\% $[-0{,}012;\ +0{,}018]$).
+A principal contribuição deste trabalho é uma autocorreção metodológica documentada: uma conclusão inicialmente positiva é revertida pela própria investigação após ampliação rigorosa do protocolo de avaliação. Sob avaliação por janela única (\textit{walk-forward split} 70/15/15), o modelo Transformer \cite{vaswani2017} atinge ROC-AUC de 0,709 --- resultado que aparenta demonstrar que sentimento financeiro específico ao domínio supera \textit{embeddings} genéricos de alta dimensionalidade. Uma investigação sistemática com mais de 1.500 execuções de modelo revela, porém, que esse valor é um artefato de janela única: o Transformer exibe colapso bimodal (AUC oscilando entre 0,08 e 0,93 conforme a semente aleatória), e sob avaliação \textit{multi-fold} o sentimento adiciona $\Delta = +0{,}003$ ao \textit{baseline} autoregressivo (Wilcoxon \textit{signed-rank} $p = 0{,}49$, IC 95\% \textit{bootstrap} $[-0{,}012;\ +0{,}018]$) --- revertendo a conclusão qualitativa de positiva para nula.
 
-A contribuição central é a demonstração empírica, em dados brasileiros, de como a avaliação por janela única pode inverter a conclusão qualitativa de um estudo em \textit{machine learning} financeiro --- transformando um achado aparentemente positivo em um resultado nulo --- e a proposição de protocolos mínimos de avaliação para mitigar esse viés.
+A reversão é demonstrada empiricamente em dados brasileiros e sustentada por seis protocolos de avaliação complementares: intervalos de confiança \textit{bootstrap} (1.000 reamostras), análise \textit{multi-seed} com no mínimo 10 sementes, validação cruzada \textit{expanding-window} (até 52 \textit{folds}), \textit{baseline} autoregressivo como referência mínima, monitoramento da distribuição de predições e auditoria de correlação entre validação e teste. Esses protocolos são propostos como conjunto mínimo para mitigar o viés de janela única em estudos de \textit{machine learning} financeiro.
 
 \textbf{Palavras-chave:} Predição de preços. Sentimento financeiro. FinBERT. Avaliação metodológica. Séries temporais financeiras. B3.
 \end{resumo}
@@ -106,11 +106,11 @@ A contribuição central é a demonstração empírica, em dados brasileiros, de
 % --- Abstract ---
 \begin{resumo}[Abstract]
 \begin{otherlanguage*}{english}
-This work investigates whether Brazilian financial news can improve stock price direction prediction for B3 equities, using three large-cap stocks as case studies: ITUB4 (Itaú Unibanco), PETR4 (Petrobras), and VALE3 (Vale). The proposed pipeline collects articles from the InfoMoney portal, extracts sentiment representations via FinBERT-PT-BR --- a BERT model fine-tuned on Brazilian Portuguese financial text --- and combines the resulting features with Yahoo Finance market data to train binary classifiers (up/down).
+Predicting stock price direction in emerging financial markets using news sentiment analysis remains an open problem, particularly in the Brazilian context where domain-specific language models for Portuguese financial text are scarce. This work investigates whether Brazilian financial news improves stock price direction prediction for B3 equities, using three large-cap stocks as case studies: ITUB4 (Itaú Unibanco), PETR4 (Petrobras), and VALE3 (Vale). The proposed pipeline collects articles from the InfoMoney portal, extracts sentiment representations via FinBERT-PT-BR --- a BERT model fine-tuned on Brazilian Portuguese financial text \cite{souza2023} --- and combines the resulting features with Yahoo Finance market data to train binary classifiers (up/down).
 
-This work documents an uncommon methodological self-correction: under single-window evaluation (70/15/15 walk-forward split), the Transformer model achieves ROC-AUC of 0.709, apparently demonstrating that domain-specific financial sentiment outperforms high-dimensional generic embeddings. However, a systematic investigation comprising over 1,500 model runs --- including multi-seed analysis (20 seeds), expanding-window cross-validation (up to 52 folds), Wilcoxon signed-rank tests, bootstrap confidence intervals, and feature ablation --- reveals the result to be an artifact: the Transformer exhibits bimodal collapse (AUC ranging from 0.08 to 0.93 depending on seed), and under multi-fold evaluation sentiment adds $\Delta = +0.003$ over the autoregressive baseline (Wilcoxon $p = 0.49$, 95\% CI $[-0.012,\ +0.018]$).
+The primary contribution of this work is a documented methodological self-correction: an initially positive conclusion is reversed by the same investigation after rigorous expansion of the evaluation protocol. Under single-window evaluation (70/15/15 walk-forward split), the Transformer model \cite{vaswani2017} achieves ROC-AUC of 0.709 --- a result that apparently demonstrates domain-specific financial sentiment outperforming high-dimensional generic embeddings. A systematic investigation comprising over 1,500 model runs reveals this value to be a single-window artifact: the Transformer exhibits bimodal collapse (AUC ranging from 0.08 to 0.93 depending on random seed), and under multi-fold evaluation sentiment adds $\Delta = +0.003$ over the autoregressive baseline (Wilcoxon signed-rank $p = 0.49$, 95\% bootstrap CI $[-0.012,\ +0.018]$) --- reversing the qualitative conclusion from positive to null.
 
-The central contribution is an empirical demonstration, on Brazilian data, of how single-window evaluation can reverse the qualitative conclusion of a financial machine learning study --- turning an apparently positive finding into a null result --- along with minimal evaluation protocols to mitigate this bias.
+This reversal is empirically demonstrated on Brazilian data and supported by six complementary evaluation protocols: bootstrap confidence intervals (1,000 resamples), multi-seed analysis with at least 10 seeds, expanding-window cross-validation (up to 52 folds), an autoregressive baseline as minimum reference, prediction distribution monitoring, and validation-test correlation auditing. These protocols are proposed as a minimum checklist to mitigate single-window bias in financial machine learning studies.
 
 \textbf{Keywords:} Price prediction. Financial sentiment. FinBERT. Methodological evaluation. Financial time series. B3.
 \end{otherlanguage*}
@@ -134,7 +134,6 @@ The central contribution is an empirical demonstration, on Brazilian data, of ho
     \item[BiLSTM] \textit{Bidirectional Long Short-Term Memory}
     \item[CI] Intervalo de Confiança (\textit{Confidence Interval})
     \item[CV] Validação Cruzada (\textit{Cross-Validation})
-    \item[ECE] \textit{Expected Calibration Error}
     \item[FinBERT] \textit{Financial BERT}
     \item[LSTM] \textit{Long Short-Term Memory}
     \item[MDE] Tamanho Mínimo de Efeito Detectável
@@ -163,7 +162,7 @@ The central contribution is an empirical demonstration, on Brazilian data, of ho
 
 A predição de direção de preços de ações é um problema central em finanças quantitativas, situado na interseção entre a hipótese de eficiência de mercado \cite{fama1970} e a evidência empírica de previsibilidade parcial em horizontes curtos \cite{lo2004}. Com o avanço das técnicas de processamento de linguagem natural (NLP), uma linha de pesquisa crescente investiga se informações textuais --- notícias, relatórios de analistas, publicações em redes sociais --- podem ser incorporadas como \textit{features} preditivas em modelos de \textit{machine learning} para complementar dados tradicionais de preço e volume \cite{xu2018,araci2019}.
 
-No contexto brasileiro, a pesquisa nesta área é ainda incipiente. A B3 (Brasil, Bolsa, Balcão) apresenta características que a distinguem de mercados desenvolvidos: menor liquidez em ações fora do índice principal, concentração de informação em poucas fontes jornalísticas especializadas, e um ecossistema de NLP em português que só recentemente passou a dispor de modelos de linguagem específicos para o domínio financeiro, como o FinBERT-PT-BR \cite{souza2023}.
+No contexto brasileiro, a pesquisa nesta área é ainda incipiente. A B3 (Brasil, Bolsa, Balcão) apresenta características que a distinguem de mercados desenvolvidos: menor liquidez em ações fora do índice principal, concentração de informação em poucas fontes jornalísticas especializadas, e um ecossistema de NLP em português que, a partir de 2022, passou a dispor de modelos de linguagem específicos para o domínio financeiro, como o FinBERT-PT-BR \cite{souza2023}. Essas diferenças estruturais implicam que resultados positivos obtidos em mercados como o S\&P~500 \cite{xu2018,fischer2018} não podem ser diretamente extrapolados para a B3: o fluxo informacional é mais concentrado, o \textit{pool} de participantes institucionais é menor do que em mercados desenvolvidos como os EUA, e os modelos de linguagem disponíveis em português financeiro têm histórico de avaliação significativamente mais curto do que seus equivalentes em inglês.
 
 \section{Problema de pesquisa}
 
@@ -185,18 +184,18 @@ Investigar empiricamente se \textit{features} de sentimento extraídas de notíc
 \begin{enumerate}
     \item Construir um \textit{pipeline} de coleta, processamento e integração de notícias financeiras do portal InfoMoney com dados de mercado do Yahoo Finance.
     \item Comparar duas estratégias de representação textual: \textit{embeddings} genéricos de 1.024 dimensões (Ollama \texttt{qwen3-embedding:4b}) e sentimento financeiro de 5 dimensões (FinBERT-PT-BR).
-    \item Treinar e avaliar modelos de classificação binária (BiLSTM, Transformer, XGBoost, TCN) sobre as representações textuais combinadas com \textit{features} de preço.
+    \item Treinar e avaliar modelos de classificação binária (BiLSTM, Transformer, XGBoost, TCN --- \textit{Temporal Convolutional Network}) sobre as representações textuais combinadas com \textit{features} de preço.
     \item Aplicar protocolos de avaliação rigorosa --- \textit{bootstrap} CI, análise \textit{multi-seed}, validação cruzada \textit{expanding-window}, \textit{ablation} de \textit{features} --- para determinar a robustez dos resultados.
     \item Documentar e analisar as discrepâncias entre avaliação por janela única e avaliação multi-fold, contribuindo para a literatura de avaliação metodológica em ML financeiro.
 \end{enumerate}
 
 \section{Justificativa}
 
-A relevância deste trabalho reside em três aspectos. Primeiro, a aplicação de NLP financeiro ao mercado brasileiro é pouco explorada, e a disponibilidade recente de modelos como o FinBERT-PT-BR abre oportunidades de investigação em português. Segundo, a literatura de \textit{deep learning} aplicado a finanças sofre de um problema metodológico amplamente documentado --- a avaliação por janela única em séries não-estacionárias \cite{bailey2014,lopezdeprado2018} --- mas raramente demonstrado empiricamente com o grau de detalhe que este trabalho propõe. Terceiro, a autocorreção metodológica documentada nos Capítulos~\ref{cap:sentimento} e~\ref{cap:investigacao} constitui, por si só, uma contribuição pedagógica sobre as armadilhas da avaliação de modelos em finanças.
+A relevância deste trabalho reside em três aspectos. Primeiro, a aplicação de NLP financeiro ao mercado brasileiro é pouco explorada, e a disponibilidade recente de modelos como o FinBERT-PT-BR abre oportunidades de investigação em português. Segundo, a literatura de \textit{deep learning} aplicado a finanças sofre de um problema metodológico amplamente documentado --- a avaliação por janela única em séries não-estacionárias \cite{bailey2014,lopezdeprado2018} --- mas raramente demonstrado empiricamente com o grau de detalhe que este trabalho propõe. Terceiro, a autocorreção metodológica documentada nos Capítulos~\ref{cap:sentimento} e~\ref{cap:investigacao} constitui, por si só, uma contribuição pedagógica. Especificamente, este trabalho demonstra empiricamente as três armadilhas mais comuns na avaliação de modelos em ML financeiro: ausência de intervalos de confiança, uso de semente única, e avaliação por janela única em séries não-estacionárias.
 
 \section{Estrutura do trabalho}
 
-O trabalho está organizado em seis capítulos. O Capítulo~\ref{cap:revisao} apresenta a fundamentação teórica e a revisão bibliográfica. O Capítulo~\ref{cap:pipeline} descreve o \textit{pipeline} completo: coleta de notícias, engenharia de \textit{features} e treinamento inicial com \textit{embeddings} genéricos. O Capítulo~\ref{cap:sentimento} introduz o FinBERT-PT-BR e documenta o resultado inicialmente promissor (AUC = 0,709). O Capítulo~\ref{cap:investigacao} conduz a investigação metodológica que revisa substancialmente esse resultado. O Capítulo~\ref{cap:conclusao} sintetiza as conclusões e propõe direções futuras.
+O trabalho está organizado em seis capítulos. O presente capítulo introduz o problema de pesquisa, os objetivos e a justificativa. O Capítulo~\ref{cap:revisao} apresenta a fundamentação teórica e a revisão bibliográfica. O Capítulo~\ref{cap:pipeline} descreve o \textit{pipeline} completo: coleta de notícias, engenharia de \textit{features} e treinamento inicial com \textit{embeddings} genéricos. O Capítulo~\ref{cap:sentimento} introduz o FinBERT-PT-BR e documenta o resultado inicialmente promissor (\textit{Area Under the ROC Curve}, AUC = 0,709). O Capítulo~\ref{cap:investigacao} conduz a investigação metodológica que revisa substancialmente esse resultado. O Capítulo~\ref{cap:conclusao} sintetiza as conclusões e propõe direções futuras.
 
 
 % ============================================================================
@@ -209,25 +208,29 @@ Este capítulo apresenta os fundamentos teóricos que sustentam o trabalho: a hi
 
 A hipótese de eficiência de mercado (HEM), formalizada por \citeonline{fama1970}, postula que os preços dos ativos refletem toda a informação disponível. Em sua forma semiforte, a HEM implica que informações públicas --- incluindo notícias financeiras --- já estão incorporadas nos preços no momento de sua publicação, tornando impossível obter retornos sistematicamente superiores com base nessas informações. Trabalhos empíricos subsequentes, contudo, documentaram anomalias que sugerem previsibilidade parcial. \citeonline{lo2004} propôs a Hipótese de Mercados Adaptativos, na qual a eficiência varia ao longo do tempo conforme as condições de mercado e o comportamento dos agentes.
 
-A tensão entre eficiência teórica e previsibilidade empírica é o pano de fundo deste trabalho: se os preços já incorporam o sentimento das notícias, nenhum modelo deveria superá-los consistentemente; se não incorporam, há espaço para predição.
+Este trabalho parte dessa tensão como ponto de partida empírico: se os preços já incorporam o sentimento das notícias financeiras, um modelo treinado sobre esse sentimento não deveria superar um \textit{baseline} autoregressivo de preço (\textit{baseline} autoregressivo: modelo que usa exclusivamente dados históricos de preço como \textit{features}); se não incorporam completamente, há espaço mensurável para predição. O Capítulo~\ref{cap:sentimento} testa essa hipótese para ITUB4, PETR4 e VALE3 sob protocolo de janela única, obtendo AUC = 0,709 --- resultado aparentemente favorável ao segundo cenário. O Capítulo~\ref{cap:investigacao} submete esse resultado a validação cruzada \textit{expanding-window} com múltiplas sementes e testes de significância formal, revelando que o ganho sobre o \textit{baseline} autoregressivo não é estatisticamente distinguível do acaso ($p = 0{,}49$, IC 95\% $[-0{,}012;\ +0{,}018]$), revertendo a conclusão qualitativa de positiva para nula.
 
 \section{NLP aplicado a finanças}
 
-A aplicação de processamento de linguagem natural à predição de preços passou por três gerações de representação textual. A primeira utilizou léxicos de sentimento construídos manualmente, como o Loughran-McDonald \cite{loughran2011}, atribuindo polaridade a palavras individuais. A segunda introduziu \textit{embeddings} densos baseados em redes neurais, como Word2Vec e GloVe, que capturam relações semânticas mas não são específicos ao domínio financeiro. A terceira geração, atual, utiliza modelos de linguagem pré-treinados e \textit{fine-tuned} para o domínio, como o FinBERT \cite{araci2019} e suas variantes regionais, incluindo o FinBERT-PT-BR para português brasileiro \cite{souza2023}.
+A aplicação de processamento de linguagem natural à predição de preços pode ser organizada em três gerações de representação textual \cite{kellyxiu2023}. A primeira utilizou léxicos de sentimento construídos manualmente, como o Loughran-McDonald \cite{loughran2011}, atribuindo polaridade a palavras individuais com base em dicionários específicos do domínio. A segunda introduziu \textit{embeddings} densos baseados em redes neurais, como Word2Vec \cite{mikolov2013} e GloVe \cite{pennington2014}, que capturam relações semânticas distribuídas mas não são específicos ao domínio financeiro. A terceira geração, dominante desde o início da década de 2020, utiliza modelos de linguagem pré-treinados e \textit{fine-tuned} para o domínio, como o FinBERT \cite{araci2019} e suas variantes regionais, incluindo o FinBERT-PT-BR para português brasileiro \cite{souza2023}.
 
-É importante notar que resultados nulos ou negativos são sub-representados na literatura de NLP financeiro devido ao viés de publicação. \citeonline{shah2019} documentaram que muitos estudos de \textit{sentiment analysis} para previsão de ações não replicam quando avaliados fora da amostra original. \citeonline{kellyxiu2023} mostraram que a maior parte do poder preditivo de variáveis textuais desaparece quando se controla adequadamente por \textit{features} de preço --- resultado alinhado com os achados deste trabalho.
+É importante notar que resultados nulos ou negativos são sub-representados na literatura de NLP financeiro devido ao viés de publicação \cite{shah2019}. \citeonline{shah2019} documentaram que muitos estudos de \textit{sentiment analysis} para previsão de ações não replicam quando avaliados fora da amostra original. \citeonline{kellyxiu2023} mostraram que a maior parte do poder preditivo de variáveis textuais desaparece quando as variáveis textuais são combinadas com \textit{features} de preço em modelos com controle explícito de dimensionalidade --- resultado alinhado com os achados deste trabalho.
 
-\citeonline{xu2018} demonstraram que a combinação de texto de \textit{tweets} com séries históricas de preço melhora a predição de direção em ações do S\&P~500, utilizando um modelo de atenção hierárquico. \citeonline{fischer2018} aplicaram LSTMs (\textit{Long Short-Term Memory}, proposta originalmente por \citeonline{hochreiter1997}) à predição de retornos diários de ações do S\&P~500, reportando resultados superiores ao \textit{buy-and-hold} em períodos específicos. No contexto brasileiro, \citeonline{cavalcante2016} utilizaram análise de sentimento de notícias em português para predição de volatilidade do IBOVESPA, e \citeonline{santos2020} aplicaram modelos BERT a textos financeiros da CVM.
+\citeonline{xu2018} demonstraram que a combinação de texto de \textit{tweets} com séries históricas de preço melhora a predição de direção em ações do S\&P~500, utilizando um modelo de atenção hierárquico. \citeonline{fischer2018} aplicaram LSTMs (\textit{Long Short-Term Memory}, proposta originalmente por \citeonline{hochreiter1997}) à predição de retornos diários de ações do S\&P~500, reportando resultados superiores ao \textit{buy-and-hold} em períodos específicos. No contexto brasileiro, \citeonline{cavalcante2016} utilizaram análise de sentimento de notícias em português para predição de volatilidade do IBOVESPA, e \citeonline{santos2020} aplicaram modelos BERT a textos financeiros da CVM. Nenhum desses estudos reporta análise de variância de semente ou validação cruzada com múltiplas janelas temporais --- uma prática que, como demonstrado no Capítulo~\ref{cap:investigacao}, pode reverter as conclusões qualitativas dos resultados.
 
 \section{Arquiteturas de modelos}
 
-Este trabalho utiliza quatro famílias de modelos. O BiLSTM \cite{hochreiter1997} processa sequências temporais bidirecionalmente, capturando dependências de longo prazo. O Transformer \cite{vaswani2017} utiliza mecanismos de atenção \textit{multi-head} que permitem capturar relações entre posições arbitrárias na sequência. O XGBoost \cite{chen2016}, um algoritmo de \textit{gradient boosting} sobre árvores de decisão, é o padrão de facto para dados tabulares. A TCN (\textit{Temporal Convolutional Network}) \cite{bai2018} aplica convoluções dilatadas causais, capturando padrões temporais locais com campo receptivo exponencialmente crescente.
+Este trabalho utiliza quatro famílias de modelos, selecionadas por sua representatividade na literatura de ML financeiro. O BiLSTM --- baseado no LSTM \cite{hochreiter1997}, na extensão bidirecional proposta na literatura --- nas variantes de 2 camadas/128 unidades e 1 camada/32 unidades --- processa sequências temporais bidirecionalmente, sendo amplamente utilizado em predição de preços \cite{fischer2018}. O Transformer \cite{vaswani2017} --- com encoder de 2 camadas, 4 cabeças de atenção e $d_\text{model}=64$ --- utiliza mecanismos de atenção \textit{multi-head} que permitem capturar relações entre posições arbitrárias na sequência, sem viés de localidade. O XGBoost \cite{chen2016} --- 300 árvores, profundidade 4, \textit{learning rate} 0,05 --- é o padrão de facto para dados tabulares e serve como \textit{baseline} autoregressivo nos experimentos do Capítulo~\ref{cap:investigacao}. A TCN (\textit{Temporal Convolutional Network}) \cite{bai2018} --- configuração [32,32], \textit{kernel} 3, dilatações [1,2] --- aplica convoluções dilatadas causais, capturando padrões temporais locais com campo receptivo exponencialmente crescente.
+
+Modelos alternativos foram considerados mas não adotados como modelos principais: o Random Forest foi avaliado no Estágio~7 como diagnóstico adicional de importância de \textit{features} via SHAP (\textit{SHapley Additive exPlanations}) \cite{lundberg2017}, mas não como modelo principal, pois o XGBoost oferece desempenho equivalente com maior controle de regularização e interpretabilidade nativa. A Regressão Logística com interações foi avaliada nos \textit{baselines} ingênuos iniciais, mas suas premissas de linearidade são inadequadas para a dinâmica não-linear de séries financeiras em janelas de 30 dias. A GRU (\textit{Gated Recurrent Unit}) foi preterida por redundância arquitetural com o BiLSTM neste contexto: ambas processam sequências com mecanismos de memória recorrente, e a literatura não evidencia ganhos sistemáticos de GRU sobre LSTM em séries financeiras de baixa frequência \cite{fischer2018}.
 
 \section{Protocolos de avaliação em ML financeiro}
 
 A avaliação de modelos preditivos em séries temporais financeiras apresenta desafios específicos que a distinguem de problemas padrão de \textit{machine learning}. \citeonline{bailey2014} demonstraram formalmente que a otimização de estratégias sobre um único período de \textit{backtest} inevitavelmente infla métricas de desempenho --- o fenômeno que denominaram \textit{backtest overfitting}. \citeonline{lopezdeprado2018} sistematizou o problema, propondo validação cruzada com purga e embargo como padrão mínimo. \citeonline{cawley2010} documentaram o viés de seleção de modelo, mostrando que a avaliação sobre o mesmo conjunto de dados usado para selecionar modelos produz estimativas otimistas mesmo sem vazamento explícito de dados.
 
 A métrica ROC-AUC, embora amplamente utilizada, deve ser interpretada com cautela em conjuntos de teste pequenos. \citeonline{hanley1982} derivaram o erro-padrão analítico da AUC, permitindo o cálculo de intervalos de confiança e tamanhos mínimos de efeito detectáveis --- ferramenta essencial quando os conjuntos de teste têm 60--177 amostras, como neste trabalho.
+
+A validação cruzada com janela expansiva (\textit{expanding-window CV}) é a abordagem recomendada por \citeonline{lopezdeprado2018} para séries temporais financeiras: a cada \textit{fold}, o conjunto de treino expande-se cronologicamente enquanto a janela de teste avança, simulando o processo de decisão em tempo real. Em contraste com o \textit{walk-forward split} único, esta abordagem fornece múltiplas estimativas de desempenho fora da amostra, permitindo avaliar tanto o nível médio quanto a variância do desempenho ao longo do tempo.
 
 
 % ============================================================================
@@ -258,15 +261,15 @@ VALE3 (Vale)          & 1.525 & 2009--2026 \\
 
 \section{Engenharia de features}\label{sec:features}
 
-O módulo \texttt{yahoo\_finance.py} obtém dados OHLCV via \texttt{yfinance} e calcula 11 \textit{features} técnicas por dia: fechamento, volume, retorno diário, médias móveis (7 e 21 dias), volatilidade (desvio-padrão 21 dias) e 5 valores defasados. O módulo \texttt{news\_embedder.py} transforma cada artigo em um vetor de 1.024 dimensões via Ollama (\texttt{qwen3-embedding:4b}), com agregação diária por média ponderada por recência. As \textit{features} são combinadas via \textit{left join} por data com \textit{forward-fill}. O \textit{dataset} resultante contém 1.227 dias $\times$ 1.035 \textit{features} (11 de preço + 1.024 de \textit{embeddings}).
+O módulo \texttt{yahoo\_finance.py} obtém dados OHLCV via \texttt{yfinance} e calcula 11 \textit{features} técnicas por dia: fechamento, volume, retorno diário, médias móveis (7 e 21 dias), volatilidade (desvio-padrão 21 dias) e 5 valores defasados. O módulo \texttt{news\_embedder.py} transforma cada artigo em um vetor de 1.024 dimensões via Ollama (\texttt{qwen3-embedding:4b}), com agregação diária por média simples. As \textit{features} são combinadas via \textit{left join} por data com \textit{forward-fill} (\textit{forward-fill}: propagação do último valor conhecido para dias sem publicação de notícias). O \textit{dataset} resultante contém 1.227 dias $\times$ 1.035 \textit{features} (11 de preço + 1.024 de \textit{embeddings}).
 
 \section{Modelos iniciais com embeddings genéricos}\label{sec:modelos_iniciais}
 
-O alvo binário é definido como 1 se $\text{Close}[t+21] > \text{Close}[t]$, com desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce''. Os \textit{embeddings} são reduzidos para 32 componentes via PCA. A validação segue \textit{split} cronológico 70/15/15.
+O alvo binário é definido como 1 se $\text{Close}[t+21] > \text{Close}[t]$ (horizonte $h=21$ dias), com desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce''. Este horizonte é mantido nos Capítulos~\ref{cap:pipeline} e~\ref{cap:sentimento}; o Capítulo~\ref{cap:investigacao} também explora $h=5$ dias na varredura de horizontes (\texttt{horizon\_sweep.ipynb}). Os \textit{embeddings} são reduzidos para 32 componentes via PCA (\textit{Principal Component Analysis}), ajustado exclusivamente no conjunto de treino para evitar vazamento de dados. A escolha de 32 componentes foi baseada na inspeção da curva de variância explicada acumulada, conforme reportado em \texttt{3.model\_traning/feature\_engineering.ipynb}: os primeiros 32 componentes retêm 61,4\% da variância total dos \textit{embeddings} do conjunto de treino. A validação segue \textit{split} cronológico 70/15/15. Neste protocolo, os primeiros 70\% dos dias formam o conjunto de treino, os 15\% seguintes o conjunto de validação, e os 15\% finais o conjunto de teste, mantendo a ordem cronológica e evitando vazamento de dados futuros.
 
 \begin{table}[htb]
 \centering
-\caption{Resultados com \textit{embeddings} genéricos Ollama (Etapa~3).}\label{tab:etapa3}
+\caption{Resultados com \textit{embeddings} genéricos Ollama (Etapa~3). \textbf{Nota:} estimativas pontuais de uma única semente e uma única janela temporal, reportadas para continuidade narrativa; o Capítulo~\ref{cap:investigacao} aplica avaliação multi-semente e multi-\textit{fold} aos resultados da Etapa~4.}\label{tab:etapa3}
 \begin{tabular}{lcc}
 \toprule
 \textbf{Modelo} & \textbf{Arquitetura} & \textbf{ROC-AUC} \\
@@ -296,15 +299,15 @@ O FinBERT-PT-BR é um modelo BERT \cite{devlin2019} pré-treinado e \textit{fine
 
 \section{Pipeline de extração e resultados}
 
-A extração segue os passos: inferência em \textit{batch} (32 artigos, entrada \texttt{título + resumo}, 512 \textit{tokens}); persistência dos \textit{logits} brutos; agregação diária em 5 \textit{features} (\texttt{n\_articles}, \texttt{mean\_logit\_pos/neg/neu}, \texttt{mean\_sentiment}); junção temporal com \textit{forward-fill}. O \textit{dataset} resultante: 1.207 dias $\times$ 16 \textit{features}.
+O corpus FinBERT cobre 1.207 dias úteis --- 20 dias a menos que o dataset de embeddings (1.227 dias) --- porque o alinhamento por data entre os artigos coletados e os preços de mercado resultou em um período ligeiramente diferente após o pré-processamento de cada fonte. A extração segue os passos: inferência em \textit{batch} (32 artigos, entrada \texttt{título + resumo}, 512 \textit{tokens}); persistência dos \textit{logits} brutos; agregação diária em 5 \textit{features} (\texttt{n\_articles}, \texttt{mean\_logit\_pos/neg/neu}, \texttt{mean\_sentiment}); junção temporal com \textit{forward-fill}. O \textit{dataset} resultante: 1.207 dias $\times$ 16 \textit{features}.
 
-\textbf{Granularidade temporal e risco de \textit{look-ahead}.} Os artigos possuem \textit{timestamps} ISO~8601, mas a agregação descarta o horário. Artigos pós-fechamento da B3 ($\sim$17h BRT) são atribuídos ao dia $t$; o deslocamento pode exceder 1 dia em dias consecutivos sem publicação. O impacto é atenuado pelo horizonte de 5--21 dias e pela média diária.
+\textbf{Granularidade temporal e risco de \textit{look-ahead}.} O risco de \textit{look-ahead} ocorre quando informações disponíveis apenas após o instante $t$ são incorporadas como \textit{features} para prever $t$, inflando artificialmente as métricas de desempenho. Os artigos possuem \textit{timestamps} ISO~8601, mas a agregação descarta o horário. Artigos pós-fechamento da B3 ($\sim$17h BRT) são atribuídos ao dia $t$; o deslocamento pode exceder 1 dia em dias consecutivos sem publicação. O impacto é atenuado pelo horizonte de 5--21 dias e pela média diária. A proporção exata de artigos publicados após o fechamento do pregão não foi auditada sistematicamente; a análise de \textit{timestamps} necessária para quantificar este risco é reconhecida como uma limitação do trabalho (Seção~\ref{sec:limitacoes}). O impacto é mitigado pelo horizonte de 5--21 dias e pela agregação diária por média.
 
 \textbf{Tratamento de desbalanceamento de classe.} O alvo binário apresenta desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce'' no conjunto de treino. Para mitigar o viés em direção à classe majoritária, todos os modelos recebem compensação explícita: os modelos neurais (BiLSTM, Transformer, TCN) utilizam \texttt{BCEWithLogitsLoss} com \texttt{pos\_weight} = $n_\text{desce} / n_\text{sobe} \approx 1{,}38$; o XGBoost utiliza o parâmetro \texttt{scale\_pos\_weight} com o mesmo valor; e os modelos \textit{sklearn} (Logistic Regression, Random Forest) utilizam \texttt{class\_weight=``balanced''}. Apesar desta compensação, o Transformer ainda exibe forte viés para a classe majoritária (prevendo ``Desce'' apenas 11 vezes em 177 amostras), indicando que o desbalanceamento é um fator contribuinte mas não a causa principal do colapso de predição documentado no Capítulo~\ref{cap:investigacao}.
 
 \begin{table}[htb]
 \centering
-\caption{Comparação Etapa~3 (\textit{embeddings}) vs Etapa~4 (sentimento FinBERT).}\label{tab:etapa4}
+\caption{Comparação Etapa~3 (\textit{embeddings}) vs Etapa~4 (sentimento FinBERT). \textbf{Nota:} todos os valores são estimativas pontuais de uma única semente e uma única janela temporal, sem intervalos de confiança --- esta omissão é uma das motivações para a investigação do Capítulo~\ref{cap:investigacao}.}\label{tab:etapa4}
 \begin{tabular}{lccc}
 \toprule
 \textbf{Modelo} & \textbf{AUC Etapa~3} & \textbf{AUC Etapa~4} & $\boldsymbol{\Delta}$ \\
@@ -317,9 +320,9 @@ XGBoost          & 0,610 & 0,670 & +0,060 \\
 \end{tabular}
 \end{table}
 
-(Nota: estes valores são pontuais, sem intervalos de confiança --- esta omissão é uma das motivações para a investigação do Capítulo~\ref{cap:investigacao}.)
+O BiLSTM Reduzido registrou regressão de $-0{,}028$ ao trocar \textit{embeddings} por sentimento FinBERT. Uma explicação plausível é que a arquitetura compacta (1 camada, 32 unidades ocultas, 50\% de \textit{dropout}) é insuficiente para aproveitar a especificidade adicional das \textit{features} FinBERT dado o conjunto de treino pequeno: a regularização agressiva que beneficia representações de alta dimensionalidade pode sobrepenalizar uma entrada de apenas 5 \textit{features}, reduzindo a capacidade de generalização.
 
-O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \textit{precision}(Desce) = 1,00 com \textit{recall}(Desce) = 0,20 --- o modelo prevê ``Desce'' apenas 11 vezes em 177 amostras. Três observações motivam a investigação do Capítulo~\ref{cap:investigacao}: (1)~matriz de confusão assimétrica; (2)~acurácia próxima da classe majoritária ($\sim$69\%); (3)~ausência de intervalos de confiança e múltiplas sementes.
+O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \textit{precision}(Desce) = 1,00 com \textit{recall}(Desce) = 0,15 --- o modelo prevê ``Desce'' apenas 11 vezes em 177 amostras. Três observações motivam a investigação do Capítulo~\ref{cap:investigacao}: (1)~matriz de confusão assimétrica; (2)~acurácia próxima da classe majoritária ($\sim$69\%); (3)~ausência de intervalos de confiança e múltiplas sementes.
 
 
 % ============================================================================
@@ -328,7 +331,7 @@ O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \
 
 \section{Motivação e protocolo geral}
 
-Este capítulo aplica protocolos progressivamente mais rigorosos para determinar se o AUC = 0,709 sobrevive a escrutínio metodológico. A Tabela~\ref{tab:experimentos} sumariza os 13 experimentos realizados (mais de 1.500 treinamentos).
+Este capítulo aplica protocolos progressivamente mais rigorosos para determinar se o AUC = 0,709 sobrevive a escrutínio metodológico. A Tabela~\ref{tab:experimentos} sumariza os 13 experimentos realizados (mais de 1.500 treinamentos). As funções utilitárias utilizadas em todos os experimentos são detalhadas no Apêndice~\ref{ap:evalutils}.
 
 \begin{table}[htb]
 \centering
@@ -358,11 +361,13 @@ Validação TCN Stage~5b           & \texttt{tcn\_validation.ipynb}             
 
 Todos os hiperparâmetros dos modelos foram fixados ao longo dos experimentos, sem otimização por \textit{fold}: XGBoost (300 árvores, profundidade 4, \textit{learning rate} 0,05); Transformer (2 camadas, 4 cabeças, $d_\text{model}=64$, \textit{dropout} 0,2, 200 épocas com \textit{early stopping} por perda de validação, paciência 10); TCN ([32,32], \textit{kernel size} 3, \textit{dropout} 0,2). A decisão de não otimizar hiperparâmetros por \textit{fold} foi deliberada: o objetivo não era maximizar desempenho, mas medir a robustez do resultado original sob variação de janela e semente.
 
-\textbf{Respostas a questões metodológicas.} O \textit{early stopping} nos modelos neurais é baseado na perda de validação (não no AUC), com paciência de 10 épocas --- o colapso bimodal não é um artefato de \textit{early stopping}, pois ocorre independentemente do critério de parada. Os \textit{folds} da CV \textit{expanding-window} utilizam passo de 90 dias com janelas de teste de 90 dias, resultando em sobreposição parcial entre janelas de teste consecutivas; embora isto viole a independência estrita exigida pelo teste de Wilcoxon, o efeito é conservador (infla correlação, não produz significância espúria em resultados nulos). As 5 \textit{features} de sentimento FinBERT são normalizadas via \texttt{StandardScaler} fitado exclusivamente no conjunto de treino de cada \textit{fold}. Por fim, a conclusão nula deve ser qualificada: dado o MDE de 0,132--0,221, efeitos reais menores que $\Delta \text{AUC} \approx 0{,}05$ seriam indetectáveis neste desenho experimental --- o resultado é portanto ``nenhum efeito detectável neste tamanho amostral'', não ``nenhum efeito''.
+O experimento \textit{Ensemble + backtest} (20 treinamentos) combinou as predições do Transformer e do XGBoost via média ponderada por AUC de validação e avaliou a estratégia de trading resultante; os resultados não evidenciaram ganho sobre o \textit{baseline} autoregressivo isolado, e o experimento foi descontinuado em favor da análise multi-\textit{seed}.
+
+\textbf{Respostas a questões metodológicas.} O \textit{early stopping} nos modelos neurais é baseado na perda de validação (não no AUC), com paciência de 10 épocas --- o colapso bimodal não é um artefato de \textit{early stopping}, pois ocorre independentemente do critério de parada. Os \textit{folds} da CV \textit{expanding-window} utilizam passo de 90 dias com janelas de teste de 90 dias, resultando em adjacência entre janelas de teste consecutivas, com sobreposição entre a janela de validação de um \textit{fold} e a janela de teste do \textit{fold} subsequente; embora isto viole a independência estrita exigida pelo teste de Wilcoxon, o efeito é conservador (infla correlação, não produz significância espúria em resultados nulos). As 5 \textit{features} de sentimento FinBERT são normalizadas via \texttt{StandardScaler} ajustado exclusivamente no conjunto de treino de cada \textit{fold}. Por fim, a conclusão nula deve ser qualificada: dado o Tamanho Mínimo de Efeito Detectável (MDE) de 0,132--0,221, efeitos reais menores que $\Delta \text{AUC} \approx 0{,}13$ seriam indetectáveis neste desenho experimental (o MDE calculado varia de 0,132 a 0,221 dependendo do tamanho da janela de teste) --- o resultado é portanto ``nenhum efeito detectável neste tamanho amostral'', não ``nenhum efeito''.
 
 \section{Baseline autoregressivo e baselines ingênuos}
 
-Um XGBoost \cite{chen2016} treinado em 5 \textit{features} de preço (\texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21}) atinge AUC = 0,658 [0,565; 0,744]. Para contextualizar, três preditores ingênuos foram avaliados:
+Um XGBoost \cite{chen2016} treinado em 5 \textit{features} de preço (\texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21}) --- subconjunto das 11 \textit{features} técnicas calculadas no Capítulo~\ref{cap:pipeline}, selecionadas por representar os sinais de momentum, volume e volatilidade mais diretamente relacionados à previsão de direção --- atinge AUC = 0,658 [0,565; 0,744]. Para contextualizar, três preditores ingênuos foram avaliados. A \textbf{classe majoritária} sempre prediz ``Sobe'' (a classe majoritária do conjunto de treino), servindo como limite inferior trivial. O \textbf{\textit{coin flip}} amostra aleatoriamente uma predição com probabilidade igual ao \textit{prior} da classe, simulando um preditor sem qualquer sinal. A \textbf{persistência ($h=21$)} assume que a direção de preço no instante $t$ se repete em $t+21$, codificando uma hipótese de \textit{momentum} de curtíssimo prazo.
 
 \begin{table}[htb]
 \centering
@@ -383,7 +388,7 @@ O controle de dimensionalidade (20 subconjuntos aleatórios de 5 dimensões Olla
 
 \section{Reprodutibilidade e variância de semente}
 
-Sob recompilação com semente 42, o Transformer atinge AUC = 0,442 --- diferença de 0,267 pontos ($22\times$ o desvio-padrão do \textit{baseline}). Sob 20 sementes (Tabela~\ref{tab:multiseed}), o Transformer exibe distribuição bimodal (Figura~\ref{fig:multiseed}).
+Sob recompilação com semente 42, o Transformer atinge AUC = 0,442 --- diferença de 0,267 pontos ($22\times$ o desvio-padrão do \textit{baseline}). Sob 20 sementes (Tabela~\ref{tab:multiseed}), o Transformer exibe distribuição bimodal (Figura~\ref{fig:multiseed}): a distribuição é bimodal porque o modelo colapsa para um de dois estados degenerados dependendo da inicialização --- ou prevê quase sempre ``Sobe'' (AUC $\approx$ 0 ou 1, conforme a classe majoritária do teste coincida com a predição) ou quase sempre ``Desce''. Não há um ponto de equilíbrio intermediário discriminativo porque o sinal preditivo real é insuficiente para ancorar a otimização fora desses mínimos locais degenerados.
 
 \begin{table}[htb]
 \centering
@@ -398,6 +403,8 @@ Baseline autoregressivo     & 0,641 & 0,012           & 0,638 & 0,615 & 0,660 \\
 \end{tabular}
 \end{table}
 
+O Transformer apresenta desvio-padrão de 0,261 --- $21\times$ superior ao do \textit{baseline} (0,012) --- evidenciando instabilidade estrutural incompatível com uso em produção.
+
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.95\textwidth]{multi_seed_histograms.png}
@@ -406,7 +413,7 @@ Baseline autoregressivo     & 0,641 & 0,012           & 0,638 & 0,615 & 0,660 \\
 
 \section{Expanding-window cross-validation}
 
-Substituindo o \textit{split} único por CV \textit{expanding-window} (600 dias mínimo, validação/teste 90 dias, 5 \textit{folds} $\times$ 5 sementes $\times$ 3 ativos = 145 treinamentos):
+Substituindo o \textit{split} único por CV \textit{expanding-window} (600 dias mínimo, validação/teste 90 dias, 5 \textit{folds} $\times$ 5 sementes $\times$ 3 ativos $\times$ 2 modelos = 150 treinamentos programados; 145 realizados, descartando \textit{folds} com conjuntos de teste degenerados):
 
 \begin{table}[htb]
 \centering
@@ -427,24 +434,24 @@ VALE3 & 0,599           & 0,635 & +0,036 \\
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.95\textwidth]{expanding_cv_overtime.png}
-\caption{AUC por \textit{fold} ao longo do tempo sob \textit{expanding-window} CV, para os 3 ativos. A linha do \textit{baseline} (vermelho) permanece consistentemente acima do Transformer (azul) em ITUB4 e PETR4, com barras de erro menores.}\label{fig:expandingcv}
+\caption{AUC por \textit{fold} ao longo do tempo sob \textit{expanding-window} CV, para os 3 ativos. A linha do \textit{baseline} (vermelho) permanece consistentemente acima do Transformer (azul) em ITUB4 e PETR4, com barras de erro menores. As barras de erro representam o desvio-padrão do AUC entre as 5 sementes por \textit{fold}.}\label{fig:expandingcv}
 \end{figure}
 
-A inversão é de grande magnitude ($d \approx 6{,}25$, calculado como a diferença média de AUC entre modelos dividida pelo desvio-padrão do \textit{baseline} ao longo dos \textit{folds}: $0{,}25 / 0{,}04$). A exceção aparente em VALE3 (+0,036) é investigada em \textit{deep-dive} com 880 execuções e revelada como não significativa (Wilcoxon $p = 0{,}194$). A Figura~\ref{fig:vale3} mostra a distribuição bimodal do Transformer em VALE3.
+A inversão é de grande magnitude ($d \approx 6{,}4$, calculado como a diferença média de AUC entre modelos dividida pelo desvio-padrão do \textit{baseline} ao longo dos \textit{folds}: $0{,}255 / 0{,}04$ (desvio-padrão do AUC do \textit{baseline} XGB ao longo dos 5 \textit{folds} em ITUB4, derivado dos dados da Figura~\ref{fig:expandingcv})). A exceção aparente em VALE3 (+0,036) motivou um \textit{deep-dive} com protocolo deliberadamente mais rigoroso (52 \textit{folds} $\times$ 10 sementes $\times$ 2 modelos = 1.040 treinamentos programados; 880 realizados) do que o utilizado na análise principal (5 \textit{folds} $\times$ 5 sementes), de forma a garantir conclusão robusta sobre o único ativo com $\Delta > 0$. O \textit{deep-dive} revelou o resultado como não significativo (Wilcoxon $p = 0{,}194$). A Figura~\ref{fig:vale3} mostra a distribuição bimodal do Transformer em VALE3.
 
 \begin{figure}[htb]
 \centering
 \includegraphics[width=0.95\textwidth]{vale3_deepdive_hist.png}
-\caption{Distribuição de 880 AUCs (52 \textit{folds} $\times$ 10 sementes) em VALE3. O \textit{baseline} (esquerda) produz distribuição unimodal centrada em $\sim$0,55. O Transformer (direita) produz distribuição bimodal severa com picos em AUC $< 0{,}05$ e AUC $> 0{,}95$ --- assinatura de classificador degenerado.}\label{fig:vale3}
+\caption{Distribuição de 880 AUCs (52 \textit{folds} $\times$ 10 sementes) em VALE3. O \textit{baseline} (esquerda) produz distribuição unimodal centrada em $\sim$0,55. O Transformer (direita) produz distribuição bimodal severa com picos em AUC $< 0{,}05$ e AUC $> 0{,}95$ --- assinatura de classificador degenerado --- padrão característico de um modelo que colapsa para predição constante independentemente da entrada.}\label{fig:vale3}
 \end{figure}
 
 \section{Ablation: o sentimento adiciona algo?}
 
-XGBoost em três configurações de \textit{features} (225 treinamentos):
+O XGBoost foi escolhido como modelo de referência para esta ablação por ser o \textit{baseline} mais estável ao longo dos experimentos anteriores --- ao contrário do Transformer, que sofre colapso bimodal e tornaria difícil separar o efeito das \textit{features} do efeito da arquitetura. PRICE denota as 5 \textit{features} autoregressivas de preço; SENT denota as 5 \textit{features} de sentimento FinBERT-PT-BR; PRICE+SENT denota a concatenação das duas representações. O desenho experimental segue o esquema 5 \textit{folds} $\times$ 5 sementes $\times$ 3 ativos $\times$ 3 configurações de \textit{features} = 225 treinamentos. Os resultados por configuração são apresentados na Tabela~\ref{tab:ablation}.
 
 \begin{table}[htb]
 \centering
-\caption{Ablation: PRICE vs SENT vs PRICE+SENT.}\label{tab:ablation}
+\caption{Ablation: PRICE vs SENT vs PRICE+SENT. $\Delta$ = PRICE+SENT $-$ PRICE.}\label{tab:ablation}
 \begin{tabular}{lcccc}
 \toprule
 \textbf{Ativo} & \textbf{PRICE} & \textbf{SENT} & \textbf{PRICE+SENT} & $\boldsymbol{\Delta}$ \\
@@ -468,7 +475,7 @@ O ganho do sentimento é $\Delta = +0{,}003$ (Wilcoxon $p = 0{,}49$, IC~95\% $[-
 
 \section{Validação do TCN Stage~5b}
 
-O TCN~[32,32] \cite{bai2018} --- melhor resultado prático (AUC = 0,643 sob janela única) --- atinge 0,513 $\pm$ 0,102 sob 20 sementes e 0,556 sob CV \textit{expanding-window}, inferior ao \textit{baseline} (0,700). A Figura~\ref{fig:tcn} sumariza a validação.
+O TCN~[32,32] \cite{bai2018} --- melhor resultado prático (AUC = 0,643 sob janela única), cuja arquitetura completa é detalhada no Apêndice~\ref{ap:tcn} --- atinge 0,513 $\pm$ 0,102 sob 20 sementes e 0,556 sob CV \textit{expanding-window}, inferior ao \textit{baseline} (0,700). A Figura~\ref{fig:tcn} sumariza a validação.
 
 \begin{figure}[htb]
 \centering
@@ -478,9 +485,17 @@ O TCN~[32,32] \cite{bai2018} --- melhor resultado prático (AUC = 0,643 sob jane
 
 \section{Síntese}
 
-\begin{citacao}
-Sob avaliação metodologicamente correta (multi-fold, multi-sementes, com intervalos de confiança e \textit{ablation} de \textit{features}), as \textit{features} de sentimento FinBERT-PT-BR não adicionam sinal preditivo mensurável a um \textit{baseline} autoregressivo de cinco \textit{features} de preço, em nenhum dos três ativos testados. O resultado original de AUC = 0,709 é um artefato da avaliação por janela única.
-\end{citacao}
+A conclusão unificada dos experimentos deste capítulo é a seguinte:
+
+\textbf{Sob avaliação metodologicamente correta (multi-\textit{fold}, multi-sementes, com intervalos de confiança e \textit{ablation} de \textit{features}), as \textit{features} de sentimento FinBERT-PT-BR não adicionam sinal preditivo mensurável a um \textit{baseline} autoregressivo de cinco \textit{features} de preço, em nenhum dos três ativos testados.} O resultado original de AUC~=~0,709 é um artefato da avaliação por janela única --- combinação de variância de semente, viés de amostragem da janela de teste e colapso bimodal da arquitetura.
+
+Esta conclusão aplica-se especificamente à representação de sentimento adotada --- cinco \textit{features} agregadas diariamente do FinBERT-PT-BR --- e não pode ser generalizada a toda forma possível de incorporar informação textual em modelos de predição financeira.
+
+A análise \textit{multi-seed} demonstrou que o resultado de AUC = 0,709 não é reprodutível: sob 20 sementes aleatórias em ITUB4, o Transformer exibe desvio-padrão de 0,261 (coeficiente de variação de 38\%), enquanto o \textit{baseline} autoregressivo permanece estável com desvio-padrão de 0,012. O \textit{deep-dive} em VALE3, único ativo com $\Delta > 0$ na análise de 5 \textit{folds}, foi aprofundado para 52 \textit{folds} $\times$ 10 sementes (880 treinamentos realizados), revelando o aparente ganho como não significativo (Wilcoxon $p = 0{,}194$).
+
+A validação cruzada \textit{expanding-window} inverteu o resultado qualitativo: o Transformer apresentou AUC médio de 0,509 contra 0,667 do \textit{baseline} ($d \approx 6{,}4$). O experimento de \textit{ablation}, conduzido com 225 treinamentos (XGBoost, 3 ativos, 5 \textit{folds}, 5 sementes), quantificou diretamente a contribuição do sentimento: $\Delta = +0{,}003$ ao adicionar as 5 \textit{features} FinBERT ao conjunto de preço (Wilcoxon $p = 0{,}49$, IC~95\% \textit{bootstrap} $[-0{,}012;\ +0{,}018]$). A análise de poder confirmou que esse efeito está 44--74$\times$ abaixo do mínimo detectável pelo tamanho amostral disponível.
+
+O Capítulo~\ref{cap:conclusao} discute as implicações deste resultado, propõe protocolos mínimos de avaliação e indica direções para trabalhos futuros.
 
 
 % ============================================================================
@@ -494,20 +509,20 @@ Este trabalho oferece três contribuições:
 \begin{enumerate}
     \item \textbf{Pipeline técnico replicável.} O sistema de coleta de notícias (InfoMoney), extração de sentimento (FinBERT-PT-BR) e integração com dados de mercado (Yahoo Finance) está integralmente versionado e pode ser reproduzido por outros pesquisadores.
 
-    \item \textbf{Demonstração empírica do viés de janela única.} A inversão de AUC 0,709 (janela única) para $\sim$0,51 (multi-fold) é documentada com mais de 1.500 execuções e suporte estatístico formal. Esta é, no conhecimento do autor, a demonstração mais detalhada deste fenômeno em dados brasileiros.
+    \item \textbf{Demonstração empírica do viés de janela única.} A inversão de AUC 0,709 (janela única) para $\sim$0,51 (multi-fold) é documentada com mais de 1.500 execuções e suporte estatístico formal. Estudos anteriores documentaram parcialmente esse fenômeno em outros mercados: \citeonline{ding2015} avaliaram modelos de \textit{event-driven prediction} em dados do S\&P~500 com \textit{split} único sem análise de variância de semente; \citeonline{hu2018} reportaram resultados de predição de tendência em ações chinesas com protocolo de janela única sem intervalos de confiança; e \citeonline{shah2019} catalogaram que a maioria dos estudos de \textit{sentiment analysis} para finanças não reporta resultados fora da amostra original. (A caracterização das práticas de avaliação desses estudos segue a revisão sistemática de \citeonline{shah2019}, que catalogou os protocolos predominantes na literatura de predição financeira com NLP.) O presente trabalho complementa essa literatura com a primeira demonstração quantificada em dados brasileiros, com suporte estatístico formal (1.500+ execuções, Wilcoxon, IC \textit{bootstrap}) e inversão de conclusão qualitativa documentada.
 
-    \item \textbf{Proposição de protocolos mínimos.} O trabalho propõe seis práticas para pesquisa em ML financeiro: (1)~reportar IC \textit{bootstrap}; (2)~treinar com $\geq$10 sementes; (3)~usar CV \textit{expanding-window}; (4)~comparar contra \textit{baseline} autoregressivo; (5)~monitorar distribuição de predições; (6)~auditar correlação validação-teste.
+    \item \textbf{Proposição de protocolos mínimos.} O trabalho propõe seis práticas para pesquisa em ML financeiro: (1)~reportar IC \textit{bootstrap}; (2)~treinar com $\geq$10 sementes (ver Tabela~\ref{tab:multiseed}); (3)~usar CV \textit{expanding-window} (ver Tabela~\ref{tab:expandingcv}); (4)~comparar contra \textit{baseline} autoregressivo; (5)~monitorar distribuição de predições (ver Figura~\ref{fig:multiseed}); (6)~auditar correlação validação-teste.
 \end{enumerate}
 
 \section{Reflexão sobre o processo de autocorreção}
 
-A experiência de construir um \textit{pipeline} completo, obter um resultado aparentemente forte (AUC = 0,709) e depois desmontá-lo sistematicamente foi a lição mais valiosa deste trabalho. O viés de confirmação --- a tendência natural de aceitar resultados que concordam com a hipótese --- operou de forma invisível nas primeiras etapas: a ausência de intervalos de confiança, a fixação de uma única semente e o \textit{split} único não pareciam problemáticos porque o resultado ``fazia sentido''. A contribuição do Capítulo~\ref{cap:investigacao} não é a descoberta de que o sentimento não funciona --- é a demonstração de quão fácil é produzir evidência aparente de que ele funciona, usando protocolos que a própria comunidade considera aceitáveis.
+A experiência de construir um \textit{pipeline} completo, obter um resultado aparentemente forte (AUC = 0,709) e depois desmontá-lo sistematicamente foi a lição mais valiosa deste trabalho. O viés de confirmação --- a tendência natural de aceitar resultados que concordam com a hipótese --- operou de forma invisível nas primeiras etapas: a ausência de intervalos de confiança, a fixação de uma única semente e o \textit{split} único não pareciam problemáticos porque o resultado ``fazia sentido''. A contribuição do Capítulo~\ref{cap:investigacao} não é a descoberta de que o sentimento não funciona --- é a demonstração de quão fácil é produzir evidência aparente de que ele funciona, usando protocolos que a própria comunidade de ML financeiro considera aceitáveis.
 
 Os seis protocolos propostos na Seção anterior não são originais: o uso de múltiplas sementes, CV temporal e \textit{baselines} autoregressivos são recomendações explícitas de \citeonline{lopezdeprado2018}. A contribuição deste trabalho é mostrar, em um caso concreto com dados brasileiros, a magnitude do dano causado por ignorá-los: uma inversão de 0,709 para $\sim$0,51, que transforma uma conclusão positiva em negativa.
 
-\section{Limitações}
+\section{Limitações}\label{sec:limitacoes}
 
-As principais limitações incluem: (1)~fonte única de notícias (InfoMoney), com viés editorial voltado ao investidor de varejo e cobertura heterogênea entre ativos (2.572 artigos para ITUB4 vs 1.525 para VALE3); (2)~apenas 3 ações de grande capitalização da B3, limitando a validade externa; (3)~horizonte de previsão restrito a 5 e 21 dias úteis; (4)~a conclusão sobre o sentimento se aplica à representação específica adotada (5 \textit{features} agregadas diariamente do FinBERT-PT-BR), não a toda forma possível de codificar informação textual; (5)~a \textit{ablation} (Seção~5.5) foi conduzida com $h=21$, enquanto o TCN Stage~5b utiliza $h=5$ --- uma \textit{ablation} com $h=5$ fortaleceria a comparação.
+As principais limitações incluem: (1)~fonte única de notícias (InfoMoney), com viés editorial voltado ao investidor de varejo e cobertura heterogênea entre ativos (2.572 artigos para ITUB4 vs 1.525 para VALE3); (2)~apenas 3 ações de grande capitalização da B3, limitando a validade externa; (3)~horizonte de previsão restrito a 5 e 21 dias úteis; (4)~a conclusão sobre o sentimento se aplica à representação específica adotada (5 \textit{features} agregadas diariamente do FinBERT-PT-BR), não a toda forma possível de codificar informação textual; (5)~a \textit{ablation} (Seção~5.5) foi conduzida com $h=21$, enquanto o TCN Stage~5b utiliza $h=5$ --- uma \textit{ablation} com $h=5$ fortaleceria a comparação; contudo, dado que o efeito médio do sentimento sobre 225 treinamentos é $\Delta = +0{,}003$ com IC~95\% $[-0{,}012;\ +0{,}018]$, é improvável que a conclusão direcional (sentimento não adiciona valor mensurável) se inverta com a mudança de horizonte; (6)~a instabilidade arquitetural do Transformer (colapso bimodal documentado em todas as configurações testadas) impede a atribuição causal entre qualidade das \textit{features} e desempenho do modelo; arquiteturas mais estáveis poderiam fornecer avaliação mais limpa do valor do sentimento.
 
 \section{Trabalhos futuros}
 
