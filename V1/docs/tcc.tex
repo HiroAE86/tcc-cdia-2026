@@ -212,7 +212,7 @@ O trabalho está organizado em seis capítulos. O presente capítulo introduz o 
 \chapter{Revisão Bibliográfica}\label{cap:revisao}
 % ============================================================================
 
-Este capítulo apresenta os fundamentos teóricos que sustentam o trabalho: a hipótese de eficiência de mercado e suas implicações para a previsibilidade de preços, o uso de NLP em finanças, e os protocolos de avaliação em \textit{machine learning} para séries temporais financeiras.
+Três corpos de literatura sustentam o trabalho e organizam a revisão a seguir: a hipótese de eficiência de mercado e suas implicações para a previsibilidade de preços, o uso de NLP em finanças, e os protocolos de avaliação em \textit{machine learning} para séries temporais financeiras.
 
 \section{Hipótese de eficiência de mercado}
 
@@ -227,7 +227,7 @@ A aplicação de processamento de linguagem natural à predição de preços pod
 É importante notar que resultados nulos ou negativos são sub-representados na literatura de NLP financeiro devido ao viés de publicação \cite{shah2019}. \citeonline{shah2019} documentaram que muitos estudos de \textit{sentiment analysis} para previsão de ações não replicam quando avaliados fora da amostra original. \citeonline{kellyxiu2023} mostraram que a maior parte do poder preditivo de variáveis textuais desaparece quando as variáveis textuais são combinadas com \textit{features} de preço em modelos com controle explícito de dimensionalidade --- resultado alinhado com os achados deste trabalho.
 
 \citeonline{xu2018} demonstraram que a combinação de texto de \textit{tweets} com séries históricas de preço melhora a predição de direção em ações do S\&P~500, utilizando um modelo de atenção hierárquico; seu modelo StockNet atinge acurácia de 58,2\% e \textit{Matthews correlation coefficient} (MCC) de 0,081 sobre 88 ativos norte-americanos de alto volume de negociação. \citeonline{fischer2018} aplicaram LSTMs (\textit{Long Short-Term Memory}, proposta originalmente por \citeonline{hochreiter1997}) à predição de retornos diários de ações do S\&P~500, reportando retorno diário de 0,46\% e índice de Sharpe de 5,8 (antes de custos de transação), superando o \textit{buy-and-hold}; a acurácia direcional, porém, situa-se apenas marginalmente acima de 50\%. \citeonline{ding2015} combinaram \textit{embeddings} de eventos extraídos de notícias com redes convolucionais, alcançando acurácia direcional de 64,2\% na predição do índice S\&P~500 e 65,5\% na predição de ações individuais. \citeonline{hu2018} propuseram um arcabouço de atenção hierárquica para tendências de ações chinesas orientado a notícias, reportando retorno anualizado de 61,1\% para a carteira das 40 melhores ações (a acurácia de 47,8\% não é diretamente comparável aos demais valores por se tratar de uma tarefa de três classes). No contexto brasileiro, a literatura é majoritariamente exploratória: \citeonline{cavalcante2016} apresentam um levantamento abrangente de métodos de inteligência computacional aplicados a mercados financeiros, sem reportar uma métrica preditiva única.
-Nenhum desses estudos reporta análise de variância de semente ou validação cruzada com múltiplas janelas temporais --- uma prática que, como demonstrado no Capítulo~\ref{cap:investigacao}, pode reverter as conclusões qualitativas dos resultados.
+Nenhum desses estudos reporta análise de variância de semente ou validação cruzada com múltiplas janelas temporais --- uma prática cuja ausência, como este trabalho demonstra adiante, pode reverter as conclusões qualitativas dos resultados.
 
 \section{Arquiteturas de modelos}
 
@@ -248,7 +248,7 @@ A validação cruzada com janela expansiva (\textit{expanding-window CV}) é a a
 \chapter{Pipeline: Coleta, Engenharia de Features e Modelos Iniciais}\label{cap:pipeline}
 % ============================================================================
 
-Este capítulo descreve as três primeiras etapas do \textit{pipeline}: coleta de notícias financeiras, engenharia de \textit{features} (mercado e texto) e treinamento inicial de modelos com \textit{embeddings} genéricos.
+As três primeiras etapas do \textit{pipeline} são detalhadas a seguir: coleta de notícias financeiras, engenharia de \textit{features} (mercado e texto) e treinamento inicial de modelos com \textit{embeddings} genéricos.
 
 \section{Coleta de notícias financeiras}\label{sec:coleta}
 
@@ -293,7 +293,7 @@ Transformer      & 2 camadas, 4 cabeças, $d_\text{model}=64$              & 0,5
 \end{tabular}
 \end{table}
 
-Todos os modelos apresentaram desempenho próximo do acaso, sugerindo que \textit{embeddings} genéricos de alta dimensionalidade não são adequados para esta tarefa. O Capítulo~\ref{cap:sentimento} testa uma representação alternativa.
+Todos os modelos apresentaram desempenho próximo do acaso, sugerindo que \textit{embeddings} genéricos de alta dimensionalidade não são adequados para esta tarefa. A etapa seguinte explora uma representação alternativa, compacta e específica ao domínio (Capítulo~\ref{cap:sentimento}).
 
 
 % ============================================================================
@@ -302,7 +302,7 @@ Todos os modelos apresentaram desempenho próximo do acaso, sugerindo que \texti
 
 \section{Hipótese}
 
-Os resultados do Capítulo~\ref{cap:pipeline} sugeriram que os \textit{embeddings} genéricos contêm ruído semântico irrelevante para o domínio financeiro. Este capítulo testa se uma representação compacta e específica --- 5 \textit{features} de sentimento financeiro extraídas com o FinBERT-PT-BR \cite{souza2023} --- pode ser mais informativa.
+O desempenho próximo do acaso obtido com \textit{embeddings} genéricos (Capítulo~\ref{cap:pipeline}) sugere que essa representação carrega ruído semântico irrelevante para o domínio financeiro. Surge daí a hipótese central deste capítulo: uma representação compacta e específica --- 5 \textit{features} de sentimento financeiro extraídas com o FinBERT-PT-BR \cite{souza2023} --- pode ser mais informativa.
 
 \section{O modelo FinBERT-PT-BR}
 
@@ -314,7 +314,7 @@ O corpus FinBERT cobre 1.207 dias úteis --- 20 dias a menos que o dataset de em
 
 \textbf{Granularidade temporal e risco de \textit{look-ahead}.} O risco de \textit{look-ahead} ocorre quando informações disponíveis apenas após o instante $t$ são incorporadas como \textit{features} para prever $t$, inflando artificialmente as métricas de desempenho. Os artigos possuem \textit{timestamps} ISO~8601, mas a agregação descarta o horário. Artigos pós-fechamento da B3 ($\sim$17h BRT) são atribuídos ao dia $t$; o deslocamento pode exceder 1 dia em dias consecutivos sem publicação. O impacto é atenuado pelo horizonte de 5--21 dias e pela média diária. A proporção exata de artigos publicados após o fechamento do pregão não foi auditada sistematicamente; a análise de \textit{timestamps} necessária para quantificar este risco é reconhecida como uma limitação do trabalho (Seção~\ref{sec:limitacoes}). Cabe notar, porém, que a direção desse viés joga a favor da conclusão final: como o \textit{look-ahead} infla artificialmente o desempenho, eventual vazamento residual só poderia \emph{superestimar} o valor do sentimento --- de modo que o resultado nulo obtido no Capítulo~\ref{cap:investigacao} é, na pior das hipóteses, um limite superior otimista do ganho real.
 
-\textbf{Tratamento de desbalanceamento de classe.} O alvo binário apresenta desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce'' no conjunto de treino. Para mitigar o viés em direção à classe majoritária, todos os modelos recebem compensação explícita: os modelos neurais (BiLSTM, Transformer, TCN) utilizam \texttt{BCEWithLogitsLoss} com \texttt{pos\_weight} = $n_\text{desce} / n_\text{sobe} \approx 1{,}38$; o XGBoost utiliza o parâmetro \texttt{scale\_pos\_weight} com o mesmo valor; e os modelos \textit{sklearn} (Logistic Regression, Random Forest) utilizam \texttt{class\_weight=``balanced''}. Apesar desta compensação, o Transformer ainda exibe forte viés para a classe majoritária (prevendo ``Desce'' apenas 11 vezes em 177 amostras), indicando que o desbalanceamento é um fator contribuinte mas não a causa principal do colapso de predição documentado no Capítulo~\ref{cap:investigacao}.
+\textbf{Tratamento de desbalanceamento de classe.} O alvo binário apresenta desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce'' no conjunto de treino. Para mitigar o viés em direção à classe majoritária, todos os modelos recebem compensação explícita: os modelos neurais (BiLSTM, Transformer, TCN) utilizam \texttt{BCEWithLogitsLoss} com \texttt{pos\_weight} = $n_\text{desce} / n_\text{sobe} \approx 1{,}38$; o XGBoost utiliza o parâmetro \texttt{scale\_pos\_weight} com o mesmo valor; e os modelos \textit{sklearn} (Logistic Regression, Random Forest) utilizam \texttt{class\_weight=``balanced''}. Apesar desta compensação, o Transformer ainda exibe forte viés para a classe majoritária (prevendo ``Desce'' apenas 11 vezes em 177 amostras), indicando que o desbalanceamento é um fator contribuinte mas não a causa principal do colapso de predição que a investigação metodológica subsequente documenta.
 
 \begin{table}[htb]
 \centering
@@ -333,7 +333,7 @@ XGBoost          & 0,610 & 0,670 & +0,060 \\
 
 O BiLSTM Reduzido registrou regressão de $-0{,}028$ ao trocar \textit{embeddings} por sentimento FinBERT. Uma explicação plausível é que a arquitetura compacta (1 camada, 32 unidades ocultas, 50\% de \textit{dropout}) é insuficiente para aproveitar a especificidade adicional das \textit{features} FinBERT dado o conjunto de treino pequeno: a regularização agressiva que beneficia representações de alta dimensionalidade pode sobrepenalizar uma entrada de apenas 5 \textit{features}, reduzindo a capacidade de generalização.
 
-O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \textit{precision}(Desce) = 1,00 com \textit{recall}(Desce) = 0,15 --- o modelo prevê ``Desce'' apenas 11 vezes em 177 amostras. Três observações motivam a investigação do Capítulo~\ref{cap:investigacao}: (1)~matriz de confusão assimétrica; (2)~acurácia próxima da classe majoritária ($\sim$69\%); (3)~ausência de intervalos de confiança e múltiplas sementes.
+O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \textit{precision}(Desce) = 1,00 com \textit{recall}(Desce) = 0,15 --- o modelo prevê ``Desce'' apenas 11 vezes em 177 amostras. Três observações motivam a investigação metodológica que se segue: (1)~matriz de confusão assimétrica; (2)~acurácia próxima da classe majoritária ($\sim$69\%); (3)~ausência de intervalos de confiança e múltiplas sementes.
 
 
 % ============================================================================
@@ -342,7 +342,7 @@ O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \
 
 \section{Motivação e protocolo geral}
 
-Este capítulo aplica protocolos progressivamente mais rigorosos para determinar se esse valor inicial sobrevive a escrutínio metodológico. A Tabela~\ref{tab:experimentos} sumariza os 13 experimentos realizados (mais de 1.500 treinamentos). As funções utilitárias utilizadas em todos os experimentos são detalhadas no Apêndice~\ref{ap:evalutils}.
+Para determinar se esse valor inicial sobrevive a escrutínio metodológico, aplicam-se aqui protocolos progressivamente mais rigorosos. A Tabela~\ref{tab:experimentos} sumariza os 13 experimentos realizados (mais de 1.500 treinamentos). As funções utilitárias utilizadas em todos os experimentos são detalhadas no Apêndice~\ref{ap:evalutils}.
 
 \begin{table}[htb]
 \centering
@@ -527,7 +527,7 @@ Este trabalho oferece três contribuições:
 
 \section{Reflexão sobre o processo de autocorreção}
 
-A experiência de construir um \textit{pipeline} completo, obter esse resultado preliminar aparentemente forte e depois desmontá-lo sistematicamente foi a lição mais valiosa deste trabalho. O viés de confirmação --- a tendência natural de aceitar resultados que concordam com a hipótese --- operou de forma invisível nas primeiras etapas: a ausência de intervalos de confiança, a fixação de uma única semente e o \textit{split} único não pareciam problemáticos porque o resultado ``fazia sentido''. A contribuição do Capítulo~\ref{cap:investigacao} não é a descoberta de que o sentimento não funciona --- é a demonstração de quão fácil é produzir evidência aparente de que ele funciona, usando protocolos que a própria comunidade de ML financeiro considera aceitáveis.
+A experiência de construir um \textit{pipeline} completo, obter esse resultado preliminar aparentemente forte e depois desmontá-lo sistematicamente foi a lição mais valiosa deste trabalho. O viés de confirmação --- a tendência natural de aceitar resultados que concordam com a hipótese --- operou de forma invisível nas primeiras etapas: a ausência de intervalos de confiança, a fixação de uma única semente e o \textit{split} único não pareciam problemáticos porque o resultado ``fazia sentido''. A contribuição central da investigação metodológica não é a descoberta de que o sentimento não funciona --- é a demonstração de quão fácil é produzir evidência aparente de que ele funciona, usando protocolos que a própria comunidade de ML financeiro considera aceitáveis.
 
 Os seis protocolos propostos na Seção anterior não são originais: o uso de múltiplas sementes, CV temporal e \textit{baselines} autoregressivos são recomendações explícitas de \citeonline{lopezdeprado2018}. A contribuição deste trabalho é mostrar, em um caso concreto com dados brasileiros, a magnitude do dano causado por ignorá-los: uma inversão da métrica inicial para $\sim$0,51, que transforma uma conclusão positiva em negativa.
 
