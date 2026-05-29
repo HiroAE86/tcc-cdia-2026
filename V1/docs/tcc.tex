@@ -15,21 +15,31 @@
 % --- Pacotes ---
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{lmodern}
 \usepackage{amsmath,amssymb}
+\usepackage{mathptmx} % Times New Roman (texto e matemática) --- exigência ABNT/PUC-SP
 \usepackage{graphicx}
+\usepackage[a4paper,top=3cm,left=3cm,bottom=2cm,right=2cm]{geometry} % margens ABNT NBR 14724
 \usepackage{booktabs}
 \usepackage{tabularx}
 \usepackage{multirow}
 \usepackage{float}
 \usepackage{longtable}
-\usepackage{microtype}
+\usepackage[expansion=false]{microtype} % Times (psnfss) não permite expansão automática
 \usepackage{hyperref}
 \usepackage[brazilian,hyperpageref]{backref}
 \usepackage[alf]{abntex2cite}
+\hypersetup{hidelinks} % links sem caixa colorida (versão banca/impressa)
 \usepackage{xcolor}
 \usepackage{listings}
 \usepackage{enumitem}
+
+% --- Fonte única (Times) em todo o trabalho, inclusive títulos ---
+% PUC-SP exige fonte única (Times New Roman ou Arial); abnTeX2 usa sans nos
+% títulos por padrão --- aqui forçamos serif (Times) também nos títulos.
+\renewcommand{\ABNTEXchapterfont}{\rmfamily}
+\renewcommand{\ABNTEXsectionfont}{\rmfamily}
+\renewcommand{\ABNTEXsubsectionfont}{\rmfamily}
+\renewcommand{\ABNTEXsubsubsectionfont}{\rmfamily}
 
 % --- Caminho das figuras ---
 \graphicspath{{../9.baselines/}{figuras/}}
@@ -183,7 +193,7 @@ Investigar empiricamente se \textit{features} de sentimento extraídas de notíc
 
 \begin{enumerate}
     \item Construir um \textit{pipeline} de coleta, processamento e integração de notícias financeiras do portal InfoMoney com dados de mercado do Yahoo Finance.
-    \item Comparar duas estratégias de representação textual: \textit{embeddings} genéricos de 1.024 dimensões (Ollama \texttt{qwen3-embedding:4b}) e sentimento financeiro de 5 dimensões (FinBERT-PT-BR).
+    \item Comparar duas estratégias de representação textual: \textit{embeddings} genéricos de 1.024 dimensões (Ollama \texttt{qwen3-\allowbreak embedding:\allowbreak 4b}) e sentimento financeiro de 5 dimensões (FinBERT-\allowbreak PT-\allowbreak BR).
     \item Treinar e avaliar modelos de classificação binária (BiLSTM, Transformer, XGBoost, TCN --- \textit{Temporal Convolutional Network}) sobre as representações textuais combinadas com \textit{features} de preço.
     \item Aplicar protocolos de avaliação rigorosa --- \textit{bootstrap} CI, análise \textit{multi-seed}, validação cruzada \textit{expanding-window}, \textit{ablation} de \textit{features} --- para determinar a robustez dos resultados.
     \item Documentar e analisar as discrepâncias entre avaliação por janela única e avaliação multi-fold, contribuindo para a literatura de avaliação metodológica em ML financeiro.
@@ -300,7 +310,7 @@ O FinBERT-PT-BR é um modelo BERT \cite{devlin2019} pré-treinado e \textit{fine
 
 \section{Pipeline de extração e resultados}
 
-O corpus FinBERT cobre 1.207 dias úteis --- 20 dias a menos que o dataset de embeddings (1.227 dias) --- porque o alinhamento por data entre os artigos coletados e os preços de mercado resultou em um período ligeiramente diferente após o pré-processamento de cada fonte. A extração segue os passos: inferência em \textit{batch} (32 artigos, entrada \texttt{título + resumo}, 512 \textit{tokens}); persistência dos \textit{logits} brutos; agregação diária em 5 \textit{features} (\texttt{n\_articles}, \texttt{mean\_logit\_pos/neg/neu}, \texttt{mean\_sentiment}); junção temporal com \textit{forward-fill}. O \textit{dataset} resultante: 1.207 dias $\times$ 16 \textit{features}.
+O corpus FinBERT cobre 1.207 dias úteis --- 20 dias a menos que o dataset de embeddings (1.227 dias) --- porque o alinhamento por data entre os artigos coletados e os preços de mercado resultou em um período ligeiramente diferente após o pré-processamento de cada fonte. A extração segue os passos: inferência em \textit{batch} (32 artigos, entrada \texttt{título + resumo}, 512 \textit{tokens}); persistência dos \textit{logits} brutos; agregação diária em 5 \textit{features} (\texttt{n\_articles}, \texttt{mean\_logit\_pos/\allowbreak neg/\allowbreak neu}, \texttt{mean\_sentiment}); junção temporal com \textit{forward-fill}. O \textit{dataset} resultante: 1.207 dias $\times$ 16 \textit{features}.
 
 \textbf{Granularidade temporal e risco de \textit{look-ahead}.} O risco de \textit{look-ahead} ocorre quando informações disponíveis apenas após o instante $t$ são incorporadas como \textit{features} para prever $t$, inflando artificialmente as métricas de desempenho. Os artigos possuem \textit{timestamps} ISO~8601, mas a agregação descarta o horário. Artigos pós-fechamento da B3 ($\sim$17h BRT) são atribuídos ao dia $t$; o deslocamento pode exceder 1 dia em dias consecutivos sem publicação. O impacto é atenuado pelo horizonte de 5--21 dias e pela média diária. A proporção exata de artigos publicados após o fechamento do pregão não foi auditada sistematicamente; a análise de \textit{timestamps} necessária para quantificar este risco é reconhecida como uma limitação do trabalho (Seção~\ref{sec:limitacoes}).
 
