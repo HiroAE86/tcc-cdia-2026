@@ -1,0 +1,68 @@
+% --- Capa ---
+\imprimircapa
+
+% --- Folha de rosto ---
+\imprimirfolhaderosto*
+
+% ============================================================================
+% ELEMENTOS PRÉ-TEXTUAIS
+% ============================================================================
+
+% --- Resumo ---
+\begin{resumo}
+A predição de direção de preços em mercados financeiros emergentes por meio de análise de sentimento em notícias permanece um problema em aberto, especialmente no contexto brasileiro, onde modelos de linguagem específicos para o domínio financeiro em português são escassos. Este trabalho investiga se notícias financeiras brasileiras melhoram a predição de direção de preços de ações da B3, tomando como estudo de caso três ações de grande capitalização --- ITUB4 (Itaú Unibanco), PETR4 (Petrobras) e VALE3 (Vale). O \textit{pipeline} proposto coleta artigos do portal InfoMoney, extrai representações de sentimento via FinBERT-PT-BR --- um modelo BERT especializado em textos financeiros em português \cite{souza2023} --- e combina as \textit{features} resultantes com dados de mercado do Yahoo Finance para treinar classificadores binários (sobe/desce).
+
+A principal contribuição deste trabalho é uma autocorreção metodológica documentada: uma conclusão inicialmente positiva é revertida pela própria investigação após ampliação rigorosa do protocolo de avaliação. Sob avaliação por janela única (\textit{walk-forward split} 70/15/15), o modelo Transformer \cite{vaswani2017} atinge ROC-AUC de 0,709 --- resultado que aparenta demonstrar que sentimento financeiro específico ao domínio supera \textit{embeddings} genéricos de alta dimensionalidade. Uma investigação sistemática com mais de 1.500 execuções de modelo revela, porém, que esse valor é um artefato de janela única: o Transformer exibe colapso bimodal (AUC oscilando entre 0,08 e 0,93 conforme a semente aleatória), e sob avaliação \textit{multi-fold} o sentimento adiciona $\Delta = +0{,}003$ ao \textit{baseline} autoregressivo (Wilcoxon \textit{signed-rank} $p = 0{,}49$, IC 95\% \textit{bootstrap} $[-0{,}012;\ +0{,}018]$) --- revertendo a conclusão qualitativa de positiva para nula.
+
+A reversão é demonstrada empiricamente em dados brasileiros e sustentada por seis protocolos de avaliação complementares: intervalos de confiança \textit{bootstrap} (1.000 reamostras), análise \textit{multi-seed} com no mínimo 10 sementes, validação cruzada \textit{expanding-window} (até 52 \textit{folds}), \textit{baseline} autoregressivo como referência mínima, monitoramento da distribuição de predições e auditoria de correlação entre validação e teste. Esses protocolos são propostos como conjunto mínimo para mitigar o viés de janela única em estudos de \textit{machine learning} financeiro.
+
+\textbf{Palavras-chave:} Predição de preços. Sentimento financeiro. FinBERT. Avaliação metodológica. Séries temporais financeiras. B3.
+\end{resumo}
+
+% --- Abstract ---
+\begin{resumo}[Abstract]
+\begin{otherlanguage*}{english}
+Predicting stock price direction in emerging financial markets using news sentiment analysis remains an open problem, particularly in the Brazilian context where domain-specific language models for Portuguese financial text are scarce. This work investigates whether Brazilian financial news improves stock price direction prediction for B3 equities, using three large-cap stocks as case studies: ITUB4 (Itaú Unibanco), PETR4 (Petrobras), and VALE3 (Vale). The proposed pipeline collects articles from the InfoMoney portal, extracts sentiment representations via FinBERT-PT-BR --- a BERT model fine-tuned on Brazilian Portuguese financial text \cite{souza2023} --- and combines the resulting features with Yahoo Finance market data to train binary classifiers (up/down).
+
+The primary contribution of this work is a documented methodological self-correction: an initially positive conclusion is reversed by the same investigation after rigorous expansion of the evaluation protocol. Under single-window evaluation (70/15/15 walk-forward split), the Transformer model \cite{vaswani2017} achieves ROC-AUC of 0.709 --- a result that apparently demonstrates domain-specific financial sentiment outperforming high-dimensional generic embeddings. A systematic investigation comprising over 1,500 model runs reveals this value to be a single-window artifact: the Transformer exhibits bimodal collapse (AUC ranging from 0.08 to 0.93 depending on random seed), and under multi-fold evaluation sentiment adds $\Delta = +0.003$ over the autoregressive baseline (Wilcoxon signed-rank $p = 0.49$, 95\% bootstrap CI $[-0.012,\ +0.018]$) --- reversing the qualitative conclusion from positive to null.
+
+This reversal is empirically demonstrated on Brazilian data and supported by six complementary evaluation protocols: bootstrap confidence intervals (1,000 resamples), multi-seed analysis with at least 10 seeds, expanding-window cross-validation (up to 52 folds), an autoregressive baseline as minimum reference, prediction distribution monitoring, and validation-test correlation auditing. These protocols are proposed as a minimum checklist to mitigate single-window bias in financial machine learning studies.
+
+\textbf{Keywords:} Price prediction. Financial sentiment. FinBERT. Methodological evaluation. Financial time series. B3.
+\end{otherlanguage*}
+\end{resumo}
+
+% --- Lista de figuras ---
+\pdfbookmark[0]{\listfigurename}{lof}
+\listoffigures*
+\cleardoublepage
+
+% --- Lista de tabelas ---
+\pdfbookmark[0]{\listtablename}{lot}
+\listoftables*
+\cleardoublepage
+
+% --- Lista de abreviaturas ---
+\begin{siglas}
+    \item[AUC] \textit{Area Under the ROC Curve}
+    \item[B3] Brasil, Bolsa, Balcão
+    \item[BERT] \textit{Bidirectional Encoder Representations from Transformers}
+    \item[BiLSTM] \textit{Bidirectional Long Short-Term Memory}
+    \item[CI] Intervalo de Confiança (\textit{Confidence Interval})
+    \item[CV] Validação Cruzada (\textit{Cross-Validation})
+    \item[FinBERT] \textit{Financial BERT}
+    \item[LSTM] \textit{Long Short-Term Memory}
+    \item[MDE] Tamanho Mínimo de Efeito Detectável
+    \item[NLP] Processamento de Linguagem Natural
+    \item[OHLCV] \textit{Open, High, Low, Close, Volume}
+    \item[PCA] Análise de Componentes Principais
+    \item[ROC] \textit{Receiver Operating Characteristic}
+    \item[SHAP] \textit{SHapley Additive exPlanations} \cite{lundberg2017}
+    \item[TCN] \textit{Temporal Convolutional Network}
+    \item[XGB] XGBoost (\textit{eXtreme Gradient Boosting})
+\end{siglas}
+
+% --- Sumário ---
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage

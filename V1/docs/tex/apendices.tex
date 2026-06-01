@@ -1,0 +1,67 @@
+\chapter{Funções utilitárias de avaliação}\label{ap:evalutils}
+
+O módulo \texttt{eval\_utils.py} concentra as funções reutilizadas por todos os experimentos do Capítulo~\ref{cap:investigacao}. As funções principais são reproduzidas abaixo.
+
+\begin{lstlisting}[caption={Intervalo de confiança \textit{bootstrap} para ROC-AUC.},label={lst:bootstrap}]
+def bootstrap_auc_ci(y_true, y_score, n_boot=1000,
+                     alpha=0.05, seed=42):
+    rng = np.random.default_rng(seed)
+    n = len(y_true)
+    aucs = np.empty(n_boot)
+    for i in range(n_boot):
+        idx = rng.integers(0, n, size=n)
+        if len(np.unique(y_true[idx])) < 2:
+            aucs[i] = np.nan
+            continue
+        aucs[i] = roc_auc_score(y_true[idx], y_score[idx])
+    aucs = aucs[~np.isnan(aucs)]
+    auc_point = roc_auc_score(y_true, y_score)
+    lower = float(np.quantile(aucs, alpha / 2))
+    upper = float(np.quantile(aucs, 1 - alpha / 2))
+    return float(auc_point), lower, upper
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Split temporal walk-forward 70/15/15.},label={lst:walkforward}]
+def walk_forward_split(df, train_frac=0.70,
+                       val_frac=0.15):
+    n = len(df)
+    n_train = int(n * train_frac)
+    n_val = int(n * val_frac)
+    train = df.iloc[:n_train]
+    val = df.iloc[n_train:n_train + n_val]
+    test = df.iloc[n_train + n_val:]
+    return train, val, test
+\end{lstlisting}
+
+\chapter{Arquitetura TCN}\label{ap:tcn}
+
+A TCN (\textit{Temporal Convolutional Network}) utiliza blocos de convolução causal dilatada com conexões residuais. A configuração TCN~[32,32] contém duas camadas com 32 filtros cada, \textit{kernel size} 3 e dilatações $[1, 2]$.
+
+\begin{lstlisting}[caption={Bloco convolucional causal da TCN.},label={lst:tcn}]
+class CausalConv1dBlock(nn.Module):
+    def __init__(self, in_ch, out_ch, kernel_size,
+                 dilation, dropout=0.2):
+        super().__init__()
+        padding = (kernel_size - 1) * dilation
+        self.conv1 = nn.Conv1d(in_ch, out_ch,
+            kernel_size, padding=padding,
+            dilation=dilation)
+        self.conv2 = nn.Conv1d(out_ch, out_ch,
+            kernel_size, padding=padding,
+            dilation=dilation)
+        self.chomp = padding
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(dropout)
+        self.downsample = (nn.Conv1d(in_ch, out_ch, 1)
+                          if in_ch != out_ch else None)
+
+    def forward(self, x):
+        out = self.dropout(self.relu(
+            self.conv1(x)[:, :, :-self.chomp]))
+        out = self.dropout(self.relu(
+            self.conv2(out)[:, :, :-self.chomp]))
+        res = (self.downsample(x)
+               if self.downsample else x)
+        return self.relu(out + res)
+\end{lstlisting}
+

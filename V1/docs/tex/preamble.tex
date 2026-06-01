@@ -1,0 +1,88 @@
+﻿% ============================================================================
+% TCC — Predição de Direção de Preços de Ações com NLP e Sentimento de Notícias
+% Formato: abnTeX2 (ABNT NBR 14724:2011)
+% Compilar: pdflatex tcc.tex && bibtex tcc && pdflatex tcc.tex && pdflatex tcc.tex
+% ============================================================================
+\documentclass[
+    12pt,
+    openright,
+    oneside,
+    a4paper,
+    english,
+    brazil
+]{abntex2}
+
+% --- Pacotes ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{mathptmx} % Times New Roman (texto e matemática) --- exigência ABNT/PUC-SP
+\usepackage{graphicx}
+\usepackage[a4paper,top=3cm,left=3cm,bottom=2cm,right=2cm]{geometry} % margens ABNT NBR 14724
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage[expansion=false]{microtype} % Times (psnfss) não permite expansão automática
+\usepackage{hyperref}
+\usepackage[brazilian,hyperpageref]{backref}
+\usepackage[alf]{abntex2cite}
+\hypersetup{hidelinks} % links sem caixa colorida (versão banca/impressa)
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+
+% --- Fonte única (Times) em todo o trabalho, inclusive títulos ---
+% PUC-SP exige fonte única (Times New Roman ou Arial); abnTeX2 usa sans nos
+% títulos por padrão --- aqui forçamos serif (Times) também nos títulos.
+\renewcommand{\ABNTEXchapterfont}{\rmfamily}
+\renewcommand{\ABNTEXsectionfont}{\rmfamily}
+\renewcommand{\ABNTEXsubsectionfont}{\rmfamily}
+\renewcommand{\ABNTEXsubsubsectionfont}{\rmfamily}
+
+% --- Caminho das figuras ---
+\graphicspath{{../9.baselines/}{figuras/}}
+
+% --- Configurações de listings ---
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red!60!black},
+    language=Python,
+}
+
+% --- Configurações de backref ---
+\renewcommand{\backrefpagesname}{Citado na(s) página(s):~}
+\renewcommand{\backref}{}
+\renewcommand*{\backrefalt}[4]{
+    \ifcase #1
+        Nenhuma citação no texto.
+    \or
+        Citado na página #2.
+    \else
+        Citado #1 vezes nas páginas #2.
+    \fi
+}
+
+% --- Informações do documento ---
+\titulo{Predição de Direção de Preços de Ações Brasileiras\\com Sentimento de Notícias Financeiras:\\Pipeline, Ilusão e Autocorreção Metodológica}
+\autor{André Takeo Loschner Fujiwara}
+\local{São Paulo}
+\data{2026}
+\orientador{Prof.\ Eric Bacconi Gonçalves}
+\instituicao{%
+    PUC-SP
+    \par Curso de Ciência de Dados e Inteligência Artificial
+}
+\tipotrabalho{Trabalho de Conclusão de Curso}
+\preambulo{Trabalho de Conclusão de Curso apresentado ao Curso de Ciência de Dados e Inteligência Artificial da PUC-SP como requisito parcial para a obtenção do grau de Bacharel.}
+
+% --- Compila o índice ---
+\makeindex
+
