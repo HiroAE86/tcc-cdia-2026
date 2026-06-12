@@ -1,0 +1,46 @@
+% ============================================================================
+% TCC — Predição de Direção de Preços de Ações com NLP e Sentimento de Notícias
+% Formato: abnTeX2 (ABNT NBR 14724:2011)
+% Compilar: pdflatex tcc.tex && bibtex tcc && pdflatex tcc.tex && pdflatex tcc.tex
+%
+% Arquivo raiz. Conteúdo dividido em tex/ via \input.
+% ============================================================================
+
+\input{tex/preamble}
+
+\begin{document}
+
+\selectlanguage{brazil}
+\frenchspacing
+
+% --- Elementos pré-textuais (capa, resumo, abstract, listas, sumário) ---
+\input{tex/frontmatter}
+
+% ============================================================================
+% ELEMENTOS TEXTUAIS
+% ============================================================================
+\textual
+
+\input{tex/cap1_introducao}
+\input{tex/cap2_revisao}
+\input{tex/cap3_pipeline}
+\input{tex/cap4_sentimento}
+\input{tex/cap5_investigacao}
+\input{tex/cap6_conclusao}
+
+% ============================================================================
+% ELEMENTOS PÓS-TEXTUAIS
+% ============================================================================
+\postextual
+
+% --- Referências ---
+\bibliography{referencias}
+
+% ============================================================================
+% APÊNDICE
+% ============================================================================
+\begin{apendicesenv}
+\input{tex/apendices}
+\end{apendicesenv}
+
+\end{document}

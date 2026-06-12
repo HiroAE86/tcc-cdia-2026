@@ -1,0 +1,42 @@
+\chapter{Sentimento Financeiro Específico via FinBERT-PT-BR}\label{cap:sentimento}
+% ============================================================================
+
+\section{Hipótese}
+
+O desempenho próximo do acaso obtido com \textit{embeddings} genéricos (Capítulo~\ref{cap:pipeline}) sugere que essa representação carrega ruído semântico irrelevante para o domínio financeiro. Surge daí a hipótese central deste capítulo: uma representação compacta e específica --- 5 \textit{features} de sentimento financeiro extraídas com o FinBERT-PT-BR \cite{souza2023} --- pode ser mais informativa.
+
+\section{O modelo FinBERT-PT-BR}
+
+O BERT (\textit{Bidirectional Encoder Representations from Transformers}) \cite{devlin2019} é um modelo de linguagem baseado na pilha de \textit{encoders} do Transformer, pré-treinado sobre grandes corpora de texto não rotulado por meio de \textit{masked language modeling} --- a tarefa de prever palavras ocultadas a partir de seu contexto em ambas as direções. Esse pré-treinamento produz representações contextuais de uso geral que podem, em seguida, ser adaptadas a uma tarefa específica via \textit{fine-tuning}: o acréscimo de uma camada de classificação e o reajuste dos pesos sobre um conjunto rotulado menor. O FinBERT \cite{araci2019} é a aplicação dessa receita ao domínio financeiro, e o FinBERT-PT-BR \cite{souza2023} é a variante \textit{fine-tuned} em corpora financeiros em português brasileiro.
+
+Para cada artigo, o FinBERT-PT-BR produz três \textit{logits} correspondentes às classes POSITIVO, NEGATIVO e NEUTRO. Diferentemente de modelos de sentimento genéricos, foi calibrado para vocabulário financeiro específico --- termos como ``alavancagem'', ``\textit{guidance}'' ou ``\textit{rating}'' carregam polaridade que um léxico de propósito geral não captura.
+
+\section{Pipeline de extração e resultados}
+
+O corpus FinBERT cobre 1.207 dias úteis --- 20 dias a menos que o dataset de embeddings (1.227 dias) --- porque o alinhamento por data entre os artigos coletados e os preços de mercado resultou em um período ligeiramente diferente após o pré-processamento de cada fonte. A extração segue os passos: inferência em \textit{batch} (32 artigos, entrada \texttt{título + resumo}, 512 \textit{tokens}); persistência dos \textit{logits} brutos; agregação diária em 5 \textit{features} (\texttt{n\_articles}, \texttt{mean\_logit\_pos/\allowbreak neg/\allowbreak neu}, \texttt{mean\_sentiment}); junção temporal com \textit{forward-fill}. O \textit{dataset} resultante contém 1.207 dias $\times$ 16 \textit{features}.
+
+\textbf{Granularidade temporal e risco de \textit{look-ahead}.} O risco de \textit{look-ahead} ocorre quando informações disponíveis apenas após o instante $t$ são incorporadas como \textit{features} para prever $t$, inflando artificialmente as métricas de desempenho. Os artigos possuem \textit{timestamps} ISO~8601, mas a agregação descarta o horário. Artigos pós-fechamento da B3 ($\sim$17h BRT) são atribuídos ao dia $t$; o deslocamento pode exceder 1 dia em dias consecutivos sem publicação. O impacto é atenuado pelo horizonte de 5--21 dias e pela média diária. A proporção exata de artigos publicados após o fechamento do pregão não foi auditada sistematicamente; a análise de \textit{timestamps} necessária para quantificar este risco é reconhecida como uma limitação do trabalho (Seção~\ref{sec:limitacoes}). Cabe notar, porém, que a direção desse viés joga a favor da conclusão final: como o \textit{look-ahead} infla artificialmente o desempenho, eventual vazamento residual só poderia \emph{superestimar} o valor do sentimento --- de modo que o resultado nulo obtido no Capítulo~\ref{cap:investigacao} é, na pior das hipóteses, um limite superior otimista do ganho real.
+
+\textbf{Tratamento de desbalanceamento de classe.} O alvo binário apresenta desbalanceamento de 59\% ``Sobe'' / 41\% ``Desce'' no conjunto de treino. Para mitigar o viés em direção à classe majoritária, todos os modelos recebem compensação explícita: os modelos neurais (BiLSTM, Transformer, TCN) utilizam \texttt{BCEWithLogitsLoss} com \texttt{pos\_weight} = $n_\text{desce} / n_\text{sobe} \approx 1{,}38$; o XGBoost utiliza o parâmetro \texttt{scale\_pos\_weight} com o mesmo valor; e os modelos \textit{sklearn} (Logistic Regression, Random Forest) utilizam \texttt{class\_weight=``balanced''}. Apesar desta compensação, o Transformer ainda exibe forte viés para a classe majoritária (prevendo ``Desce'' apenas 11 vezes em 177 amostras), indicando que o desbalanceamento é um fator contribuinte mas não a causa principal do colapso de predição que a investigação metodológica subsequente documenta.
+
+\begin{table}[htb]
+\centering
+\caption{Comparação Etapa~3 (\textit{embeddings}) vs Etapa~4 (sentimento FinBERT). \textbf{Nota:} todos os valores são estimativas pontuais de uma única semente e uma única janela temporal, sem intervalos de confiança --- esta omissão é uma das motivações para a investigação do Capítulo~\ref{cap:investigacao}.}\label{tab:etapa4}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Modelo} & \textbf{AUC Etapa~3} & \textbf{AUC Etapa~4} & $\boldsymbol{\Delta}$ \\
+\midrule
+BiLSTM Original  & 0,443 & 0,500 & +0,057 \\
+BiLSTM Reduzido  & 0,505 & 0,477 & $-$0,028 \\
+XGBoost          & 0,610 & 0,670 & +0,060 \\
+\textbf{Transformer} & 0,568 & \textbf{0,709} & \textbf{+0,141} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O BiLSTM Reduzido registrou regressão de $-0{,}028$ ao trocar \textit{embeddings} por sentimento FinBERT. Uma explicação plausível é que a arquitetura compacta (1 camada, 32 unidades ocultas, 50\% de \textit{dropout}) é insuficiente para aproveitar a especificidade adicional das \textit{features} FinBERT dado o conjunto de treino pequeno: a regularização agressiva que beneficia representações de alta dimensionalidade pode sobrepenalizar uma entrada de apenas 5 \textit{features}, reduzindo a capacidade de generalização.
+
+O Transformer atinge ROC-AUC = 0,709 (acurácia 76,3\%, 177 amostras). Porém, \textit{precision}(Desce) = 1,00 com \textit{recall}(Desce) = 0,15 --- o modelo prevê ``Desce'' apenas 11 vezes em 177 amostras. Três observações motivam a investigação metodológica que se segue: (1)~matriz de confusão assimétrica; (2)~acurácia próxima da classe majoritária ($\sim$69\%); (3)~ausência de intervalos de confiança e múltiplas sementes.
+
+
+% ============================================================================

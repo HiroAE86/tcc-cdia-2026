@@ -1,0 +1,42 @@
+\chapter{Introdução}\label{cap:introducao}
+% ============================================================================
+
+A predição de direção de preços de ações é um problema central em finanças quantitativas, situado na interseção entre a hipótese de eficiência de mercado \cite{fama1970} e a evidência empírica de previsibilidade parcial em horizontes curtos \cite{lo2004}. Com o avanço das técnicas de processamento de linguagem natural (NLP), uma linha de pesquisa crescente investiga se informações textuais --- notícias, relatórios de analistas, publicações em redes sociais --- podem ser incorporadas como \textit{features} preditivas em modelos de \textit{machine learning} para complementar dados tradicionais de preço e volume \cite{xu2018,araci2019}.
+
+No contexto brasileiro, a pesquisa nesta área é ainda incipiente. A B3 (Brasil, Bolsa, Balcão) apresenta características estruturais que impedem a extrapolação direta de resultados positivos obtidos em mercados como o S\&P~500 \cite{xu2018,fischer2018}: menor liquidez em ações fora do índice principal, fluxo informacional concentrado em poucas fontes jornalísticas especializadas, \textit{pool} de participantes institucionais menor do que em mercados desenvolvidos como os EUA, e um ecossistema de NLP em português cujos modelos específicos para o domínio financeiro --- disponíveis apenas a partir de 2022, como o FinBERT-PT-BR \cite{souza2023} --- têm histórico de avaliação significativamente mais curto do que seus equivalentes em inglês.
+
+\section{Problema de pesquisa}
+
+O problema central pode ser formulado como: \textbf{notícias financeiras brasileiras melhoram a predição de direção de preço (sobe/desce) de ações da B3?} Esta questão desdobra-se em duas dimensões:
+
+\begin{enumerate}[label=(\alph*)]
+    \item \textbf{Representação textual:} qual forma de codificar o conteúdo de notícias --- \textit{embeddings} genéricos de alta dimensionalidade ou sentimento financeiro específico de baixa dimensionalidade --- produz \textit{features} mais informativas para a predição?
+    \item \textbf{Robustez metodológica:} os resultados obtidos sob protocolos de avaliação padrão da literatura (\textit{walk-forward split} único) sobrevivem a escrutínio com validação cruzada \textit{expanding-window}, múltiplas sementes e testes estatísticos formais?
+\end{enumerate}
+
+\section{Objetivos}
+
+\subsection{Objetivo geral}
+
+Investigar empiricamente se \textit{features} de sentimento extraídas de notícias financeiras brasileiras adicionam poder preditivo a modelos de classificação binária de direção de preço de ações da B3, sob avaliação metodologicamente rigorosa.
+
+\subsection{Objetivos específicos}
+
+\begin{enumerate}
+    \item Construir um \textit{pipeline} de coleta, processamento e integração de notícias financeiras do portal InfoMoney com dados de mercado do Yahoo Finance.
+    \item Comparar duas estratégias de representação textual: \textit{embeddings} genéricos de 1.024 dimensões (Ollama \texttt{qwen3-\allowbreak embedding:\allowbreak 4b}) e sentimento financeiro de 5 dimensões (FinBERT-\allowbreak PT-\allowbreak BR).
+    \item Treinar e avaliar modelos de classificação binária (BiLSTM, Transformer, XGBoost, TCN --- \textit{Temporal Convolutional Network}) sobre as representações textuais combinadas com \textit{features} de preço.
+    \item Aplicar protocolos de avaliação rigorosa --- \textit{bootstrap} CI, análise \textit{multi-seed}, validação cruzada \textit{expanding-window}, \textit{ablation} de \textit{features} --- para determinar a robustez dos resultados.
+    \item Documentar e analisar as discrepâncias entre avaliação por janela única e avaliação multi-fold, contribuindo para a literatura de avaliação metodológica em ML financeiro.
+\end{enumerate}
+
+\section{Justificativa}
+
+A relevância deste trabalho reside em três aspectos. Primeiro, a aplicação de NLP financeiro ao mercado brasileiro é pouco explorada, e a disponibilidade recente de modelos como o FinBERT-PT-BR abre oportunidades de investigação em português. Segundo, a literatura de \textit{deep learning} aplicado a finanças sofre de um problema metodológico amplamente documentado --- a avaliação por janela única em séries não-estacionárias \cite{bailey2014,lopezdeprado2018} --- mas raramente demonstrado empiricamente com o grau de detalhe que este trabalho propõe. Terceiro, a autocorreção metodológica documentada nos Capítulos~\ref{cap:sentimento} e~\ref{cap:investigacao} constitui, por si só, uma contribuição pedagógica. Especificamente, este trabalho demonstra empiricamente as três armadilhas mais comuns na avaliação de modelos em ML financeiro: ausência de intervalos de confiança, uso de semente única, e dependência de uma única janela temporal.
+
+\section{Estrutura do trabalho}
+
+O trabalho está organizado em seis capítulos. O presente capítulo introduz o problema de pesquisa, os objetivos e a justificativa. O Capítulo~\ref{cap:revisao} apresenta a fundamentação teórica e a revisão bibliográfica. O Capítulo~\ref{cap:pipeline} descreve o \textit{pipeline} completo: coleta de notícias, engenharia de \textit{features} e treinamento inicial com \textit{embeddings} genéricos. O Capítulo~\ref{cap:sentimento} introduz o FinBERT-PT-BR e documenta o resultado inicialmente promissor (\textit{Area Under the ROC Curve}, AUC = 0,709). O Capítulo~\ref{cap:investigacao} conduz a investigação metodológica que revisa substancialmente esse resultado. O Capítulo~\ref{cap:conclusao} sintetiza as conclusões e propõe direções futuras.
+
+
+% ============================================================================

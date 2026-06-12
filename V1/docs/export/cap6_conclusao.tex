@@ -1,0 +1,43 @@
+\chapter{Conclusão}\label{cap:conclusao}
+% ============================================================================
+
+\section{Contribuições}
+
+Este trabalho oferece três contribuições:
+
+\begin{enumerate}
+    \item \textbf{Pipeline técnico replicável.} O sistema de coleta de notícias (InfoMoney), extração de sentimento (FinBERT-PT-BR) e integração com dados de mercado (Yahoo Finance) está integralmente versionado e pode ser reproduzido por outros pesquisadores.
+
+    \item \textbf{Demonstração empírica do viés de janela única.} A inversão documentada no Capítulo~\ref{cap:investigacao} --- de positiva para nula --- é sustentada por mais de 1.500 execuções, testes de Wilcoxon e intervalos de confiança \textit{bootstrap}. Estudos anteriores documentaram parcialmente esse fenômeno em outros mercados: \citeonline{ding2015} avaliaram modelos de \textit{event-driven prediction} em dados do S\&P~500 com \textit{split} único sem análise de variância de semente; \citeonline{hu2018} reportaram predição de tendência em ações chinesas com protocolo de janela única sem intervalos de confiança; e \citeonline{shah2019} catalogaram que a maioria dos estudos de \textit{sentiment analysis} para finanças não reporta resultados fora da amostra original. O presente trabalho complementa essa literatura com a primeira demonstração quantificada em dados brasileiros.
+
+    \item \textbf{Proposição de protocolos mínimos.} O trabalho propõe seis práticas para pesquisa em ML financeiro: (1)~reportar IC \textit{bootstrap}; (2)~treinar com $\geq$10 sementes (ver Tabela~\ref{tab:multiseed}); (3)~usar CV \textit{expanding-window} (ver Tabela~\ref{tab:expandingcv}); (4)~comparar contra \textit{baseline} autoregressivo; (5)~monitorar distribuição de predições --- a distribuição bimodal de AUC do Transformer (\autoref{fig:multiseed}), com picos próximos de 0 e 1, é a assinatura do colapso degenerado que motiva esta prática; (6)~auditar correlação validação-teste.
+\end{enumerate}
+
+\section{Reflexão sobre o processo de autocorreção}
+
+A experiência de construir um \textit{pipeline} completo, obter esse resultado preliminar aparentemente forte e depois desmontá-lo sistematicamente foi a lição mais valiosa deste trabalho. O viés de confirmação --- a tendência natural de aceitar resultados que concordam com a hipótese --- operou de forma invisível nas primeiras etapas: a ausência de intervalos de confiança, a fixação de uma única semente e o \textit{split} único não pareciam problemáticos porque o resultado ``fazia sentido''. A contribuição central da investigação metodológica não é a descoberta de que o sentimento não funciona --- é a demonstração de quão fácil é produzir evidência aparente de que ele funciona, usando protocolos que a própria comunidade de ML financeiro considera aceitáveis.
+
+Os seis protocolos propostos na Seção anterior não são originais: o uso de múltiplas sementes, CV temporal e \textit{baselines} autoregressivos são recomendações explícitas de \citeonline{lopezdeprado2018}. A contribuição deste trabalho é mostrar, em um caso concreto com dados brasileiros, a magnitude do dano causado por ignorá-los: uma inversão da métrica inicial para $\sim$0,51, que transforma uma conclusão positiva em negativa.
+
+\section{Limitações}\label{sec:limitacoes}
+
+O trabalho apresenta seis limitações principais.
+
+\begin{enumerate}
+    \item \textbf{Fonte única de notícias.} O corpus provém exclusivamente do InfoMoney, com viés editorial voltado ao investidor de varejo e cobertura heterogênea entre ativos (2.572 artigos para ITUB4 contra 1.525 para VALE3).
+
+    \item \textbf{Amostra de ativos restrita.} Apenas 3 ações de grande capitalização da B3 foram analisadas, o que limita a validade externa das conclusões.
+
+    \item \textbf{Horizontes de previsão.} A previsão restringe-se aos horizontes de 5 e 21 dias úteis.
+
+    \item \textbf{Escopo da representação textual.} A conclusão sobre o sentimento aplica-se à representação específica adotada (5 \textit{features} agregadas diariamente do FinBERT-PT-BR), não a toda forma possível de codificar informação textual.
+
+    \item \textbf{Horizonte da \textit{ablation}.} A \textit{ablation} (Seção~\ref{sec:ablation}) foi conduzida com $h=21$, enquanto o TCN Etapa~5b utiliza $h=5$; uma \textit{ablation} com $h=5$ fortaleceria a comparação. Contudo, dado que o efeito médio do sentimento sobre 225 treinamentos é $\Delta = +0{,}003$ com IC~95\% $[-0{,}012;\ +0{,}018]$, é improvável que a conclusão direcional (sentimento não adiciona valor mensurável) se inverta com a mudança de horizonte.
+
+    \item \textbf{Instabilidade arquitetural.} O colapso bimodal do Transformer, documentado em todas as configurações testadas, impede a atribuição causal entre qualidade das \textit{features} e desempenho do modelo; arquiteturas mais estáveis poderiam fornecer avaliação mais limpa do valor do sentimento.
+\end{enumerate}
+
+\section{Trabalhos futuros}
+
+Cinco direções são sugeridas: (1)~diversificação de fontes textuais (comunicados CVM, \textit{analyst reports}, redes sociais); (2)~teste de arquiteturas menos propensas a colapso bimodal; (3)~generalização para outros mercados; (4)~estudo formal da anticorrelação validação-teste; (5)~investigação de métricas ajustadas por desbalanceamento de classe (\textit{balanced accuracy}, coeficiente de Matthews) como alternativa à AUC em conjuntos com \textit{class imbalance} severo.
+

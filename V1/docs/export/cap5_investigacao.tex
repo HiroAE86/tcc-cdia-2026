@@ -1,0 +1,173 @@
+\chapter{Investigação Metodológica e o Viés da Avaliação por Janela Única}\label{cap:investigacao}
+% ============================================================================
+
+\section{Motivação e protocolo geral}
+
+Para determinar se o resultado obtido no Capítulo~\ref{cap:sentimento} (ROC-AUC = 0,709 sob janela única) sobrevive a escrutínio metodológico, aplicam-se aqui protocolos progressivamente mais rigorosos. A Tabela~\ref{tab:experimentos} sumariza os 13 experimentos realizados (mais de 1.500 treinamentos). As funções utilitárias utilizadas em todos os experimentos são detalhadas no Apêndice~\ref{ap:evalutils}.
+
+\begin{table}[htb]
+\centering
+\caption{Experimentos do Capítulo~\ref{cap:investigacao}.}\label{tab:experimentos}
+\begin{tabular}{llr}
+\toprule
+\textbf{Experimento} & \textbf{Notebook} & \textbf{Runs} \\
+\midrule
+Baseline autoregressivo          & \texttt{dumb\_baseline.ipynb}                & 4   \\
+Baselines ingênuos               & \texttt{naive\_baselines.ipynb}              & 3   \\
+Controle de dimensionalidade     & \texttt{dimensionality\_control.ipynb}       & 20  \\
+Bootstrap CI (Etapa~4)           & \texttt{bootstrap\_stage4.ipynb}             & 1   \\
+Multi-seed em ITUB4              & \texttt{multi\_seed.ipynb}                   & 40  \\
+Multi-seed $\times$ multi-ticker & \texttt{multi\_seed\_multi\_ticker.ipynb}     & 120 \\
+Ensemble + backtest              & \texttt{ensemble\_backtest.ipynb}             & 20  \\
+Expanding-window CV              & \texttt{expanding\_window\_cv.ipynb}          & 145 \\
+Varredura de horizontes          & \texttt{horizon\_sweep.ipynb}                & 6   \\
+VALE3 \textit{deep-dive}        & \texttt{vale3\_deepdive.ipynb}               & 880 \\
+Ablation PRICE/SENT/PRICE+SENT  & \texttt{ablation\_price\_vs\_sentiment.ipynb} & 225 \\
+Poder estatístico                & \texttt{power\_analysis.ipynb}               & --- \\
+Validação TCN Etapa~5b           & \texttt{tcn\_validation.ipynb}               & 45  \\
+\midrule
+\textbf{Total}                   &                                              & \textbf{$\sim$1.510} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Todos os hiperparâmetros dos modelos foram fixados ao longo dos experimentos, sem otimização por \textit{fold}: XGBoost (300 árvores, profundidade 4, \textit{learning rate} 0,05); Transformer (2 camadas, 4 cabeças, $d_\text{model}=64$, \textit{dropout} 0,2, 200 épocas com \textit{early stopping} por perda de validação, paciência 10); TCN ([32,32], \textit{kernel size} 3, \textit{dropout} 0,2). A decisão de não otimizar hiperparâmetros por \textit{fold} foi deliberada: o objetivo não era maximizar desempenho, mas medir a robustez do resultado original sob variação de janela e semente. As 5 \textit{features} de sentimento FinBERT são normalizadas via \texttt{StandardScaler} ajustado exclusivamente no conjunto de treino de cada \textit{fold}.
+
+O experimento \textit{Ensemble + backtest} (20 treinamentos) combinou as predições do Transformer e do XGBoost via média ponderada por AUC de validação e avaliou a estratégia de trading resultante; os resultados não evidenciaram ganho sobre o \textit{baseline} autoregressivo isolado, e o experimento foi descontinuado em favor da análise multi-\textit{seed}.
+
+\section{Baseline autoregressivo e baselines ingênuos}
+
+Um XGBoost \cite{chen2016} treinado em 5 \textit{features} de preço (\texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21}) --- subconjunto das 11 \textit{features} técnicas calculadas no Capítulo~\ref{cap:pipeline}, selecionadas por representar os sinais de momentum, volume e volatilidade mais diretamente relacionados à previsão de direção --- atinge AUC = 0,658 [0,565; 0,744]. Para contextualizar, três preditores ingênuos foram avaliados. A \textbf{classe majoritária} sempre prediz ``Sobe'' (a classe majoritária do conjunto de treino), servindo como limite inferior trivial. O \textbf{\textit{coin flip}} amostra aleatoriamente uma predição com probabilidade igual ao \textit{prior} da classe, simulando um preditor sem qualquer sinal. A \textbf{persistência ($h=21$)} assume que a direção de preço no instante $t$ se repete em $t+21$, codificando uma hipótese de \textit{momentum} de curtíssimo prazo.
+
+\begin{table}[htb]
+\centering
+\caption{Hierarquia de \textit{baselines}: do ingênuo ao autoregressivo.}\label{tab:naive}
+\begin{tabular}{llc}
+\toprule
+\textbf{Preditor} & \textbf{Descrição} & \textbf{AUC [IC 95\%]} \\
+\midrule
+Classe majoritária     & Sempre prevê ``Sobe''           & 0,500 [0,500; 0,500] \\
+\textit{Coin flip}     & $P(\text{Sobe}) = \text{prior}$ & 0,500 [0,500; 0,500] \\
+Persistência ($h=21$)  & Direção repete                  & 0,474 [0,405; 0,543] \\
+\textbf{Autoregressivo (XGB)} & \textbf{5 features preço} & \textbf{0,658 [0,565; 0,744]} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O controle de dimensionalidade (20 subconjuntos aleatórios de 5 dimensões Ollama) produz AUC médio de $0{,}509 \pm 0{,}057$, confirmando que a melhoria Etapa~3 $\to$ Etapa~4 reflete especificidade de domínio do FinBERT.
+
+\section{Reprodutibilidade e variância de semente}
+
+Sob recompilação com semente 42, o Transformer atinge AUC = 0,442 --- diferença de 0,267 pontos ($22\times$ o desvio-padrão do \textit{baseline}). Sob 20 sementes (Tabela~\ref{tab:multiseed}), o Transformer exibe distribuição bimodal (Figura~\ref{fig:multiseed}): a distribuição é bimodal porque o modelo colapsa para um de dois estados degenerados dependendo da inicialização --- ou prevê quase sempre ``Sobe'' (AUC $\approx$ 0 ou 1, conforme a classe majoritária do teste coincida com a predição) ou quase sempre ``Desce''. Não há um ponto de equilíbrio intermediário discriminativo porque o sinal preditivo real é insuficiente para ancorar a otimização fora desses mínimos locais degenerados.
+
+\begin{table}[htb]
+\centering
+\caption{Distribuição de AUC sobre 20 sementes (ITUB4, janela única).}\label{tab:multiseed}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Modelo} & \textbf{Média} & \textbf{Std} & \textbf{Mediana} & \textbf{Min} & \textbf{Max} \\
+\midrule
+Transformer + FinBERT       & 0,686 & \textbf{0,261} & 0,802 & 0,080 & 0,931 \\
+Baseline autoregressivo     & 0,641 & 0,012           & 0,638 & 0,615 & 0,660 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+O Transformer apresenta desvio-padrão de 0,261 --- $21\times$ superior ao do \textit{baseline} (0,012) --- evidenciando instabilidade estrutural incompatível com uso em produção. O colapso bimodal não é um artefato de \textit{early stopping}: o critério de parada dos modelos neurais é a perda de validação (não o AUC), com paciência de 10 épocas, e o colapso ocorre independentemente do critério adotado.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{multi_seed_histograms.png}
+\caption{Distribuição de AUC sobre 20 sementes em ITUB4. O Transformer (esquerda) exibe distribuição bimodal com AUCs agrupados próximos de 0 e 1, enquanto o \textit{baseline} (direita) é estável em torno de 0,64. Coeficiente de variação do Transformer: 38\%.}\label{fig:multiseed}
+\end{figure}
+
+\section{Expanding-window cross-validation}
+
+Substituindo o \textit{split} único por CV \textit{expanding-window} (600 dias mínimo, validação/teste 90 dias, 5 \textit{folds} $\times$ 5 sementes $\times$ 3 ativos $\times$ 2 modelos = 150 treinamentos programados; 145 realizados, descartando \textit{folds} com conjuntos de teste degenerados), obtêm-se os resultados da Tabela~\ref{tab:expandingcv}. Os \textit{folds} utilizam passo de 90 dias com janelas de teste de 90 dias, resultando em adjacência entre janelas de teste consecutivas, com sobreposição entre a janela de validação de um \textit{fold} e a janela de teste do \textit{fold} subsequente; embora isto viole a independência estrita exigida pelo teste de Wilcoxon, o efeito é conservador (infla correlação, não produz significância espúria em resultados nulos).
+
+\begin{table}[htb]
+\centering
+\caption{AUC médio sob \textit{expanding-window} CV.}\label{tab:expandingcv}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Ativo} & \textbf{Baseline XGB} & \textbf{Transformer} & $\boldsymbol{\Delta}$ \\
+\midrule
+ITUB4 & \textbf{0,700} & 0,445 & $-$0,255 \\
+PETR4 & \textbf{0,702} & 0,447 & $-$0,255 \\
+VALE3 & 0,599           & 0,635 & +0,036 \\
+\midrule
+\textbf{Média} & \textbf{0,667} & 0,509 & $-$0,158 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{expanding_cv_overtime.png}
+\caption{AUC por \textit{fold} ao longo do tempo sob \textit{expanding-window} CV, para os 3 ativos. A linha do \textit{baseline} (vermelho) permanece consistentemente acima do Transformer (azul) em ITUB4 e PETR4, com barras de erro menores. As barras de erro representam o desvio-padrão do AUC entre as 5 sementes por \textit{fold}.}\label{fig:expandingcv}
+\end{figure}
+
+A inversão é de grande magnitude: em ITUB4, a diferença média de 0,255 em AUC entre os modelos corresponde a mais de seis vezes o desvio-padrão do AUC do \textit{baseline} ao longo dos 5 \textit{folds} ($\approx 0{,}04$, derivado dos dados da Figura~\ref{fig:expandingcv}). A exceção aparente em VALE3 (+0,036) motivou um \textit{deep-dive} com protocolo deliberadamente mais rigoroso (52 \textit{folds} $\times$ 10 sementes $\times$ 2 modelos = 1.040 treinamentos programados; 880 realizados) do que o utilizado na análise principal (5 \textit{folds} $\times$ 5 sementes), de forma a garantir conclusão robusta sobre o único ativo com $\Delta > 0$. O \textit{deep-dive} revelou o resultado como não significativo (Wilcoxon $p = 0{,}194$). A Figura~\ref{fig:vale3} mostra a distribuição bimodal do Transformer em VALE3.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{vale3_deepdive_hist.png}
+\caption{Distribuição de 880 AUCs (52 \textit{folds} $\times$ 10 sementes) em VALE3. O \textit{baseline} (esquerda) produz distribuição unimodal centrada em $\sim$0,55. O Transformer (direita) produz distribuição bimodal severa com picos em AUC $< 0{,}05$ e AUC $> 0{,}95$ --- assinatura de classificador degenerado --- padrão característico de um modelo que colapsa para predição constante independentemente da entrada.}\label{fig:vale3}
+\end{figure}
+
+\section{Ablation: o sentimento adiciona algo?}\label{sec:ablation}
+
+O XGBoost foi escolhido como modelo de referência para esta ablação por ser o \textit{baseline} mais estável ao longo dos experimentos anteriores --- ao contrário do Transformer, que sofre colapso bimodal e tornaria difícil separar o efeito das \textit{features} do efeito da arquitetura. PRICE denota as 5 \textit{features} autoregressivas de preço; SENT denota as 5 \textit{features} de sentimento FinBERT-PT-BR; PRICE+SENT denota a concatenação das duas representações. O desenho experimental segue o esquema 5 \textit{folds} $\times$ 5 sementes $\times$ 3 ativos $\times$ 3 configurações de \textit{features} = 225 treinamentos. Os resultados por configuração são apresentados na Tabela~\ref{tab:ablation}.
+
+\begin{table}[htb]
+\centering
+\caption{Ablation: PRICE vs SENT vs PRICE+SENT. $\Delta$ = PRICE+SENT $-$ PRICE.}\label{tab:ablation}
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Ativo} & \textbf{PRICE} & \textbf{SENT} & \textbf{PRICE+SENT} & $\boldsymbol{\Delta}$ \\
+\midrule
+ITUB4 & 0,684 & 0,436 & 0,651 & $-$0,033 \\
+PETR4 & 0,692 & 0,494 & 0,676 & $-$0,016 \\
+VALE3 & 0,609 & 0,510 & 0,667 & +0,058 \\
+\midrule
+\textbf{Média} & \textbf{0,662} & 0,480 & 0,665 & \textbf{+0,003} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.85\textwidth]{ablation_boxplot.png}
+\caption{Distribuição de AUC por configuração de \textit{features} e ativo, sob \textit{expanding-window} CV. PRICE e PRICE+SENT são estatisticamente indistinguíveis; SENT sozinho opera abaixo do acaso.}\label{fig:ablation}
+\end{figure}
+
+O ganho do sentimento é $\Delta = +0{,}003$ (Wilcoxon $p = 0{,}49$, IC~95\% $[-0{,}012;\ +0{,}018]$). A \autoref{fig:ablation} ilustra essa equivalência: as distribuições de AUC de PRICE e PRICE+SENT se sobrepõem em todos os ativos, enquanto SENT isolado opera abaixo do acaso. A análise de poder \cite{hanley1982} confirma que este efeito está 44--74$\times$ abaixo do MDE (0,132--0,221 para $N$ entre 60 e 177).
+
+A conclusão nula deve, portanto, ser qualificada: dado o Tamanho Mínimo de Efeito Detectável (MDE) de 0,132--0,221, efeitos reais menores que $\Delta \text{AUC} \approx 0{,}13$ seriam indetectáveis neste desenho experimental --- o resultado é ``nenhum efeito detectável neste tamanho amostral'', não ``nenhum efeito''. Esta ressalva, contudo, não dissolve a conclusão em mera falta de poder estatístico: o mesmo desenho experimental detecta com folga o sinal autoregressivo de preço --- o \textit{baseline} atinge AUC de $0{,}641 \pm 0{,}012$ sob 20 sementes (Tabela~\ref{tab:multiseed}) e AUC médio de 0,667 sob CV \textit{expanding-window} (Tabela~\ref{tab:expandingcv}), ao passo que as \textit{features} de sentimento não deslocam essas marcas além do ruído. Ou seja, o protocolo é sensível o bastante para capturar um efeito real quando ele existe; o que ele não captura é qualquer contribuição mensurável do sentimento.
+
+\section{Validação do TCN Etapa~5b}
+
+O TCN~[32,32] \cite{bai2018} --- melhor resultado prático (AUC = 0,643 sob janela única), cuja arquitetura completa é detalhada no Apêndice~\ref{ap:tcn} --- atinge 0,513 $\pm$ 0,102 sob 20 sementes e 0,556 sob CV \textit{expanding-window}, inferior ao \textit{baseline} (0,700). A Figura~\ref{fig:tcn} sumariza a validação.
+
+\begin{figure}[htb]
+\centering
+\includegraphics[width=0.95\textwidth]{tcn_validation_hist.png}
+\caption{Validação do TCN [32,32]. Esquerda: distribuição multi-seed (20 sementes) --- 60\% das sementes ficam abaixo de 0,50. Direita: distribuição \textit{expanding-window} CV --- AUC médio de 0,556, inferior ao \textit{baseline}.}\label{fig:tcn}
+\end{figure}
+
+\section{Síntese}
+
+A conclusão unificada dos experimentos deste capítulo é a seguinte:
+
+\textbf{Sob avaliação metodologicamente correta (multi-\textit{fold}, multi-sementes, com intervalos de confiança e \textit{ablation} de \textit{features}), as \textit{features} de sentimento FinBERT-PT-BR não adicionam sinal preditivo mensurável a um \textit{baseline} autoregressivo de cinco \textit{features} de preço, em nenhum dos três ativos testados.} O resultado da janela única é um artefato dessa forma de avaliação --- combinação de variância de semente, viés de amostragem da janela de teste e colapso bimodal da arquitetura.
+
+Esta conclusão aplica-se especificamente à representação de sentimento adotada --- cinco \textit{features} agregadas diariamente do FinBERT-PT-BR --- e não pode ser generalizada a toda forma possível de incorporar informação textual em modelos de predição financeira.
+
+A análise \textit{multi-seed} demonstrou que o AUC de 0,709 da janela única não é reprodutível: sob 20 sementes aleatórias em ITUB4, o Transformer exibe desvio-padrão de 0,261 (coeficiente de variação de 38\%), enquanto o \textit{baseline} autoregressivo permanece estável com desvio-padrão de 0,012. O \textit{deep-dive} em VALE3, único ativo com $\Delta > 0$ na análise de 5 \textit{folds}, foi aprofundado para 52 \textit{folds} $\times$ 10 sementes (880 treinamentos realizados), revelando o aparente ganho como não significativo (Wilcoxon $p = 0{,}194$).
+
+A validação cruzada \textit{expanding-window} inverteu o resultado qualitativo: o Transformer apresentou AUC médio de 0,509 contra 0,667 do \textit{baseline} --- diferença de 0,158 pontos de AUC, várias vezes superior à variabilidade do \textit{baseline} entre \textit{folds}. O experimento de \textit{ablation}, conduzido com 225 treinamentos (XGBoost, 3 ativos, 5 \textit{folds}, 5 sementes), quantificou diretamente a contribuição do sentimento: $\Delta = +0{,}003$ ao adicionar as 5 \textit{features} FinBERT ao conjunto de preço (Wilcoxon $p = 0{,}49$, IC~95\% \textit{bootstrap} $[-0{,}012;\ +0{,}018]$). A análise de poder confirmou que esse efeito está 44--74$\times$ abaixo do mínimo detectável pelo tamanho amostral disponível.
+
+O Capítulo~\ref{cap:conclusao} discute as implicações deste resultado, propõe protocolos mínimos de avaliação e indica direções para trabalhos futuros.
+
+
+% ============================================================================
