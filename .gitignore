@@ -264,3 +264,12 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Secrets
+key.md
+
+# Slide build artifacts
+V1/docs/slides/review/
+V1/docs/slides/*.pdf
+V1/docs/slides/*.nav
+V1/docs/slides/*.snm
