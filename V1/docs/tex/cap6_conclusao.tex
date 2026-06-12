@@ -21,7 +21,21 @@ Os seis protocolos propostos na Seção anterior não são originais: o uso de m
 
 \section{Limitações}\label{sec:limitacoes}
 
-As principais limitações incluem: (1)~fonte única de notícias (InfoMoney), com viés editorial voltado ao investidor de varejo e cobertura heterogênea entre ativos (2.572 artigos para ITUB4 vs 1.525 para VALE3); (2)~apenas 3 ações de grande capitalização da B3, limitando a validade externa; (3)~horizonte de previsão restrito a 5 e 21 dias úteis; (4)~a conclusão sobre o sentimento se aplica à representação específica adotada (5 \textit{features} agregadas diariamente do FinBERT-PT-BR), não a toda forma possível de codificar informação textual; (5)~a \textit{ablation} (Seção~5.5) foi conduzida com $h=21$, enquanto o TCN Stage~5b utiliza $h=5$ --- uma \textit{ablation} com $h=5$ fortaleceria a comparação; contudo, dado que o efeito médio do sentimento sobre 225 treinamentos é $\Delta = +0{,}003$ com IC~95\% $[-0{,}012;\ +0{,}018]$, é improvável que a conclusão direcional (sentimento não adiciona valor mensurável) se inverta com a mudança de horizonte; (6)~a instabilidade arquitetural do Transformer (colapso bimodal documentado em todas as configurações testadas) impede a atribuição causal entre qualidade das \textit{features} e desempenho do modelo; arquiteturas mais estáveis poderiam fornecer avaliação mais limpa do valor do sentimento.
+O trabalho apresenta seis limitações principais.
+
+\begin{enumerate}
+    \item \textbf{Fonte única de notícias.} O corpus provém exclusivamente do InfoMoney, com viés editorial voltado ao investidor de varejo e cobertura heterogênea entre ativos (2.572 artigos para ITUB4 contra 1.525 para VALE3).
+
+    \item \textbf{Amostra de ativos restrita.} Apenas 3 ações de grande capitalização da B3 foram analisadas, o que limita a validade externa das conclusões.
+
+    \item \textbf{Horizontes de previsão.} A previsão restringe-se aos horizontes de 5 e 21 dias úteis.
+
+    \item \textbf{Escopo da representação textual.} A conclusão sobre o sentimento aplica-se à representação específica adotada (5 \textit{features} agregadas diariamente do FinBERT-PT-BR), não a toda forma possível de codificar informação textual.
+
+    \item \textbf{Horizonte da \textit{ablation}.} A \textit{ablation} (Seção~\ref{sec:ablation}) foi conduzida com $h=21$, enquanto o TCN Etapa~5b utiliza $h=5$; uma \textit{ablation} com $h=5$ fortaleceria a comparação. Contudo, dado que o efeito médio do sentimento sobre 225 treinamentos é $\Delta = +0{,}003$ com IC~95\% $[-0{,}012;\ +0{,}018]$, é improvável que a conclusão direcional (sentimento não adiciona valor mensurável) se inverta com a mudança de horizonte.
+
+    \item \textbf{Instabilidade arquitetural.} O colapso bimodal do Transformer, documentado em todas as configurações testadas, impede a atribuição causal entre qualidade das \textit{features} e desempenho do modelo; arquiteturas mais estáveis poderiam fornecer avaliação mais limpa do valor do sentimento.
+\end{enumerate}
 
 \section{Trabalhos futuros}
 
