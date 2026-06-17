@@ -75,7 +75,7 @@
       \item Contexto e pergunta de pesquisa
       \item Pipeline: notícias + dados de mercado
       \item Resultado inicial: AUC = 0{,}709
-      \item Investigação metodológica ($\sim$1.510 execuções)
+      \item Investigação metodológica (1.435 execuções)
       \item Reversão da conclusão e protocolos propostos
     \end{enumerate}
     \column{0.4\textwidth}
@@ -291,7 +291,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Investigação metodológica: 13 experimentos, $\sim$1.510 execuções}
+\begin{frame}{Investigação metodológica: 8 experimentos, 1.435 execuções}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -300,16 +300,16 @@
         \toprule
         \textbf{Experimento} & \textbf{Runs} \\
         \midrule
-        Baselines (autoregressivo + ingênuos) & 7 \\
-        Controle de dimensionalidade          & 20 \\
-        Multi-seed (ITUB4 + multi-ticker)     & 160 \\
+        Baseline autoregressivo               & 4 \\
+        Bootstrap CI                          & 1 \\
+        Multi-seed (ITUB4)                    & 40 \\
+        Multi-seed $\times$ multi-ticker      & 120 \\
         Ensemble + backtest                   & 20 \\
         Expanding-window CV                   & 145 \\
         VALE3 \textit{deep-dive}              & 880 \\
         Ablation PRICE/SENT/PRICE+SENT        & 225 \\
-        Validação TCN + varredura horizontes  & 51 \\
         \midrule
-        \textbf{Total} & \textbf{$\sim$1.510} \\
+        \textbf{Total} & \textbf{1.435} \\
         \bottomrule
       \end{tabular}
     \end{table}
@@ -414,15 +414,15 @@
     \begin{table}
       \scriptsize
       {\scriptsize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
-      \begin{tabular}{lccc}
+      \begin{tabular}{lcccc}
         \toprule
-        \textbf{Ativo} & \textbf{PRICE} & \textbf{SENT} & $\boldsymbol{\Delta}$\textsubscript{P+S$-$P} \\
+        \textbf{Ativo} & \textbf{PRICE} & \textbf{SENT} & \textbf{P+S} & $\boldsymbol{\Delta}$ \\
         \midrule
-        ITUB4 & 0{,}684 & 0{,}436 & $-$0{,}033 \\
-        PETR4 & 0{,}692 & 0{,}494 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & $+$0{,}058 \\
+        ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
+        PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058 \\
         \midrule
-        \textbf{Média} & \textbf{0{,}662} & 0{,}480 & \alert{\textbf{$+$0{,}003}} \\
+        \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}
     \end{table}
@@ -461,7 +461,7 @@
     \textbf{Três contribuições}
     \begin{enumerate}
       \item Pipeline replicável e versionado (InfoMoney + FinBERT-PT-BR + Yahoo Finance)
-      \item Primeira demonstração quantificada do viés de janela única em dados brasileiros ($>$1.500 execuções)
+      \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
     \column{0.5\textwidth}
