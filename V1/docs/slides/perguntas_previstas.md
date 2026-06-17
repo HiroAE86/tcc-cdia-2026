@@ -33,7 +33,7 @@ AUC é invariante a threshold e mais informativa com classe desbalanceada (59/41
 **9. "Por que PCA com 32 componentes? Por que qwen3-embedding?"**
 32 componentes retêm 61,4% da variância (curva de variância acumulada, ajustada só no treino — sem vazamento). qwen3-embedding:4b roda local via Ollama, multilíngue, custo zero. O controle de dimensionalidade (20 subconjuntos aleatórios de 5 dims → AUC 0,509) descarta que a diferença Etapa 3→4 fosse só dimensionalidade.
 
-**10. "1.500 execuções não é garimpar resultado? Múltiplas comparações?"**
+**10. "1.435 execuções não é garimpar resultado? Múltiplas comparações?"**
 Direção oposta do p-hacking: as execuções servem para *destruir* um resultado positivo, não para selecionar o melhor. Cada experimento responde uma pergunta pré-definida; hiperparâmetros congelados; nenhuma métrica foi escolhida a posteriori.
 
 **11. "Ablation foi com h=21, mas o TCN usa h=5. Isso não enfraquece a comparação?"**
@@ -63,5 +63,5 @@ Aplicar os 6 protocolos desde o dia 1: IC bootstrap, ≥10 sementes, expanding-w
 | 0,667 vs 0,509 | AUC médio CV: baseline vs Transformer (inversão) |
 | +0,003, p=0,49 | Ganho do sentimento na ablation (225 runs) |
 | p=0,194 | VALE3 deep-dive, 880 runs — não significativo |
-| ~1.510 | Total de execuções da investigação |
+| 1.435 | Total de execuções da investigação |
 | 5.872 | Artigos InfoMoney (2.572 ITUB4 / 1.775 PETR4 / 1.525 VALE3) |
