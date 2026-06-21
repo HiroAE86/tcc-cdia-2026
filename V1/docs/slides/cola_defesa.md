@@ -43,6 +43,7 @@ Pergunta → Pipeline → AUC 0,709 (parece win) → 3 sinais de alerta → 13 e
 3. **Colapso bimodal = só Transformer ruim?** Conclusão não depende dele — ablation com XGBoost (mais estável) dá mesmo Δ +0,003.
 4. **Subpotenciado (MDE)?** "Nenhum efeito detectável neste n" — mas mesmo desenho detecta preço (0,667 estável). Protocolo é sensível.
 5. **3 ativos / 1 fonte generaliza?** Não reivindica. Limitações declaradas. Vale para representação adotada nesses 3 ativos.
+6. **Não ia balancear as classes (50/50)?** *(o prof sugeriu)* Não reamostrei: quebraria a ordem temporal e a base rate real. Compensei com peso na perda (`pos_weight≈1,38`). Decisivo: Transformer colapsou MESMO com a compensação → desbalanceamento não era a causa raiz.
 
 ## Escopo — o que NÃO afirmo (decorar)
 - NÃO: notícias nunca têm valor (outras representações = futuro)

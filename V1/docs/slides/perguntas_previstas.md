@@ -19,6 +19,14 @@ A conclusão correta é "nenhum efeito detectável neste tamanho amostral", e el
 **5. "Só 3 ativos e uma fonte de notícias — isso generaliza?"**
 Não generaliza, e o trabalho não reivindica isso. Limitações 1 e 2 declaradas: InfoMoney tem viés editorial de varejo e cobertura desigual (2.572 artigos ITUB4 vs 1.525 VALE3). A conclusão vale para a representação adotada (5 features diárias FinBERT) nesses 3 ativos. Direção futura: CVM, analyst reports, redes sociais (já explorado preliminarmente em 8.multi-source-news).
 
+**5b. "Você não tinha falado em balancear as classes (base igualitária 50/50)? Por que manteve 59/41?"** *(o prof sugeriu isto antes — ter resposta pronta)*
+Sim, foi cogitado, e a decisão de **não** balancear via reamostragem foi deliberada, por três razões:
+1. **Preserva a estrutura temporal.** A série é cronológica (walk-forward, sem embaralhar). Oversampling/undersampling para forçar 50/50 quebraria a ordem temporal e duplicaria/descartaria dias — exatamente o que o protocolo de série temporal proíbe.
+2. **Preserva a base rate real.** 59/41 é a prevalência verdadeira do mercado no período (sobe mais que cai). Forçar 50/50 ensinaria o modelo numa distribuição que não existe na produção — o teste continuaria 59/41 e o modelo ficaria mal-calibrado.
+3. **Compensei sem distorcer os dados.** Em vez de mexer na base, usei peso na função de perda: `pos_weight ≈ 1,38` (BCEWithLogitsLoss) nos modelos neurais, `scale_pos_weight` no XGBoost, `class_weight='balanced'` nos sklearn. Isso dá à classe minoritária o mesmo peso de gradiente **sem** alterar a sequência nem a prevalência.
+
+E o ponto decisivo: o desbalanceamento foi **investigado, não ignorado**. Mesmo com a compensação de peso, o Transformer ainda colapsou (previu "Desce" só 11×/177). Isso **prova** que o desbalanceamento não era a causa raiz do colapso — era a instabilidade da arquitetura/sinal fraco. Métricas robustas a desbalanceamento (balanced accuracy, MCC) ficam como trabalho futuro.
+
 ## Bloco B — Prováveis (ler 2x)
 
 **6. "Por que não otimizou hiperparâmetros por fold?"**
