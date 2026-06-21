@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-BR">
       <body>
         <SearchPalette index={index} />
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-[var(--bg)]">
           <Sidebar docs={navDocs} />
           <main className="flex-1 overflow-auto">{children}</main>
         </div>

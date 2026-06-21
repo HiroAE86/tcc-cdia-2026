@@ -1,6 +1,13 @@
 'use client';
 import { useMemo, useState } from 'react';
 import type { Card, Nivel } from '@/lib/parse-flashcards';
+import { IconShuffle, IconCheck, IconX } from './icons';
+
+const NIVEL_META: Record<Nivel, { label: string; cor: string }> = {
+  '🔴': { label: 'Crítico', cor: 'var(--nivel-alto)' },
+  '🟡': { label: 'Médio', cor: 'var(--nivel-medio)' },
+  '⚪': { label: 'Apoio', cor: 'var(--nivel-baixo)' },
+};
 
 export default function Flashcards({ cards }: { cards: Card[] }) {
   const [filtro, setFiltro] = useState<Nivel | 'todos'>('todos');
@@ -35,68 +42,125 @@ export default function Flashcards({ cards }: { cards: Card[] }) {
     setRevelado(false);
   };
 
-  if (!card) return <div className="p-10">Sem cards para este filtro.</div>;
+  const setFiltroReset = (f: Nivel | 'todos') => {
+    setFiltro(f);
+    setPos(0);
+    setRevelado(false);
+  };
+
+  if (!card) {
+    return (
+      <div className="mx-auto max-w-2xl p-10 text-center text-[var(--fg-muted)]">
+        Sem cards para este filtro.
+      </div>
+    );
+  }
+
+  const meta = NIVEL_META[card.nivel];
+  const total = acertos + erros;
+  const taxa = total ? Math.round((acertos / total) * 100) : 0;
+
+  const chips: { f: Nivel | 'todos'; label: string; cor?: string }[] = [
+    { f: 'todos', label: 'Todos' },
+    { f: '🔴', label: 'Crítico', cor: 'var(--nivel-alto)' },
+    { f: '🟡', label: 'Médio', cor: 'var(--nivel-medio)' },
+    { f: '⚪', label: 'Apoio', cor: 'var(--nivel-baixo)' },
+  ];
 
   return (
-    <div className="mx-auto max-w-2xl p-8">
-      <div className="mb-4 flex items-center gap-2">
-        {(['todos', '🔴', '🟡', '⚪'] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => {
-              setFiltro(f);
-              setPos(0);
-              setRevelado(false);
-            }}
-            className={`rounded px-3 py-1 text-sm ${
-              filtro === f ? 'bg-[var(--petroleo)] text-white' : 'bg-gray-200'
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+    <div className="mx-auto max-w-2xl px-6 py-10">
+      {/* Filtros */}
+      <div className="mb-5 flex flex-wrap items-center gap-2">
+        {chips.map(({ f, label, cor }) => {
+          const ativo = filtro === f;
+          return (
+            <button
+              key={f}
+              onClick={() => setFiltroReset(f)}
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                ativo
+                  ? 'border-transparent bg-[var(--primary)] text-[var(--on-brand)]'
+                  : 'border-[var(--border)] bg-[var(--surface)] text-[var(--fg-muted)] hover:border-[var(--accent)]'
+              }`}
+            >
+              {cor && (
+                <span className="h-2 w-2 rounded-full" style={{ background: cor }} />
+              )}
+              {label}
+            </button>
+          );
+        })}
         <button
           onClick={embaralhar}
-          className="ml-auto rounded bg-[var(--teal)] px-3 py-1 text-sm text-white"
+          className="ml-auto flex items-center gap-1.5 rounded-full bg-[var(--teal)] px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
-          🔀 Embaralhar
+          <IconShuffle size={15} /> Embaralhar
         </button>
       </div>
 
-      <div
+      {/* Card */}
+      <button
         onClick={() => setRevelado(true)}
-        className="min-h-64 cursor-pointer rounded-xl bg-white p-8 shadow-md"
+        className="block w-full cursor-pointer rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 text-left shadow-md transition-shadow hover:shadow-lg"
+        style={{ minHeight: '17rem' }}
       >
-        <div className="text-xs text-gray-400">
-          {card.nivel} · {pos + 1}/{filtrados.length}
+        <div className="flex items-center justify-between">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold"
+            style={{ background: `${meta.cor}1a`, color: meta.cor }}
+          >
+            <span className="h-1.5 w-1.5 rounded-full" style={{ background: meta.cor }} />
+            {meta.label}
+          </span>
+          <span className="tnum text-xs text-[var(--fg-subtle)]">
+            {pos + 1} / {filtrados.length}
+          </span>
         </div>
-        <div className="mt-4 text-2xl font-bold text-[var(--petroleo)]">{card.termo}</div>
-        {revelado ? (
-          <div className="mt-6 text-lg text-gray-800">{card.resposta}</div>
-        ) : (
-          <div className="mt-6 text-sm text-gray-400">clique para revelar</div>
-        )}
-      </div>
 
+        <div className="mt-5 font-display text-2xl font-bold leading-snug text-[var(--fg)]">
+          {card.termo}
+        </div>
+
+        {revelado ? (
+          <div className="mt-5 border-t border-[var(--border)] pt-5 text-lg leading-relaxed text-[var(--fg-muted)]">
+            {card.resposta}
+          </div>
+        ) : (
+          <div className="mt-5 text-sm text-[var(--fg-subtle)]">clique para revelar</div>
+        )}
+      </button>
+
+      {/* Ações */}
       {revelado && (
         <div className="mt-4 flex gap-3">
           <button
             onClick={() => proximo(false)}
-            className="flex-1 rounded bg-[var(--coral)] py-3 text-white"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--coral)] py-3 font-medium text-white transition-opacity hover:opacity-90"
           >
-            Não sabia
+            <IconX size={18} /> Não sabia
           </button>
           <button
             onClick={() => proximo(true)}
-            className="flex-1 rounded bg-[var(--teal)] py-3 text-white"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[var(--teal)] py-3 font-medium text-white transition-opacity hover:opacity-90"
           >
-            Sabia →
+            <IconCheck size={18} /> Sabia
           </button>
         </div>
       )}
 
-      <div className="mt-4 text-center text-sm text-gray-500">
-        Acertos: {acertos} · Erros: {erros}
+      {/* Placar */}
+      <div className="mt-5 flex items-center justify-center gap-5 text-sm">
+        <span className="flex items-center gap-1.5 text-[var(--fg-muted)]">
+          <span className="h-2 w-2 rounded-full bg-[var(--teal)]" /> Acertos{' '}
+          <span className="tnum font-semibold text-[var(--fg)]">{acertos}</span>
+        </span>
+        <span className="flex items-center gap-1.5 text-[var(--fg-muted)]">
+          <span className="h-2 w-2 rounded-full bg-[var(--coral)]" /> Erros{' '}
+          <span className="tnum font-semibold text-[var(--fg)]">{erros}</span>
+        </span>
+        {total > 0 && (
+          <span className="tnum text-[var(--fg-subtle)]">{taxa}% certo</span>
+        )}
       </div>
     </div>
   );
