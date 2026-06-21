@@ -5,7 +5,7 @@ import type { Entrada } from '@/lib/glossario';
 import { destacar } from '@/lib/highlight';
 import { IconArrowLeft, IconArrowRight, IconPlay, IconPause } from './icons';
 
-const TOTAL_SEG = 20 * 60;
+const TOTAL_SEG = 15 * 60;
 
 export default function Presenter({
   slides,

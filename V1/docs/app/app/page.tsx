@@ -34,7 +34,7 @@ export default function Home() {
           <IconPresent size={28} className="text-white/90" />
           <div className="mt-3 font-display text-xl font-bold">Apresentar</div>
           <div className="mt-1 text-sm text-white/75">
-            Discurso slide-a-slide + cronômetro de 20 min.
+            Discurso slide-a-slide + cronômetro de 15 min.
           </div>
           <IconArrowRight
             size={18}

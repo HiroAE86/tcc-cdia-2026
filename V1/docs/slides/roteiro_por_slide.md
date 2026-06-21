@@ -1,7 +1,28 @@
 # Roteiro slide-a-slide — o que falar + o que pode cair
 
-> 20 slides, ~20 min. Por slide: **fala** (o que dizer) · **decisões em jogo** (o que justificar) · **perguntas prováveis aqui**.
+> 20 slides, **~15 min**. Por slide: **fala** (o que dizer) · **decisões em jogo** (o que justificar) · **perguntas prováveis aqui**.
 > Cruza com `discurso_para_decorar.md` (a fala corrida para decorar), `glossario_flashcards.md` (cada termo na ponta da língua, formato treinável), `justificativas_decisoes.md` (o porquê), `perguntas_previstas.md` (respostas longas) e `ferramentas_explicadas.md` (o que é cada ferramenta em 3 níveis).
+
+---
+
+## Diretrizes da banca (Prof. Tanara) — aplicar antes de montar os slides
+
+**Estética (corrigir nos slides):**
+- **Fonte do corpo 22–24**; tabelas e gráficos **mínimo 18**. Se a tabela de validação (ex.: hierarquia de baselines, ablation) ficar densa, **quebra em dois slides** — não espreme.
+- **Sem serifa**: Arial, Montserrat ou Calibri. Consistente em tudo.
+- **Espaçamento ≥ 1,15** (evita o 1,0 que amontoa e tenta a gente a encher de texto).
+- **Slide = guia, não teleprompter.** Tópicos curtos, não blocos. Nada de parágrafos sobre bibliotecas Python ou referencial financeiro — isso é fala, não slide.
+- **Imagem só funcional.** Zero foto ilustrativa (bolsa, robô, gráfico genérico). Só o que carrega dado: **matriz de confusão, distribuição bimodal de AUC, curva de variância do PCA, esquema da pipeline, boxplot dos folds**.
+- **Salva-vidas: leve em PDF no pen-drive.** Evita desconfigurar no PC da PUC.
+
+**Distribuição de tempo (15 min) — onde o vídeo manda focar:**
+- **Introdução/contexto: corre.** A banca já leu. Slides 3–4 ≤ 2 min somados. Não recita literatura.
+- **Objetivo (slide 4): única parte que pode LER do slide** — pra cravar a pergunta de pesquisa nas palavras exatas. (No teu caso: *"o sentimento de notícias melhora a previsão de direção na B3?"* — não "validar que a IA funciona". A resposta acabou **nula**, e isso é o trabalho.)
+- **Metodologia: o coração das perguntas.** É onde a banca de Ciência de Dados cava critério de treino/teste. Detalha pipeline, forward-fill, walk-forward vs expanding-window, baselines, bootstrap. Slides 5–6 + 11–14.
+- **Resultados/investigação: a estrela.** Slides 10–16. **Não leia a tabela — interpreta:** "o Transformer só bate 0,709 numa janela e numa semente; sob CV ele *inverte* pra 0,509 < baseline 0,667, o que estatisticamente significa que o 0,709 era artefato." Letras das legendas ≥ 18.
+- **Considerações finais: objetivo.** Slide 17–20. Responde a pergunta do slide 4 de frente: o sentimento **não** adiciona sinal detectável; a contribuição é a autocorreção documentada.
+
+> ⚠️ Ajuste de narrativa vs vídeo: o vídeo é genérico e fala em "validar que a IA é segura/funciona". O **teu** trabalho conclui o oposto — resultado **nulo** + autocorreção. Mantém o foco em Metodologia/Resultados que o vídeo recomenda, mas **nunca** prometa que validou a eficácia. A força da tua defesa é o rigor que derrubou o próprio resultado positivo.
 
 > ⚠️ **Discrepância de números:** o deck diz **1.435 execuções / 8 experimentos** (só os principais). O texto do TCC diz **~1.510 / 13 experimentos** (inclui dimensionality_control, naive_baselines, horizon_sweep, tcn_validation, power_analysis). Se perguntarem: "1.435 são os 8 experimentos centrais da reversão; o total com diagnósticos auxiliares passa de 1.500." Não te contradiz.
 
@@ -152,8 +173,14 @@
 
 🔴 = vão perguntar, sabe a fundo · 🟡 = sabe a defesa · ⚪ = só saber que existe.
 
-## Ritmo (20 min)
-- Slides 1–6 (contexto + pipeline): ~6 min
-- Slides 7–9 (resultado positivo): ~3 min
-- Slides 10–16 (investigação): ~8 min ← núcleo, não corre
-- Slides 17–20 (conclusão): ~3 min
+## Ritmo (15 min — alinhado à Prof. Tanara)
+| Bloco | Slides | Tempo | Postura |
+|---|---|---|---|
+| Abertura + contexto | 1–4 | ~2 min | **Corre.** Banca já leu. Só crava a pergunta (slide 4, pode ler). |
+| Dados + pipeline (metodologia) | 5–6 | ~2,5 min | Detalha forward-fill e o fluxo. 1ª zona quente. |
+| Resultado positivo | 7–9 | ~2 min | Monta a tensão do 0,709. |
+| Investigação (a estrela) | 10–16 | ~6 min | **Núcleo, não corre.** Interpreta cada número, não lê tabela. |
+| Conclusão | 17–20 | ~2,5 min | Responde a pergunta do slide 4. Objetivo, sem encher. |
+
+- Margem de segurança: 15 min de fala deixa ~5 min de perguntas num slot de 20. Se o tempo apertar, **comprime 1–4 e 7–9**, nunca o bloco 10–16.
+- Cronômetro do app (modo Apresentar) já está em **15 min**; o "ritmo" (verde/âmbar/coral) usa esse alvo.

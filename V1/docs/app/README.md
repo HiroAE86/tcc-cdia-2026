@@ -15,7 +15,7 @@ Produção: `npm run build && npm run start`.
 
 - **/** — início, atalhos, tese em 1 frase
 - **/doc/[slug]** — documentos navegáveis (diagramas mermaid renderizados)
-- **/apresentar** — discurso slide-a-slide + cronômetro de 20 min
+- **/apresentar** — discurso slide-a-slide + cronômetro de 15 min
   - `←` / `→` navega · `espaço` dá play/pause no cronômetro
   - cor do cronômetro = ritmo (teal no prazo, amarelo atrasando, coral atrasado)
   - painel lateral com as 5 frases-âncora
