@@ -45,18 +45,17 @@
 }
 
 /* ---------- Design tokens (dark) ---------- */
+/* System default: follow OS only when no explicit choice made */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme]) {
     --bg: #0A1A21;
     --surface: #0F2630;
     --surface-2: #15323D;
     --border: #21424F;
-
     --fg: #EAF1F3;
     --fg-muted: #A7BCC4;
     --fg-subtle: #7593A0;
     --on-brand: #FFFFFF;
-
     --primary: #1B7F79;
     --accent: #2DA89F;
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -64,6 +63,24 @@
     --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
   }
 }
+
+/* Explicit user choice — wins over system */
+:root[data-theme="dark"] {
+  --bg: #0A1A21;
+  --surface: #0F2630;
+  --surface-2: #15323D;
+  --border: #21424F;
+  --fg: #EAF1F3;
+  --fg-muted: #A7BCC4;
+  --fg-subtle: #7593A0;
+  --on-brand: #FFFFFF;
+  --primary: #1B7F79;
+  --accent: #2DA89F;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+/* :root[data-theme="light"] inherits the base :root light tokens — no override needed */
 
 * {
   border-color: var(--border);
