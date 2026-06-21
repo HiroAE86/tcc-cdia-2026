@@ -66,6 +66,12 @@
 - **h = 5 e 21:** horizontes semanal e mensal, onde drift pós-notícia é documentado em outros mercados. Mais curto = ruído de microestrutura; mais longo = sinal de notícia dilui.
 - **Desbalanceamento 59/41:** mercado sobe mais que cai no período → tratado com `pos_weight`/`class_weight`.
 
+### ⭐ Por que NÃO balanceou as classes (base "igualitária" 50/50)? *(o prof sugeriu isto — ter resposta pronta)*
+- **Por quê:** mantive a prevalência natural 59/41 e compensei com **peso na perda**, não com reamostragem da base. `pos_weight ≈ 1,38` (BCEWithLogitsLoss) nos neurais, `scale_pos_weight` no XGBoost, `class_weight='balanced'` nos sklearn.
+- **Rejeitado (oversampling/undersampling para 50/50):** quebraria a **ordem cronológica** da série (walk-forward sem embaralhar) ao duplicar/descartar dias — proibido em série temporal; e **distorceria a base rate real** (o mercado é 59/41, o teste continua 59/41 → modelo treinado em 50/50 fica mal-calibrado).
+- **Por que peso na perda é melhor aqui:** dá à classe minoritária o mesmo peso de gradiente **sem** alterar a sequência nem a prevalência. Corrige o viés de otimização, preserva os dados.
+- **Se pressionarem (ponto decisivo):** o desbalanceamento foi **investigado, não ignorado**. Mesmo com a compensação, o Transformer colapsou (previu "Desce" só 11×/177) → **prova** que o desbalanceamento não era a causa raiz do colapso, e sim a instabilidade da arquitetura / sinal fraco. Métricas robustas (balanced accuracy, MCC) = trabalho futuro.
+
 ---
 
 ## MODELOS
