@@ -5,8 +5,9 @@ import { IconHome, IconPresent, IconCards, IconDoc, IconSearch, IconMonitor } fr
 import ThemeToggle from './ThemeToggle';
 
 type Item = { slug: string; title: string };
+type Group = { label: string; docs: Item[] };
 
-export default function Sidebar({ docs }: { docs: Item[] }) {
+export default function Sidebar({ groups }: { groups: Group[] }) {
   const path = usePathname();
 
   const link = (href: string, label: string, Icon: typeof IconHome) => {
@@ -61,14 +62,18 @@ export default function Sidebar({ docs }: { docs: Item[] }) {
       {link('/apresentar', 'Apresentar', IconPresent)}
       {link('/flashcards', 'Flashcards', IconCards)}
 
-      <div className="px-3 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-[var(--fg-subtle)]">
-        Documentos
-      </div>
-      <div className="flex flex-col gap-0.5">
-        {docs.map((d) => (
-          <span key={d.slug}>{link(`/doc/${d.slug}`, d.title, IconDoc)}</span>
-        ))}
-      </div>
+      {groups.map((g) => (
+        <div key={g.label}>
+          <div className="px-3 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-[var(--fg-subtle)]">
+            {g.label}
+          </div>
+          <div className="flex flex-col gap-0.5">
+            {g.docs.map((d) => (
+              <span key={d.slug}>{link(`/doc/${d.slug}`, d.title, IconDoc)}</span>
+            ))}
+          </div>
+        </div>
+      ))}
 
       <div className="mt-auto border-t border-[var(--border)] pt-3">
         <ThemeToggle />

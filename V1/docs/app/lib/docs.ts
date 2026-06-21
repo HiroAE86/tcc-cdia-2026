@@ -5,29 +5,50 @@ import remarkGfm from 'remark-gfm';
 import remarkHtml from 'remark-html';
 
 export type Doc = { slug: string; title: string; raw: string };
+export type DocGroup = { label: string; docs: { slug: string; title: string }[] };
 
 const SLIDES_DIR = path.join(process.cwd(), '..', 'slides');
 
-export const DOC_ORDER = [
-  'mapa_logico',
-  'roteiro_por_slide',
-  'discurso_para_decorar',
-  'glossario_flashcards',
-  'ferramentas_explicadas',
-  'justificativas_decisoes',
-  'perguntas_previstas',
-  'cola_defesa',
+// Grupos por uso. A ordem aqui define a ordem na barra lateral e os params estáticos.
+const GROUPS: { label: string; slugs: string[] }[] = [
+  {
+    label: 'Ensaiar',
+    slugs: ['discurso_verbatim', 'discurso_simples', 'cartoes_imagens', 'imagens_por_slide'],
+  },
+  {
+    label: 'Na defesa',
+    slugs: ['defesa_simples_completa', 'cola_defesa', 'perguntas_previstas'],
+  },
+  {
+    label: 'Referência',
+    slugs: [
+      'mapa_logico',
+      'roteiro_por_slide',
+      'glossario_flashcards',
+      'ferramentas_explicadas',
+      'justificativas_decisoes',
+    ],
+  },
 ];
 
+export const DOC_ORDER = GROUPS.flatMap((g) => g.slugs);
+
 const TITLES: Record<string, string> = {
+  // Ensaiar
+  discurso_verbatim: 'Discurso (15 min, ler)',
+  discurso_simples: 'Discurso simples',
+  cartoes_imagens: 'Cartões das imagens',
+  imagens_por_slide: 'Imagens por slide',
+  // Na defesa
+  defesa_simples_completa: 'Defesa simples (Q&A)',
+  cola_defesa: 'Cola de defesa',
+  perguntas_previstas: 'Perguntas previstas',
+  // Referência
   mapa_logico: 'Mapa lógico',
   roteiro_por_slide: 'Roteiro por slide',
-  discurso_para_decorar: 'Discurso (decorar)',
   glossario_flashcards: 'Glossário / Flashcards',
   ferramentas_explicadas: 'Ferramentas explicadas',
   justificativas_decisoes: 'Justificativas',
-  perguntas_previstas: 'Perguntas previstas',
-  cola_defesa: 'Cola de defesa',
 };
 
 function readRaw(slug: string): string | null {
@@ -47,6 +68,17 @@ export function getDoc(slug: string): Doc | null {
 
 export function listDocs(): Doc[] {
   return DOC_ORDER.map(getDoc).filter((d): d is Doc => d !== null);
+}
+
+// Documentos agrupados por uso, só os que existem em disco. Para a barra lateral.
+export function listGroupedDocs(): DocGroup[] {
+  return GROUPS.map((g) => ({
+    label: g.label,
+    docs: g.slugs
+      .map(getDoc)
+      .filter((d): d is Doc => d !== null)
+      .map((d) => ({ slug: d.slug, title: d.title })),
+  })).filter((g) => g.docs.length > 0);
 }
 
 export async function renderMarkdown(raw: string): Promise<string> {

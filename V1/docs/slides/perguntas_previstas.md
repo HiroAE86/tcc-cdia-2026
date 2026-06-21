@@ -50,6 +50,12 @@ Sim, limitação 5 declarada. Mas com Δ médio de +0,003 e IC [−0,012; +0,018
 **12. "Alguém deveria usar o baseline de 0,67 para operar?"**
 Não. AUC ≠ retorno após custos de transação e slippage. O experimento ensemble + backtest não evidenciou ganho de trading e foi descontinuado.
 
+**12b. "Na VALE3 o ganho do sentimento é +0,036 no slide 14 (CV) mas +0,058 no slide 16 (ablation). Por que números diferentes?"** *(se a banca cruzar as duas tabelas)*
+São dois experimentos diferentes, com protocolos diferentes — não é o mesmo número medido duas vezes:
+- Slide 14 (expanding-window CV): Transformer vs XGBoost-preço, 5 folds × 5 sementes. Δ = +0,036.
+- Slide 16 (ablation): só XGBoost, PRICE vs PRICE+SENT, 225 treinamentos. Δ = +0,058.
+Diferem em modelo (Transformer vs XGBoost), em contraste (sentimento isolado vs preço+sentimento) e em nº de execuções. O ponto que **não** muda: nos dois, o ganho da VALE3 é pequeno e **não significativo** — o deep-dive de 880 execuções (slide 15) deu p = 0,194. E na ablation, mesmo o +0,058 da VALE3 é puxado pela média a +0,003 porque ITUB4 (−0,033) e PETR4 (−0,016) são **negativos**: dois dos três ativos pioram ao adicionar sentimento. A direção da conclusão é robusta às duas medições.
+
 ## Bloco C — Possíveis (saber que existem)
 
 **13. "Por que não usar o texto direto num LLM moderno em vez de 5 features agregadas?"**

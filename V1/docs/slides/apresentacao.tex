@@ -295,7 +295,7 @@
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
-      \scriptsize
+      \footnotesize
       \begin{tabular}{lr}
         \toprule
         \textbf{Experimento} & \textbf{Runs} \\
@@ -351,13 +351,15 @@
 \begin{frame}{Multi-seed: o colapso bimodal}
   \begin{columns}[T]
     \column{0.58\textwidth}
-    \includegraphics[width=\textwidth]{multi_seed_histograms.png}
+    \includegraphics[width=\textwidth]{multi_seed_histograms.png}\\[0.5ex]
+    {\footnotesize\itshape Como ler: cada barra = 1 semente. \textcolor{verdeagua}{Azul} (meu modelo)
+    espalhado de 0{,}08 a 0{,}93; \textcolor{coral}{vermelho} (\textit{baseline}) apertado em $\sim$0{,}65.
+    A linha do 0{,}709 cai na \textbf{ponta direita} $\Rightarrow$ semente sortuda.}
     \column{0.38\textwidth}
     \begin{itemize}
-      \item Recompilação com semente 42: AUC despenca de 0{,}709 para \alert{0{,}442}
-      \item 20 sementes (ITUB4): Transformer com std = \alert{0{,}261} ($21\times$ o \textit{baseline}), min 0{,}080, max 0{,}931
-      \item Distribuição \textbf{bimodal}: o modelo colapsa para ``sempre Sobe'' ou ``sempre Desce''
-      \item \textit{Baseline}: estável, std = 0{,}012
+      \item Semente 42: AUC cai de 0{,}709 para \alert{0{,}442} --- só trocando o sorteio
+      \item 20 sementes: Transformer std = \alert{0{,}261} ($21\times$ o \textit{baseline}, que tem std 0{,}012)
+      \item \textbf{Bimodal:} acumula nas pontas $\Rightarrow$ colapsa para ``sempre Sobe'' ou ``sempre Desce''
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -366,11 +368,14 @@
 \begin{frame}{Expanding-window CV: a inversão}
   \begin{columns}[T]
     \column{0.55\textwidth}
-    \includegraphics[width=\textwidth]{expanding_cv_overtime.png}
+    \includegraphics[width=\textwidth]{expanding_cv_overtime.png}\\[0.5ex]
+    {\footnotesize\itshape Como ler: 3 ativos, eixo X = tempo (\textit{folds}).
+    \textcolor{coral}{Vermelho} = preço, \textcolor{verdeagua}{azul} = meu modelo.
+    Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.}
     \column{0.42\textwidth}
     \begin{table}
       \footnotesize
-      {\scriptsize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
+      {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
       \begin{tabular}{lccc}
         \toprule
         \textbf{Ativo} & \textbf{XGB} & \textbf{Transf.} & $\boldsymbol{\Delta}$ \\
@@ -394,13 +399,15 @@
 \begin{frame}{E a exceção VALE3? \textit{Deep-dive} com 880 execuções}
   \begin{columns}[T]
     \column{0.58\textwidth}
-    \includegraphics[width=\textwidth]{vale3_deepdive_hist.png}
+    \includegraphics[width=\textwidth]{vale3_deepdive_hist.png}\\[0.5ex]
+    {\footnotesize\itshape Como ler: 880 execuções. \textcolor{verdeagua}{Azul} (meu modelo)
+    acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
+    fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
     \begin{itemize}
-      \item Único ativo com $\Delta > 0$ ($+$0{,}036) na análise principal
-      \item Protocolo reforçado: \textbf{52 \textit{folds} $\times$ 10 sementes}
-      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$)
-      \item Transformer: bimodal severo --- picos em AUC $<0{,}05$ e $>0{,}95$, assinatura de classificador degenerado
+      \item Era o único ativo com ganho aparente ($+$0{,}036) na análise principal
+      \item Reforço: \textbf{52 \textit{folds} $\times$ 10 sementes} = 880 execuções
+      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -409,11 +416,15 @@
 \begin{frame}{Ablation: o sentimento adiciona algo ao preço?}
   \begin{columns}[T]
     \column{0.52\textwidth}
-    \includegraphics[width=\textwidth]{ablation_boxplot.png}
+    \includegraphics[width=\textwidth]{ablation_boxplot.png}\\[0.5ex]
+    {\footnotesize\itshape Como ler: 3 caixas por ativo. \textcolor{verdeagua}{Verde} (só sentimento)
+    fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
+    $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
     \begin{table}
-      \scriptsize
-      {\scriptsize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
+      \footnotesize
+      {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
+      \resizebox{\linewidth}{!}{%
       \begin{tabular}{lcccc}
         \toprule
         \textbf{Ativo} & \textbf{PRICE} & \textbf{SENT} & \textbf{P+S} & $\boldsymbol{\Delta}$ \\
@@ -424,7 +435,7 @@
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
-      \end{tabular}
+      \end{tabular}}
     \end{table}
     \begin{itemize}
       \item $\Delta = +0{,}003$; Wilcoxon $p = 0{,}49$; IC 95\% $[-0{,}012;\ +0{,}018]$

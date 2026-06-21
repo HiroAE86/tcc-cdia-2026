@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "defesa-app",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "V1/docs/app", "run", "dev"],
+      "port": 3000,
+      "autoPort": true
+    }
+  ]
+}

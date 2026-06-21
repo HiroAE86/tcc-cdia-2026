@@ -5,7 +5,8 @@ import SlideViewer from '@/components/SlideViewer';
 
 export default function SlidesPage() {
   const pdf = getSlidesPdf();
-  const doc = getDoc('discurso_para_decorar');
+  // Sincroniza com a fala enxuta de 15 min (discurso_verbatim).
+  const doc = getDoc('discurso_verbatim');
   const slides = doc ? parseDiscurso(doc.raw) : [];
   const ancoras = doc ? parseAncoras(doc.raw) : [];
   return (

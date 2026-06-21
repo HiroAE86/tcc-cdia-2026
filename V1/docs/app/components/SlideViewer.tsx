@@ -173,20 +173,24 @@ V1/docs/app/public/slides.pdf
             </p>
           </div>
         )}
-        <div className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
-          5 frases-âncora
-        </div>
-        <ul className="mt-3 space-y-2.5">
-          {ancoras.map((a, k) => (
-            <li
-              key={k}
-              className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3 text-sm leading-relaxed text-[var(--fg)]"
-            >
-              <span className="tnum mr-1.5 font-bold text-[var(--accent)]">{k + 1}.</span>
-              {a}
-            </li>
-          ))}
-        </ul>
+        {ancoras.length > 0 && (
+          <>
+            <div className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
+              5 frases-âncora
+            </div>
+            <ul className="mt-3 space-y-2.5">
+              {ancoras.map((a, k) => (
+                <li
+                  key={k}
+                  className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3 text-sm leading-relaxed text-[var(--fg)]"
+                >
+                  <span className="tnum mr-1.5 font-bold text-[var(--accent)]">{k + 1}.</span>
+                  {a}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </aside>
     </div>
   );

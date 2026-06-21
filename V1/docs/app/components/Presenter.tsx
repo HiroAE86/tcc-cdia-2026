@@ -148,22 +148,24 @@ export default function Presenter({
       </div>
 
       {/* Anchor panel */}
-      <aside className="hidden w-80 shrink-0 overflow-auto border-l border-[var(--border)] bg-[var(--surface)] p-5 lg:block">
-        <div className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
-          5 frases-âncora
-        </div>
-        <ul className="mt-3 space-y-2.5">
-          {ancoras.map((a, k) => (
-            <li
-              key={k}
-              className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3 text-sm leading-relaxed text-[var(--fg)]"
-            >
-              <span className="tnum mr-1.5 font-bold text-[var(--accent)]">{k + 1}.</span>
-              {a}
-            </li>
-          ))}
-        </ul>
-      </aside>
+      {ancoras.length > 0 && (
+        <aside className="hidden w-80 shrink-0 overflow-auto border-l border-[var(--border)] bg-[var(--surface)] p-5 lg:block">
+          <div className="text-xs font-bold uppercase tracking-wide text-[var(--accent)]">
+            5 frases-âncora
+          </div>
+          <ul className="mt-3 space-y-2.5">
+            {ancoras.map((a, k) => (
+              <li
+                key={k}
+                className="rounded-lg border border-[var(--border)] bg-[var(--surface-2)] p-3 text-sm leading-relaxed text-[var(--fg)]"
+              >
+                <span className="tnum mr-1.5 font-bold text-[var(--accent)]">{k + 1}.</span>
+                {a}
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
     </div>
   );
 }

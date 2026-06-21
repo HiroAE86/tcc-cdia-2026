@@ -1,7 +1,10 @@
 export type Slide = { n: number; titulo: string; texto: string };
 
-// Casa "## [Slide 12 — título qualquer] ~1min30" capturando n e o miolo do colchete.
-const SLIDE_RE = /^##\s*\[Slide\s+(\d+)\s*[—-]\s*([^\]]+)\]/;
+// Casa o cabeçalho de slide em dois formatos:
+//   "## [Slide 12 — título] ~1min30"   (formato antigo, com colchetes)
+//   "## Slide 12 — título · ~1min30"    (discurso_verbatim, sem colchetes)
+// Captura n e o título (parando em ']', '·' ou fim da linha).
+const SLIDE_RE = /^##\s*\[?\s*Slide\s+(\d+)\s*[—-]\s*([^\]·]+?)(?:\s*[\]·].*)?$/;
 
 // Remove marcação inline (negrito/código) — o discurso é exibido como texto puro.
 function limpaInline(s: string): string {
@@ -29,8 +32,13 @@ export function parseDiscurso(raw: string): Slide[] {
       cur = { n: Number(m[1]), titulo: m[2].trim(), texto: '' };
       continue;
     }
-    // Encerra o último slide ao bater na seção pós-discurso.
-    if (cur && /^##\s+(Tática|As 5 frases)/i.test(line)) {
+    // Encerra o último slide ao bater na primeira seção pós-discurso.
+    // Cobre os dois arquivos: "Tática"/"As 5 frases" (antigo) e
+    // "Checkpoints"/"Soma dos tempos"/"Se AINDA"/"Termina SEMPRE" (verbatim).
+    if (
+      cur &&
+      /^##\s+(Tática|As 5 frases|Checkpoints|Soma dos tempos|Se AINDA|Termina SEMPRE)/i.test(line)
+    ) {
       flush();
       cur = null;
       continue;
