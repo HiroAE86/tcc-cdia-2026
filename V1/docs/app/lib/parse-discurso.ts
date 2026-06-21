@@ -3,6 +3,11 @@ export type Slide = { n: number; titulo: string; texto: string };
 // Casa "## [Slide 12 — título qualquer] ~1min30" capturando n e o miolo do colchete.
 const SLIDE_RE = /^##\s*\[Slide\s+(\d+)\s*[—-]\s*([^\]]+)\]/;
 
+// Remove marcação inline (negrito/código) — o discurso é exibido como texto puro.
+function limpaInline(s: string): string {
+  return s.replace(/\*\*(.*?)\*\*/g, '$1').replace(/`([^`]*)`/g, '$1');
+}
+
 export function parseDiscurso(raw: string): Slide[] {
   const lines = raw.split('\n');
   const slides: Slide[] = [];
@@ -11,7 +16,7 @@ export function parseDiscurso(raw: string): Slide[] {
 
   const flush = () => {
     if (cur) {
-      cur.texto = buf.join('\n').trim();
+      cur.texto = limpaInline(buf.join('\n').trim());
       slides.push(cur);
     }
     buf.length = 0;

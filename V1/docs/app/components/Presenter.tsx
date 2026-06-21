@@ -1,6 +1,8 @@
 'use client';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import type { Slide } from '@/lib/parse-discurso';
+import type { Entrada } from '@/lib/glossario';
+import { destacar } from '@/lib/highlight';
 import { IconArrowLeft, IconArrowRight, IconPlay, IconPause } from './icons';
 
 const TOTAL_SEG = 20 * 60;
@@ -8,13 +10,16 @@ const TOTAL_SEG = 20 * 60;
 export default function Presenter({
   slides,
   ancoras,
+  entradas = [],
 }: {
   slides: Slide[];
   ancoras: string[];
+  entradas?: Entrada[];
 }) {
   const [i, setI] = useState(0);
   const [seg, setSeg] = useState(0);
   const [rodando, setRodando] = useState(false);
+  const [dicas, setDicas] = useState(true);
 
   const prev = useCallback(() => setI((x) => Math.max(0, x - 1)), []);
   const next = useCallback(
@@ -50,6 +55,12 @@ export default function Presenter({
   const labelRitmo = atrasado ? 'Atrasado' : proximo ? 'No limite' : 'No ritmo';
 
   const s = slides[i];
+
+  const conteudoSlide = useMemo(
+    () => (s && dicas && entradas.length ? destacar(s.texto, entradas) : s?.texto),
+    [s, dicas, entradas],
+  );
+
   if (!s) return <div className="p-10 text-[var(--fg-muted)]">Sem slides.</div>;
 
   const progresso = ((i + 1) / slides.length) * 100;
@@ -64,6 +75,18 @@ export default function Presenter({
             <div className="truncate font-display text-base font-semibold">{s.titulo}</div>
           </div>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setDicas((d) => !d)}
+              title="Liga/desliga dicas em termos e números"
+              aria-pressed={dicas}
+              className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${
+                dicas
+                  ? 'border-white/40 bg-white/15 text-white'
+                  : 'border-white/20 text-white/50'
+              }`}
+            >
+              Dicas {dicas ? 'on' : 'off'}
+            </button>
             <span
               className="rounded-full px-2.5 py-0.5 text-xs font-semibold"
               style={{ background: corTimer, color: '#fff' }}
@@ -87,7 +110,7 @@ export default function Presenter({
         {/* Slide text — large, readable from a distance */}
         <div className="flex-1 overflow-auto px-10 py-8">
           <div className="mx-auto max-w-3xl whitespace-pre-wrap font-display text-[1.6rem] leading-[1.55] text-[var(--fg)]">
-            {s.texto}
+            {conteudoSlide}
           </div>
         </div>
 
