@@ -1,65 +1,44 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { listDocs } from '@/lib/docs';
 
 export default function Home() {
+  const docs = listDocs();
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="mx-auto max-w-3xl p-10">
+      <h1 className="text-3xl font-bold text-[var(--petroleo)]">Defesa TCC</h1>
+      <p className="mt-2 text-lg text-gray-700">
+        Predição de Direção de Preços de Ações Brasileiras com Sentimento de Notícias.
+      </p>
+      <blockquote className="mt-4 border-l-4 border-[var(--coral)] bg-white p-4 italic">
+        Obtive AUC 0,709 usando sentimento, desconfiei, rodei ~1.510 execuções e provei que era
+        artefato de janela única — o sentimento não adiciona valor detectável (Δ = +0,003, p = 0,49).
+      </blockquote>
+      <div className="mt-8 grid grid-cols-2 gap-4">
+        <Link
+          href="/apresentar"
+          className="rounded-lg bg-[var(--petroleo)] p-6 text-white hover:opacity-90"
+        >
+          <div className="text-xl font-bold">▶ Apresentar</div>
+          <div className="text-sm opacity-80">Discurso slide-a-slide + cronômetro 20 min</div>
+        </Link>
+        <Link
+          href="/flashcards"
+          className="rounded-lg bg-[var(--teal)] p-6 text-white hover:opacity-90"
+        >
+          <div className="text-xl font-bold">🃏 Flashcards</div>
+          <div className="text-sm opacity-80">Treinar termos na ponta da língua</div>
+        </Link>
+      </div>
+      <h2 className="mt-10 text-sm font-bold uppercase text-[var(--teal)]">Documentos</h2>
+      <ul className="mt-2 space-y-1">
+        {docs.map((d) => (
+          <li key={d.slug}>
+            <Link href={`/doc/${d.slug}`} className="text-[var(--petroleo)] underline">
+              {d.title}
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
