@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { IconHome, IconPresent, IconCards, IconDoc, IconSearch } from './icons';
+import ThemeToggle from './ThemeToggle';
 
 type Item = { slug: string; title: string };
 
@@ -66,6 +67,10 @@ export default function Sidebar({ docs }: { docs: Item[] }) {
         {docs.map((d) => (
           <span key={d.slug}>{link(`/doc/${d.slug}`, d.title, IconDoc)}</span>
         ))}
+      </div>
+
+      <div className="mt-auto border-t border-[var(--border)] pt-3">
+        <ThemeToggle />
       </div>
     </nav>
   );

@@ -15,6 +15,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const index = all.map((d) => ({ slug: d.slug, title: d.title, text: d.raw }));
   return (
     <html lang="pt-BR">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('tema');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         <SearchPalette index={index} />
         <div className="flex min-h-screen bg-[var(--bg)]">
