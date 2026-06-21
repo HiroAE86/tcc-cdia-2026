@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { IconHome, IconPresent, IconCards, IconDoc, IconSearch } from './icons';
+import { IconHome, IconPresent, IconCards, IconDoc, IconSearch, IconMonitor } from './icons';
 import ThemeToggle from './ThemeToggle';
 
 type Item = { slug: string; title: string };
@@ -57,6 +57,7 @@ export default function Sidebar({ docs }: { docs: Item[] }) {
         Modos
       </div>
       {link('/', 'Início', IconHome)}
+      {link('/slides', 'Slides', IconMonitor)}
       {link('/apresentar', 'Apresentar', IconPresent)}
       {link('/flashcards', 'Flashcards', IconCards)}
 

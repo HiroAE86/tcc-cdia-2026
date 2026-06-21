@@ -15,6 +15,10 @@ Produção: `npm run build && npm run start`.
 
 - **/** — início, atalhos, tese em 1 frase
 - **/doc/[slug]** — documentos navegáveis (diagramas mermaid renderizados)
+- **/slides** — visualizador do deck (PDF) com fala e cronômetro ao lado
+  - coloque o deck final em `public/slides.pdf` (ou `apresentacao.pdf`/`deck.pdf`)
+  - `←` / `→` troca de página · `espaço` play/pause · "Abrir em tela cheia" projeta o PDF
+  - se não houver PDF, a tela explica onde salvá-lo
 - **/apresentar** — discurso slide-a-slide + cronômetro de 15 min
   - `←` / `→` navega · `espaço` dá play/pause no cronômetro
   - cor do cronômetro = ritmo (teal no prazo, amarelo atrasando, coral atrasado)

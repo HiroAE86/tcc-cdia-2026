@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { listDocs } from '@/lib/docs';
-import { IconPresent, IconCards, IconDoc, IconArrowRight } from '@/components/icons';
+import { IconPresent, IconCards, IconDoc, IconArrowRight, IconMonitor } from '@/components/icons';
 
 export default function Home() {
   const docs = listDocs();
@@ -26,7 +26,22 @@ export default function Home() {
       </blockquote>
 
       {/* Mode cards */}
-      <div className="mt-10 grid gap-4 sm:grid-cols-2">
+      <div className="mt-10 grid gap-4 sm:grid-cols-3">
+        <Link
+          href="/slides"
+          className="group relative overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 text-[var(--fg)] shadow-md transition-transform duration-200 hover:-translate-y-0.5 hover:border-[var(--accent)] hover:shadow-lg"
+        >
+          <IconMonitor size={28} className="text-[var(--accent)]" />
+          <div className="mt-3 font-display text-xl font-bold">Slides</div>
+          <div className="mt-1 text-sm text-[var(--fg-muted)]">
+            Projetar o deck (PDF) com fala e cronômetro ao lado.
+          </div>
+          <IconArrowRight
+            size={18}
+            className="absolute right-5 top-6 text-[var(--fg-subtle)] transition-transform duration-200 group-hover:translate-x-1"
+          />
+        </Link>
+
         <Link
           href="/apresentar"
           className="group relative overflow-hidden rounded-xl bg-[var(--primary)] p-6 text-[var(--on-brand)] shadow-md transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg"
