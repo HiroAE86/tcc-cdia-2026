@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { IconSearch } from './icons';
 
 type Entry = { slug: string; title: string; text: string };
 
@@ -40,21 +41,27 @@ export default function SearchPalette({ index }: { index: Entry[] }) {
   if (!aberto) return null;
   return (
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center bg-black/30 pt-24"
+      className="fixed inset-0 z-50 flex items-start justify-center bg-black/40 pt-24 backdrop-blur-sm"
       onClick={() => setAberto(false)}
     >
       <div
-        className="w-full max-w-xl rounded-lg bg-white shadow-2xl"
+        className="w-full max-w-xl overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)] shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        <input
-          autoFocus
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar termo, pergunta, número…"
-          className="w-full rounded-t-lg border-b p-4 outline-none"
-        />
-        <ul className="max-h-80 overflow-auto">
+        <div className="flex items-center gap-3 border-b border-[var(--border)] px-4">
+          <IconSearch size={18} className="text-[var(--fg-subtle)]" />
+          <input
+            autoFocus
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar termo, pergunta, número…"
+            className="w-full bg-transparent py-4 text-[var(--fg)] outline-none placeholder:text-[var(--fg-subtle)]"
+          />
+          <kbd className="tnum rounded border border-[var(--border)] bg-[var(--surface-2)] px-1.5 text-xs text-[var(--fg-subtle)]">
+            Esc
+          </kbd>
+        </div>
+        <ul className="max-h-80 overflow-auto p-1">
           {resultados.map((r, k) => (
             <li key={k}>
               <button
@@ -63,15 +70,15 @@ export default function SearchPalette({ index }: { index: Entry[] }) {
                   setQ('');
                   router.push(`/doc/${r.slug}`);
                 }}
-                className="block w-full px-4 py-2 text-left hover:bg-[var(--cinza-claro)]"
+                className="block w-full rounded-lg px-3 py-2 text-left transition-colors hover:bg-[var(--surface-2)]"
               >
-                <div className="text-sm font-bold text-[var(--petroleo)]">{r.title}</div>
-                <div className="truncate text-xs text-gray-500">…{r.trecho}…</div>
+                <div className="text-sm font-semibold text-[var(--fg)]">{r.title}</div>
+                <div className="truncate text-xs text-[var(--fg-subtle)]">…{r.trecho}…</div>
               </button>
             </li>
           ))}
           {q && resultados.length === 0 && (
-            <li className="px-4 py-3 text-sm text-gray-400">Nada encontrado.</li>
+            <li className="px-4 py-3 text-sm text-[var(--fg-subtle)]">Nada encontrado.</li>
           )}
         </ul>
       </div>
