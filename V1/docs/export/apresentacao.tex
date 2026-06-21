@@ -1,9 +1,11 @@
 % ============================================================================
 % Slides TCC — Predição de Direção de Preços de Ações Brasileiras
-% Apresentação ~20 min | Beamer | pt-BR
+% Apresentação ~15 min | Beamer | pt-BR
 % Compilar: pdflatex apresentacao.tex (2x)
+% Diretrizes da banca (Prof. Tanara): fonte sem serifa, corpo grande,
+% tabelas/legendas legiveis, imagens apenas funcionais.
 % ============================================================================
-\documentclass[10pt,aspectratio=169]{beamer}
+\documentclass[11pt,aspectratio=169]{beamer}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -12,6 +14,10 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning}
+
+% --- Fonte sem serifa (diretriz Prof. Tanara) ------------------------------
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
 
 \graphicspath{{../../9.baselines/}{../../7.model-evaluation/results/}{../../4.finbert-br/}{../../3.model_traning/}}
 
