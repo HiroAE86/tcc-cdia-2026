@@ -116,8 +116,9 @@
     \end{block}
     \column{0.48\textwidth}
     \begin{block}{(b) Robustez metodológica}
-      Resultados de \textit{walk-forward split} único sobrevivem a
-      CV \textit{expanding-window}, múltiplas sementes e testes formais?
+      O \textit{walk-forward split} único sobrevive a CV, múltiplas
+      sementes e testes formais? \alert{Não:} $\Delta$ sentimento
+      $= +0{,}003$ ($p=0{,}49$); o 0{,}709 é artefato de janela única.
     \end{block}
   \end{columns}
   \vspace{1.5ex}
@@ -157,6 +158,8 @@
       \item {\footnotesize (a janela de teste cronológica calha em 69{,}5\% ``Sobe'' --- períodos distintos)}
     \end{itemize}
   \end{columns}
+  \vspace{0.5ex}
+  {\footnotesize Não reamostrei 50/50 (quebraria ordem temporal $+$ \textit{base rate}); compensei por peso (\texttt{scale\_pos\_weight} no XGBoost da \textit{ablation}, \texttt{class\_weight} nos \texttt{sklearn}, peso na perda nos neurais). O colapso bimodal persiste mesmo assim --- desbalanceamento não é a causa raiz (slide 13).}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -185,7 +188,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{ff} só do passado do sentimento (preço e alvo vêm de OHLCV sem \textit{ff}); resíduo intradiário não auditado --- robustez completa no slide 19
+    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento em dias sem notícia --- propaga só o \alert{passado} (preço e alvo vêm de OHLCV sem \textit{ff}); não fabrica efeito positivo (detalhado no slide 19)
     \item \textit{Features} técnicas (MM7/21, std21, \textit{lags}) são todas \alert{\textit{trailing}} (só janela passada); alvo $\text{Close}[t+h]$ estritamente futuro $\Rightarrow$ \textit{baseline} sem \textit{look-ahead}
   \end{itemize}
 \end{frame}
@@ -276,7 +279,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato de janela única} (reconciliação 0{,}670 vs 0{,}665 em Q\&A).}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato de janela única.}}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -324,11 +327,10 @@
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta e métrica pré-especificadas; nunca escolhidas \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
-      \item Claim científico central $=$ o \alert{nulo do sentimento}: múltiplas comparações só o \alert{reforçam}. ``Preço vence'' é secundário e robusto por \textbf{magnitude} ($|\Delta|\approx$0{,}255 $\approx$ 6$\times$ o desvio do \textit{baseline}) --- sobrevive a correção bem além de $/6$
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize 1.435 execuções nos 8 experimentos centrais $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 total --- só os 8 centrais têm p-valor.}
+  {\footnotesize 1.435 execuções pré-registradas (pergunta e métrica a priori, têm p-valor) $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 --- nenhum \textit{sanity check} gera teste de hipótese.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -383,8 +385,9 @@
     Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.
     Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} ($p=0{,}194$).}
     \column{0.42\textwidth}
-    \begin{block}{Invariante}
-      {\footnotesize \alert{VALE3: ganho do sentimento nunca significativo ($p=0{,}194$, 880 \textit{runs}); 3 experimentos distintos $=$ magnitudes distintas.}}
+    \begin{block}{Invariante (liderar por aqui)}
+      \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo ($p=0{,}194$, 880 \textit{runs}).}
+      {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}
     \end{block}
     \begin{table}
       \footnotesize
@@ -395,7 +398,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(Transf.\ vs preço, 5$\times$5; n.s.; $p=0{,}194$)} \\
+        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036 (n.s.)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -416,7 +419,8 @@
     acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
     fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
-    {\footnotesize\alert{VALE3: ganho do sentimento nunca significativo ($p=0{,}194$, 880 \textit{runs}); 3 experimentos distintos $=$ magnitudes distintas.}}\\[0.5ex]
+    \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo ($p=0{,}194$).}\\
+    {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}\\[0.5ex]
     \begin{itemize}
       \item Era o único ativo com ganho aparente ($+$0{,}036\,\alert{(n.s.; exp.\ distinto)}) na análise principal --- e a única das $3\times2=6$ células com ganho: sob múltiplas comparações, a esperada por acaso
       \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos, 10 sementes, 2 modelos)
@@ -445,15 +449,15 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(célula isolada n.s.; reforço \textit{deep-dive} $p=0{,}194$, s.15)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058 (n.s.)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
-    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
+    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016).}
     \begin{center}\Large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$)} --- estatisticamente zero\end{center}
-    {\scriptsize Por \textbf{ativo} subpotenciado (MDE 0{,}13--0{,}22); por isso \textbf{agrego} os 225 \textit{runs} $\Rightarrow$ IC do $\Delta$ médio [$-$0{,}012; $+$0{,}018], estreito, exclui efeito útil. O mesmo desenho \alert{detecta preço} (0{,}667). Logo: nulo conclusivo no agregado, não por ativo.}
+    {\scriptsize Reconciliação MDE \textit{vs} IC agregado: slide de reserva.}
   \end{columns}
 \end{frame}
 
@@ -483,7 +487,7 @@
     \column{0.46\textwidth}
     \textbf{Três contribuições}
     \begin{enumerate}
-      \item Pipeline replicável e versionado (o README preserva a narrativa inicial \alert{de propósito}, como registro do viés de confirmação --- errata no topo aponta para o cap. 5)
+      \item Pipeline replicável e versionado (o README preserva a narrativa inicial \alert{de propósito}, como registro do viés de confirmação --- \alert{errata no TOPO do README} (verificável agora) remete ao cap. 5)
       \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
@@ -577,6 +581,8 @@
 % ---------------------------------------------------------------- Backup: MDE/IC
 \begin{frame}{Reserva --- MDE \textit{vs} IC do $\Delta$ agregado}
   {\footnotesize MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno por célula); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação dos 225 \textit{runs} --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
+  \vspace{1ex}
+  {\footnotesize O IC [$-$0{,}012; $+$0{,}018] é \alert{empírico} --- vem do \textit{bootstrap} dos 225 \textit{runs}, não de uma suposição de independência. Mesmo o teto $+$0{,}018 está $\sim$3$\times$ abaixo do MDE de efeito útil. (Reserva: estrutura de correlação dos \textit{folds} / $n$ efetivo.) O mesmo desenho \alert{detecta preço} (0{,}667): nulo conclusivo no agregado, não por ativo.}
 \end{frame}
 
 \end{document}
