@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda}, \alert{não por reamostragem}
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso de classe na perda/amostra}, \alert{não por reamostragem}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -323,7 +323,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções nos 8 experimentos pré-registrados; contrastes formais por Wilcoxon pareado / bootstrap CI conforme o desenho. As $3\times2=6$ células ativo$\times$horizonte do \textit{ablation} são o único espaço de busca de efeito positivo --- 1 deu ganho, o esperado por acaso. Os demais até $\sim$1.500 são \textit{sanity checks} sem teste de hipótese.}
+  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos) com p-valor; os $>$65 \textit{sanity checks} até $\sim$1.500 não geram teste de hipótese. As $3\times2=6$ células ativo$\times$horizonte do \textit{ablation} são o único espaço de busca de efeito positivo: 1 deu ganho --- o esperado por acaso. Os contrastes com direção (ITUB4/PETR4: preço vence) sobrevivem a Bonferroni das 6 células.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -344,7 +344,7 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
+    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- nesta janela nem o \textit{baseline} se separa do acaso; a única conclusão honesta de janela única é que ela \alert{não resolve nada}. A separação só aparece no multi-seed/CV (slides 13--16), onde a direção inverte
     \item \alert{AUC mede separabilidade, não lucro} --- não reivindico lucratividade. O 0{,}658 (aqui, janela única) vem de momentum de curto prazo; não contradiz a HME --- separabilidade $\neq$ retorno ajustado a risco após custos (detalhe e \textit{backtest} exploratório na reserva de Q\&A)
   \end{itemize}
 \end{frame}
@@ -376,7 +376,7 @@
     Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.
     Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} ($p=0{,}194$).}
     \column{0.42\textwidth}
-    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Os $\Delta$ VALE3 abaixo vêm de \emph{experimentos distintos --- não comparáveis}.}\\[0.5ex]
+    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}); $\Delta$ abaixo vêm de experimentos distintos.}}\\[0.5ex]
     \begin{table}
       \footnotesize
       {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
@@ -393,7 +393,7 @@
       \end{tabular}
     \end{table}
     \begin{itemize}
-      \item \textit{Baseline} 0{,}667 (média 5 \textit{folds} CV; cf.\ 0{,}658 da janela única, slide 12)
+      \item Média XGB dos 3 ativos $=$ \textit{baseline} autoregressivo CV $=$ 0{,}667 (mesma medida, não coincidência; cf.\ 0{,}658 da janela única, slide 12)
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
@@ -409,11 +409,12 @@
     acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
     fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
-    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} ($p=0{,}194$, 880 \textit{runs}).}\\[0.5ex]
+    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}).}}\\[0.5ex]
     \begin{itemize}
       \item Era o único ativo com ganho aparente ($+$0{,}036\,\alert{(n.s.; exp.\ distinto)}) na análise principal --- e a única das $3\times2=6$ células com ganho: sob múltiplas comparações, a esperada por acaso
-      \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos $\times$ 10 sementes, 2 modelos)
+      \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos, 10 sementes, 2 modelos)
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
+      \item Sinal que troca de direção entre experimentos ($+$0{,}036, $+$0{,}058, aqui negativo) é a própria evidência de que \alert{não há sinal real} --- nenhum sobrevive ao teste
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -427,7 +428,7 @@
     fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
     $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
-    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} ($p=0{,}194$, 880 \textit{runs}). O $+$0{,}058 abaixo é \emph{experimento distinto --- não comparável}.}\\[0.5ex]
+    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}); o $+$0{,}058 abaixo é experimento distinto.}}\\[0.5ex]
     \begin{table}
       \footnotesize
       {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
@@ -507,7 +508,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado). Resíduo é apenas intradiário (notícia pós-17h atribuída ao dia $t$), escopo limitado e \alert{não auditado}. A conclusão nula é conservadora sob o cenário adverso e apenas reforçada sob o favorável --- em nenhuma das direções a conclusão muda
+      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado). Resíduo é apenas intradiário (notícia pós-17h atribuída ao dia $t$), escopo limitado e \alert{não auditado}. O \textit{ff} só afeta as \textit{features} de sentimento (o preço vem de OHLCV diário sem \textit{ff}); qualquer viés inflaria o sentimento, nunca o \textit{baseline} --- o $\Delta=+0{,}003$ é teto otimista do sentimento
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
