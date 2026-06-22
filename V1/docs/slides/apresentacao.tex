@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso} (\texttt{pos\_weight}/\texttt{scale\_pos\_weight}/peso de amostra conforme o modelo; TCN via \texttt{BCELoss}), \alert{não por reamostragem} --- preserva ordem temporal e \textit{base rate}
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda}, \alert{não por reamostragem} --- preserva ordem temporal e \textit{base rate}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -184,7 +184,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo intradiário \alert{não auditado}. A conclusão nula vale \alert{nas duas direções do viés}: se favorece o sentimento, é limite superior otimista; se for contra, o efeito real é ainda menor
+    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo é só intradiário (notícia pós-17h no dia $t$), \alert{não auditado}. Como a conclusão é \alert{nula}, qualquer viés que favoreça o sentimento só torna o nulo mais conservador
   \end{itemize}
 \end{frame}
 
@@ -323,7 +323,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Centrais: \textbf{1.435} (8 pré-registrados). Exploratórios não geram $p$-valor.}
+  {\footnotesize \textbf{1.435} execuções nos 8 experimentos pré-registrados (cada um com $p$-valor); os demais até $\sim$1.500 são \textit{sanity checks} sem teste de hipótese.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,7 +345,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não retorno} --- e não reivindico nada sobre lucratividade (fora do escopo). O \textit{backtest} exploratório não deu sinal e foi descontinuado justamente por isso
+    \item \alert{AUC mede separabilidade, não retorno} --- e não reivindico nada sobre lucratividade (fora do escopo). O 0{,}667 vem de momentum/autocorrelação de curto prazo (alvo $h=21$ com janelas sobrepostas infla autocorrelação); não contradiz a HME semiforte, que fala de retorno ajustado a risco após custos. O \textit{backtest} exploratório não deu sinal e foi descontinuado justamente por isso
   \end{itemize}
 \end{frame}
 
@@ -396,8 +396,6 @@
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
-    \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Ganho aparente aqui $+$0{,}036; no \textit{deep-dive} (880 \textit{runs}) a VALE3 \alert{perde} (0{,}484 $<$ 0{,}544): magnitudes \emph{e até sinal} diferentes --- ver slide 15.}
   \end{columns}
 \end{frame}
 
@@ -412,12 +410,10 @@
     \column{0.38\textwidth}
     {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} ($p=0{,}194$, 880 \textit{runs}).}\\[0.5ex]
     \begin{itemize}
-      \item Era o único ativo com ganho aparente ($+$0{,}036) na análise principal
-      \item Reforço: \textbf{52 \textit{folds} $\times$ 10 sementes} = 880 execuções
+      \item Era o único ativo com ganho aparente ($+$0{,}036\,\alert{(n.s.; exp.\ distinto)}) na análise principal --- e a única das $3\times2=6$ células com ganho: sob múltiplas comparações, a esperada por acaso
+      \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos $\times$ 10 sementes, 2 modelos)
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
     \end{itemize}
-    \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Três experimentos distintos (modelos/contrastes/$n$ diferentes nos slides 14/15/16) $\Rightarrow$ magnitudes diferentes; a instabilidade do sinal é a prova de que não é sinal.}
   \end{columns}
 \end{frame}
 
@@ -452,8 +448,6 @@
       \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero; SENT sozinho \alert{abaixo do acaso}
       \item \emph{Não detectável neste $n$}, não ``efeito zero'': MDE 0{,}13--0{,}22 em AUC (sentimento 44--74$\times$ abaixo) --- ver slide 17
     \end{itemize}
-    \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo.} O $+$0{,}058 desta ablation é isolado; significância formal só no \textit{deep-dive} de 880 \textit{runs} ($p=0{,}194$).}
   \end{columns}
 \end{frame}
 
