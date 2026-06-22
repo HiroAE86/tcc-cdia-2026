@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- tratado por peso na perda (\texttt{pos\_weight}$\approx$1{,}38 / \texttt{scale\_pos\_weight}), não por reamostragem (preserva ordem temporal e \textit{base rate})
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso} (\texttt{pos\_weight}/\texttt{scale\_pos\_weight}/peso de amostra conforme o modelo; TCN via \texttt{BCELoss}), \alert{não por reamostragem} --- preserva ordem temporal e \textit{base rate}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -184,7 +184,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo intradiário tratado nas limitações. A direção do viés favorece o sentimento $\Rightarrow$ a conclusão nula é \alert{conservadora} (limite superior)
+    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo intradiário \alert{não auditado}. A conclusão nula vale \alert{nas duas direções do viés}: se favorece o sentimento, é limite superior otimista; se for contra, o efeito real é ainda menor
   \end{itemize}
 \end{frame}
 
@@ -265,7 +265,7 @@
     \end{table}
     \column{0.46\textwidth}
     \begin{itemize}
-      \item Transformer + FinBERT: \alert{ROC-AUC = 0{,}709}, acurácia 76{,}3\% \alert{($\approx$ classe majoritária 69{,}5\%)}
+      \item Transformer + FinBERT: \alert{ROC-AUC = 0{,}709}, acurácia 76{,}3\% \alert{($\approx$ classe majoritária da janela de TESTE 69{,}5\%; treino 59/41)}
       \item Narrativa coerente: ``sentimento específico supera \textit{embeddings} genéricos''
       \item Resultado compatível com a literatura internacional
     \end{itemize}
@@ -320,11 +320,10 @@
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor. Sem correção para múltiplas comparações --- ela só tornaria o nulo mais forte
-      \item O próprio 0{,}709 já era o \alert{máximo} selecionado de 8 células (slide 9) --- outra face do mesmo viés; as 1.435 execuções testam hipótese pré-registrada, não o melhor
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Número central: \textbf{1.435} (8 experimentos). O $>$1.500 são diagnósticos exploratórios (\textit{sanity checks}, ajuste de visualização) --- \alert{nenhum gera teste de hipótese}; só os 8 pré-registrados têm $p$-valor.}
+  {\footnotesize Centrais: \textbf{1.435} (8 pré-registrados). Exploratórios não geram $p$-valor.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -376,6 +375,7 @@
     \textcolor{coral}{Vermelho} = preço, \textcolor{verdeagua}{azul} = meu modelo.
     Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.}
     \column{0.42\textwidth}
+    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Os $\Delta$ VALE3 abaixo vêm de \emph{experimentos distintos --- não comparáveis}.}\\[0.5ex]
     \begin{table}
       \footnotesize
       {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
@@ -385,7 +385,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.)} \\
+        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.; exp.\ distinto)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -410,6 +410,7 @@
     acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
     fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
+    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} ($p=0{,}194$, 880 \textit{runs}).}\\[0.5ex]
     \begin{itemize}
       \item Era o único ativo com ganho aparente ($+$0{,}036) na análise principal
       \item Reforço: \textbf{52 \textit{folds} $\times$ 10 sementes} = 880 execuções
@@ -429,6 +430,7 @@
     fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
     $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
+    {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} ($p=0{,}194$, 880 \textit{runs}). O $+$0{,}058 abaixo é \emph{experimento distinto --- não comparável}.}\\[0.5ex]
     \begin{table}
       \footnotesize
       {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
@@ -439,15 +441,16 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
+    \begin{center}\large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
     \begin{itemize}
-      \item \alert{Veredito: $\Delta = +0{,}003$} (Wilcoxon $p = 0{,}49$; IC 95\% $[-0{,}012;\ +0{,}018]$) --- SENT sozinho \alert{abaixo do acaso}
-      \item Conclusão: ``nenhum efeito \emph{detectável} neste $n$'' (exclui efeitos $\geq$0{,}13 em AUC; menores ficam indistinguíveis de zero --- não é ``efeito zero''). Aumentar $n$ é direção futura
+      \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero; SENT sozinho \alert{abaixo do acaso}
+      \item \emph{Não detectável neste $n$}, não ``efeito zero'': MDE 0{,}13--0{,}22 em AUC (sentimento 44--74$\times$ abaixo) --- ver slide 17
     \end{itemize}
     \vspace{0.5ex}
     {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo.} O $+$0{,}058 desta ablation é isolado; significância formal só no \textit{deep-dive} de 880 \textit{runs} ($p=0{,}194$).}
