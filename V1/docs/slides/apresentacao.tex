@@ -1,6 +1,6 @@
 % ============================================================================
 % Slides TCC — Predição de Direção de Preços de Ações Brasileiras
-% Apresentação ~20 min | Beamer | pt-BR
+% Apresentação ~15 min | Beamer | pt-BR
 % Compilar: pdflatex apresentacao.tex (2x)
 % ============================================================================
 \documentclass[10pt,aspectratio=169]{beamer}
@@ -144,7 +144,6 @@
         \bottomrule
       \end{tabular}
     \end{table}
-    \footnotesize REST API do WordPress, retentativas com \textit{backoff}, extração paralela.
     \column{0.48\textwidth}
     \textbf{Dados de mercado (Yahoo Finance)}
     \begin{itemize}
@@ -279,8 +278,8 @@
 % ---------------------------------------------------------------- 10. Alerta
 \begin{frame}{Três sinais de alerta}
   \begin{enumerate}
-    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}15 --- o modelo previu ``Desce'' apenas \alert{11 vezes em 177 amostras}
-    \item \textbf{Acurácia suspeita:} 76{,}3\% próxima da classe majoritária ($\sim$69\% ``Sobe'')
+    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}20 --- previu ``Desce'' corretamente em só \alert{11 das 54 quedas reais}
+    \item \textbf{Acurácia suspeita:} 76{,}3\% supera por só $\sim$7 pontos a classe majoritária \emph{da janela de teste} (69{,}5\% ``Sobe'', 123/177)\\{\footnotesize Desbalanceamento difere por período: treino 59/41, janela de teste 69{,}5/30{,}5 (\textit{split} cronológico).}
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
   \vspace{2ex}
@@ -335,15 +334,14 @@
       Classe majoritária    & Sempre prevê ``Sobe''           & 0{,}500 \\
       \textit{Coin flip}    & $P(\text{Sobe}) = \text{prior}$ & 0{,}500 \\
       Persistência ($h=21$) & Direção repete                  & 0{,}474 [0{,}405; 0{,}543] \\
-      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
+      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço (janela única)} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
       \bottomrule
     \end{tabular}
   \end{table}
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item O IC do \textit{baseline} \alert{já engloba o 0{,}709} do Transformer + FinBERT
-    \item Controle de dimensionalidade (20 subconjuntos aleatórios de 5 dims Ollama): AUC $0{,}509 \pm 0{,}057$
+    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
   \end{itemize}
 \end{frame}
 
@@ -389,9 +387,12 @@
       \end{tabular}
     \end{table}
     \begin{itemize}
+      \item \textit{Baseline} 0{,}667 (média 5 \textit{folds} CV; cf.\ 0{,}658 da janela única, slide 12)
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
+    \vspace{0.5ex}
+    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
   \end{columns}
 \end{frame}
 
@@ -409,6 +410,8 @@
       \item Reforço: \textbf{52 \textit{folds} $\times$ 10 sementes} = 880 execuções
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
     \end{itemize}
+    \vspace{0.5ex}
+    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
   \end{columns}
 \end{frame}
 
@@ -442,6 +445,8 @@
       \item SENT sozinho: \alert{abaixo do acaso}
       \item Efeito 44--74$\times$ menor que o mínimo detectável (MDE 0{,}13--0{,}22)
     \end{itemize}
+    \vspace{0.5ex}
+    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
   \end{columns}
 \end{frame}
 
@@ -501,7 +506,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill} --- mas joga \emph{contra} a conclusão nula
+      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado); viés residual tenderia a \emph{inflar} o sinal de sentimento --- argumento de plausibilidade, não auditado
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
