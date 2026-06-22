@@ -39,12 +39,12 @@
 
 ---
 
-## Slide 1 — Página de título: "Predição de Direção de Preços de Ações Brasileiras com Sentimento de Notícias Financeiras" (subtítulo: Pipeline, Ilusão e Autocorreção Metodológica)
+## Slide 1 — Página de título: "Predição de Direção de Preços de Ações Brasileiras com Sentimento de Notícias Financeiras" (subtítulo: Pipeline, Evidência Aparente e Autocorreção Metodológica)
 **Em uma frase:** É a capa que apresenta o tema (usar notícias para prever se ações da B3 sobem ou descem), o autor e o orientador, já sinalizando que o trabalho vira uma história de autocorreção.
-**Como explicar (3 falas simples):** "Bom dia, sou André Takeo Fujiwara, orientado pelo Prof. Eric Bacconi Gonçalves." / "Investiguei se notícias financeiras brasileiras ajudam a prever a direção de preço de ações da B3." / "O subtítulo já entrega o arco: construí o pipeline, obtive uma ilusão de resultado positivo, e o trabalho é a autocorreção que desmonta essa ilusão."
+**Como explicar (3 falas simples):** "Bom dia, sou André Takeo Fujiwara, orientado pelo Prof. Eric Bacconi Gonçalves." / "Investiguei se notícias financeiras brasileiras ajudam a prever a direção de preço de ações da B3." / "O subtítulo já entrega o arco: construí o pipeline, obtive uma evidência aparente de resultado positivo, e o trabalho é a autocorreção que a desmonta."
 **Número(s) que importam:** —
 **Perguntas prováveis (mais provável primeiro):**
-1. *Por que "ilusão e autocorreção" no título?* → Porque o AUC 0,709 inicial era artefato de janela única; ao atacar o próprio resultado com 1.435 execuções nos 8 experimentos centrais, o ganho do sentimento caiu para Δ=+0,003 (p=0,49), sem efeito detectável.
+1. *Por que "evidência aparente e autocorreção" no título?* → Porque o AUC 0,709 inicial era artefato de janela única; ao submeter o próprio resultado a 1.435 execuções nos 8 experimentos centrais, o ganho do sentimento caiu para Δ=+0,003 (p=0,49), sem efeito detectável.
 2. *Qual é a pergunta de pesquisa central?* → Notícias financeiras brasileiras melhoram a predição de direção (sobe/desce) de ações da B3? Resposta do trabalho: não, neste tamanho amostral.
 3. *Quais ações você estudou?* → ITUB4, PETR4 e VALE3, com 5.872 artigos do InfoMoney (2.572/1.775/1.525); não reivindico generalização além desses 3 ativos e dessa fonte.
 4. *Qual a contribuição principal?* → Metodológica: demonstrar de forma quantificada o viés de janela única em dados brasileiros e propor 6 protocolos mínimos de avaliação.
@@ -57,12 +57,12 @@
 **Perguntas prováveis (mais provável primeiro):**
 1. *Qual é a sua contribuição principal, em uma frase?* → Documentar de forma quantificada que um resultado positivo (AUC 0,709) era artefato de janela única, e propor 6 protocolos mínimos — a contribuição é metodológica, não "sentimento funciona/não funciona".
 2. *O resultado final foi positivo ou negativo para o sentimento?* → Negativo/nulo: o ganho do sentimento é Δ=+0,003 (p=0,49), nenhum efeito detectável neste n; o 0,709 caiu para ~0,51 sob avaliação rigorosa.
-3. *1.435 execuções não é garimpar resultado (p-hacking)?* → Direção oposta: as execuções servem para destruir um resultado positivo, com pergunta e métrica definidas a priori e hiperparâmetros congelados — não para selecionar o melhor.
+3. *1.435 execuções não é garimpar resultado (p-hacking)?* → Direção oposta: as execuções servem para testar a robustez de um resultado positivo, com métrica fixa e hiperparâmetros congelados — não para selecionar o melhor.
 4. *Por que 1.435 e não os "mais de 1.500" que aparecem em outro lugar?* → 1.435 são os 8 experimentos centrais, cada um com p-valor; os ~80 restantes são sanity checks sem teste de hipótese (≈1.515 no total).
 **Armadilha:** Não vender o 0,709 como conquista nem prometer "sentimento não funciona" — o roteiro deve anunciar desde já que o resultado foi revertido e que a contribuição é metodológica; superdimensionar o número inicial cria expectativa que você mesmo vai derrubar.
 
 ## Slide 3 — Contexto e motivação
-**Em uma frase:** Usar notícias para prever ações já funciona lá fora, mas quase ninguém testou isso com rigor no mercado brasileiro, que é diferente — e essa é a lacuna que o trabalho ataca.
+**Em uma frase:** Há evidências positivas na literatura internacional, principalmente em mercados desenvolvidos, mas quase ninguém testou isso com rigor no mercado brasileiro, que é diferente — e essa é a lacuna que o trabalho ataca.
 **Como explicar (3 falas simples):** "Usar notícias para prever preço de ação é uma linha de pesquisa ativa, mas os resultados positivos vêm quase todos de mercados desenvolvidos, como o S&P 500." "A B3 é estruturalmente diferente: menos liquidez, poucas fontes jornalísticas especializadas, menos players institucionais." "Para o Brasil há pouca evidência empírica, e quase nenhuma com avaliação metodologicamente rigorosa — é exatamente essa a lacuna que eu preencho."
 **Número(s) que importam:** — (slide não traz números; FinBERT-PT-BR só existe desde 2022, gloss: ferramenta recente em português)
 **Perguntas prováveis (mais provável primeiro):**
@@ -179,7 +179,7 @@
 4. *O total é mesmo 1.435 ou mais de 1.500?* → 1.435 são os 8 experimentos centrais (cada um com pergunta/métrica a priori e p-valor); existem ~80 sanity checks adicionais (~1.515 no total) que não geram teste de hipótese nenhum.
 5. *Por que o VALE3 deep-dive tem tantas (880) execuções?* → Foi o único ativo que parecia funcionar, então recebeu o escrutínio mais pesado — e mesmo assim deu p=0,194, não significativo. (Para VALE3, lidere sempre pelo invariante: o ganho do sentimento nunca é estatisticamente significativo.)
 6. *Por que não otimizou hiperparâmetros por fold?* → Deliberado: o objetivo era medir robustez do resultado original sob variação de janela/semente, não maximizar desempenho — otimizar por fold adicionaria variância e confundiria a comparação.
-**Armadilha:** Não diga "rodei 1.435 modelos para encontrar o melhor resultado" — isso soa exatamente como p-hacking. O enquadramento correto e invariável é o oposto: protocolo idêntico e a priori, feito para DESTRUIR o positivo. E não cite "mais de 1.500" como se fosse o número do slide — o número do slide é 1.435; os ~80 sanity checks ficam para o Q&A.
+**Armadilha:** Não diga "rodei 1.435 modelos para encontrar o melhor resultado" — isso soa exatamente como p-hacking. O enquadramento correto e invariável é o oposto: protocolo idêntico, com métrica fixa, feito para testar a robustez do positivo. E não cite "mais de 1.500" como se fosse o número do slide — o número do slide é 1.435; os ~80 sanity checks ficam para o Q&A.
 
 ## Slide 12 — Primeiro confronto: hierarquia de baselines
 **Em uma frase:** Um modelo que só olha o preço passado (sem nenhuma notícia) já chega a AUC 0,658, e por isso qualquer modelo de sentimento precisa vencer essa régua antes de poder reivindicar mérito.
@@ -236,12 +236,12 @@
 1. *Na VALE3 o Δ é +0,058 aqui, mas +0,036 no slide 14 — por quê?* → O invariante é que na VALE3 o ganho do sentimento nunca é significativo (deep-dive 880 runs, p=0,194); são experimentos diferentes (slide 14 = CV, Transformer vs preço; slide 16 = ablation, só XGBoost, preço vs preço+sent), modelos e contrastes distintos dão magnitudes distintas — não harmonizo, sinal instável é a própria prova de que não é sinal real.
 2. *Se o IC do Δ é estreito [−0,012; +0,018], como concilia com MDE 0,13–0,22?* → Sem contradição: o IC é do Δ MÉDIO agregado (225 runs estreitam o IC), o MDE 0,13–0,22 é por ativo (n pequeno por célula); e o mesmo desenho detecta preço (0,667 estável), então o protocolo é sensível — o sentimento está 44–74× abaixo do detectável.
 3. *Δ médio +0,003 não é só efeito do XGBoost/horizonte h=21?* → A ablation usa justamente o modelo mais estável (std 0,012), e com Δ +0,003 e IC [−0,012; +0,018] sobre 225 runs é improvável que trocar horizonte inverta a conclusão (limitação h=21 vs h=5 declarada).
-4. *225 execuções não é garimpar resultado (p-hacking)?* → Direção oposta: as execuções servem para destruir um positivo, não selecionar o melhor; pergunta e métrica definidas a priori, hiperparâmetros congelados, nenhuma métrica escolhida a posteriori.
+4. *225 execuções não é garimpar resultado (p-hacking)?* → Direção oposta: as execuções servem para testar a robustez do positivo, não selecionar o melhor; métrica fixa, hiperparâmetros congelados, nenhuma métrica escolhida a posteriori.
 5. *Se a VALE3 ganha, não há ali um efeito real?* → Na VALE3 o ganho nunca é significativo (p=0,194 no deep-dive de 880 runs); e ITUB4 (−0,033) e PETR4 (−0,016) pioram, puxando a média a +0,003 — dois de três ativos ficam piores com sentimento.
 **Armadilha:** Não tente "reconciliar" o +0,058 da VALE3 com os números de outros slides nem apresentá-lo como ganho real — lidere sempre pelo invariante (p nunca significativo) e nunca diga que o sentimento "funciona na VALE3".
 
 ## Slide 17 — Síntese da investigação
-**Em uma frase:** Depois de toda a bateria de testes, as notícias (sentimento FinBERT) não acrescentam nada de mensurável à previsão de preço em nenhum dos três ativos, e o AUC 0,709 foi só um artefato de uma única janela.
+**Em uma frase:** Depois de toda a bateria de testes, esta representação de sentimento (FinBERT, 5 features) não apresentou ganho discriminativo detectável sobre o preço em nenhum dos três ativos, e o AUC 0,709 foi só um artefato de uma única janela.
 **Como explicar (3 falas simples):** "Avaliando direito — várias janelas, várias sementes, com intervalo de confiança e ablation — o sentimento não adiciona sinal preditivo mensurável." "Aquele 0,709 que parecia uma vitória era artefato de janela única: variância de semente, viés da janela de teste e ausência de IC." "Vale para a representação que adotei — 5 features diárias de FinBERT — não para toda forma de usar texto; a leitura honesta é 'nenhum efeito detectável neste tamanho amostral'."
 **Número(s) que importam:** 0,709 = AUC artefato janela única; std 0,261 = variância de semente (colapso bimodal Transformer); 5 features = representação FinBERT diária.
 **Perguntas prováveis (mais provável primeiro):**
@@ -278,7 +278,7 @@
 **Armadilha:** Não transformar o forward-fill numa confissão de vazamento de futuro — ele propaga só o passado; e nunca dizer que as limitações enfraquecem a tese, pois a contribuição é metodológica e a conclusão nula é robusta à direção do viés.
 
 ## Slide 20 — Mensagem final
-**Em uma frase:** A verdadeira contribuição não é provar que o sentimento não funciona, mas mostrar quão fácil é fabricar uma evidência aparente de que funciona usando métodos que a comunidade aceita como válidos.
+**Em uma frase:** A verdadeira contribuição não é provar que o sentimento não funciona, mas mostrar quão fácil é produzir evidência aparente de que funciona usando protocolos comuns, mas insuficientes para séries financeiras.
 **Como explicar (3 falas simples):** "A lição central deste trabalho não é 'sentimento não serve'. É algo mais incômodo: mostrar como é fácil produzir um falso positivo convincente." / "O 0,709 'fazia sentido', e por isso quase passou — viés de confirmação opera de forma invisível." / "Janela única, semente única e sem intervalo de confiança são a receita do falso positivo; uma autocorreção documentada vale mais que um resultado positivo frágil. Obrigado."
 **Número(s) que importam:** 0,709 — artefato de janela única.
 **Perguntas prováveis (mais provável primeiro):**
