@@ -325,10 +325,11 @@
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta e métrica pré-especificadas; nunca escolhidas \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
+      \item Espaço de busca $=$ 6 células (3 ativos $\times$ 2 horizontes); Bonferroni só reforça o nulo do sentimento e os $|\Delta|=0{,}255$ do preço passam com folga
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Só os 8 experimentos centrais geram teste de hipótese; os $\sim$80 extras são \textit{sanity checks} sem p-valor. Logo: 1.435 pré-registradas (pergunta e métrica a priori) $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 --- o número maior não é \textit{padding}.}
+  {\footnotesize Só os 8 experimentos centrais geram teste de hipótese (reconciliação dos $\sim$80 \textit{sanity checks} no Q\&A).}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -353,7 +354,7 @@
     \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Sem evidência de lucratividade líquida:} é momentum/autocorrelação, e o \textit{backtest exploratório} não superou custos/\textit{slippage} (s.19)
   \end{itemize}
   \vspace{0.5ex}
-  {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
+  {\footnotesize \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -387,17 +388,16 @@
       \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo --- confirmado no \textit{deep-dive} (slide 15).}
       {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}
     \end{block}
-    \alert{\textbf{Na VALE3 o ganho do sentimento nunca é significativo.}}
     \begin{table}
       \footnotesize
-      {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
+      {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes); $\Delta=$ Transf.$-$XGB(preço), \textbf{não} ablation de sentimento}\\[0.5ex]
       \begin{tabular}{lccc}
         \toprule
         \textbf{Ativo} & \textbf{XGB} & \textbf{Transf.} & $\boldsymbol{\Delta}$ \\
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036, $p=0{,}194$} \\
+        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036, n.s.\ (s.15)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -447,7 +447,7 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058, $p=0{,}194$} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058, n.s.\ (s.15)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
@@ -580,7 +580,7 @@
 \begin{frame}{Reserva --- MDE \textit{vs} IC do $\Delta$ agregado}
   {\footnotesize MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno por célula); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação dos 225 \textit{runs} --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
   \vspace{1ex}
-  {\footnotesize O IC [$-$0{,}012; $+$0{,}018] é \alert{empírico} --- vem do \textit{bootstrap} dos 225 \textit{runs}, não de uma suposição de independência. Mesmo o teto $+$0{,}018 está $\sim$3$\times$ abaixo do MDE de efeito útil. (Reserva: estrutura de correlação dos \textit{folds} / $n$ efetivo.) O mesmo desenho \alert{detecta preço} (0{,}667): nulo conclusivo no agregado, não por ativo.}
+  {\footnotesize O IC [$-$0{,}012; $+$0{,}018] é \alert{empírico} --- vem do \textit{bootstrap} dos 225 \textit{runs}, não de uma suposição de independência. Mesmo o teto $+$0{,}018 fica muito abaixo do efeito útil (o MDE por ativo é 0{,}13--0{,}22, $\sim$7$\times$ maior). (Reserva: estrutura de correlação dos \textit{folds} / $n$ efetivo.) O mesmo desenho \alert{detecta preço} (0{,}667): nulo conclusivo no agregado, não por ativo.}
 \end{frame}
 
 \end{document}

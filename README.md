@@ -1,7 +1,7 @@
 # Predição de Direção de Preços de Ações com NLP e Sentimento de Notícias
 
 **Trabalho de Conclusão de Curso**
-**Ação analisada:** ITUB4 (Itaú Unibanco)
+**Ações analisadas:** ITUB4, PETR4, VALE3
 
 ---
 
