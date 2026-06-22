@@ -156,8 +156,6 @@
       \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso de classe na perda/amostra}, \alert{não por reamostragem}
     \end{itemize}
   \end{columns}
-  \vspace{1ex}
-  {\footnotesize Reamostragem 50/50 quebraria a ordem temporal (\textit{walk-forward}) e a \textit{base rate} real do mercado; compensado por peso (XGBoost \texttt{scale\_pos\_weight}; neurais \texttt{pos\_weight}$\approx$1{,}38). O colapso bimodal persiste MESMO com a compensação $\Rightarrow$ desbalanceamento não era a causa raiz.}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -187,7 +185,7 @@
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
     \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Resíduo intradiário não auditado sistematicamente --- limitação declarada (slide 19)}
+    \item \alert{Resíduo intradiário não auditado --- conclusão nula é robusta à direção do viés: se o \textit{ff} favorece o sentimento, $+$0{,}003 já é teto otimista (slide 19)}
   \end{itemize}
 \end{frame}
 
@@ -277,7 +275,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, janela única, 1 semente, sem IC --- refutado como artefato nos slides 13--16. O 0{,}670 do XGBoost é janela única (sentimento bruto vs \textit{embeddings}); na avaliação rigorosa (ablation multi-seed, slide 16) o mesmo modelo dá 0{,}665 --- a regra de janela única vale também para o XGBoost.}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -326,7 +324,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções pré-registradas = 8 experimentos, cada um com 1 p-valor; os $>$65 \textit{sanity checks} restantes (até $>$1.500) não geram teste de hipótese. \alert{Só os 8 pré-registrados têm p-valor; correção por múltiplas comparações só REFORÇA o nulo do sentimento.}}
+  {\footnotesize \alert{\textbf{1.435 execuções pré-registradas = 8 experimentos, 8 p-valores.}} Os $\sim$65 \textit{sanity checks} restantes (até $>$1.500) NÃO geram teste de hipótese. Só os 8 pré-registrados têm p-valor.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -350,7 +348,7 @@
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
   \end{itemize}
   \vspace{0.5ex}
-  {\footnotesize AUC mede separabilidade, não lucro; captura momentum/autocorrelação de curto prazo (Lo, 2004), que não virou retorno após custos no \textit{backtest} --- compatível com eficiência semi-forte.}
+  {\footnotesize AUC mede separabilidade, não lucro; captura momentum/autocorrelação de curto prazo (Lo, 2004). $h=21$ com janelas sobrepostas infla a autocorrelação do alvo; o \textit{backtest} \textit{ensemble} (slide 11) não converteu a separabilidade em retorno após custos --- compatível com eficiência fraca, não semi-forte.}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -433,9 +431,6 @@
     fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
     $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
-    \begin{block}{Invariante}
-      {\footnotesize Na VALE3 o ganho \alert{NUNCA é significativo} --- \textit{deep-dive} 880 \textit{runs}, $p=0{,}194$. O $+$0{,}058 abaixo é experimento distinto.}
-    \end{block}
     \begin{table}
       \footnotesize
       {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
@@ -452,10 +447,10 @@
         \bottomrule
       \end{tabular}}
     \end{table}
-    \begin{center}\large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
-    \begin{itemize}
-      \item O mesmo desenho detecta o sinal de preço (0{,}667, estável) --- protocolo é sensível quando há efeito; sentimento está 44--74$\times$ abaixo do MDE
-    \end{itemize}
+    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
+    \begin{center}\Large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
+    {\scriptsize Mesmo desenho detecta preço (0{,}667 estável); sentimento 44--74$\times$ abaixo do MDE.\\
+    Preço VALE3 = 0{,}609 (ablation) vs 0{,}599 (CV, s.14): protocolos/$n$ distintos; invariante é o $p$, não o nível.}
   \end{columns}
 \end{frame}
 
