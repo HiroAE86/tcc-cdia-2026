@@ -1,6 +1,32 @@
 # Guia de Defesa — leitura única antes de apresentar
 
 > Gerado pelo loop noturno. Apresentação 12:30. Leia de cima a baixo uma vez; cada slide tem explicação simples + perguntas mapeadas com resposta de 1 linha. Ground truth: cola_defesa.md.
+>
+> **⚠️ COMO USAR:** este guia é MUNIÇÃO de Q&A, não roteiro falado. Para apresentar, decore só o parágrafo-tese + a tabela de 8 números abaixo. O resto é defesa, puxe só se perguntarem.
+
+## A tese em um parágrafo (decorar — é isto que você fala)
+"Eu comecei com um resultado aparentemente positivo: AUC 0,709. Mas ele vinha de janela única, semente única e sem intervalo de confiança. Ao aplicar 1.435 execuções de robustez, o ganho do sentimento caiu para Δ = +0,003, p = 0,49. Portanto a contribuição do trabalho não é provar que notícias preveem a B3, mas mostrar metodologicamente como um falso positivo convincente pode surgir e como evitá-lo."
+
+## Os 8 números a decorar (resto é reserva)
+| Número | Significado |
+|---|---|
+| **5.872** | artigos InfoMoney (total) |
+| **3 ativos** | ITUB4, PETR4, VALE3 |
+| **0,709** | AUC inicial — depois mostrado artefato |
+| **1.435** | execuções centrais de robustez |
+| **0,667 vs 0,509** | preço vence o sentimento na CV |
+| **Δ = +0,003** | ganho médio do sentimento |
+| **p = 0,49** | sem significância (ablation) |
+| **p = 0,194** | VALE3 deep-dive, sem significância |
+
+## Tom (dizer assim, NÃO assim)
+- "não sobreviveu à avaliação robusta" — NÃO "morreu"
+- "testar se o positivo é robusto" — NÃO "destruir o positivo"
+- "demonstração quantificada em dados brasileiros" — NÃO "primeira demonstração"
+- "esta representação de sentimento não adicionou ganho discriminativo detectável" — NÃO "notícias não adicionam nada"
+- "métrica fixa, experimentos para testar" — NÃO "pré-registro a priori"
+
+---
 
 > **Glossário falado (definir UMA vez ao vivo, para banca mista) — fix dry-run #3:**
 > - **bimodal** (S13/S15): "o modelo ou prevê sempre 'sobe' ou sempre 'desce', nunca no meio" — acumula nas duas pontas.
@@ -42,7 +68,7 @@
 **Perguntas prováveis (mais provável primeiro):**
 1. *Por que a B3 seria diferente do S&P 500?* → Menor liquidez, poucas fontes jornalísticas especializadas e menos investidores institucionais; por isso resultados de mercado desenvolvido não transferem direto, e o trabalho não reivindica generalização além de ITUB4/PETR4/VALE3 + InfoMoney.
 2. *Qual é exatamente a lacuna que você preenche?* → Pouca evidência empírica para o Brasil e quase nenhuma com avaliação rigorosa; a contribuição real é metodológica: demonstrar quantificadamente o viés de janela única em dados brasileiros e propor 6 protocolos mínimos.
-3. *Se há trabalhos positivos lá fora, você esperava que funcionasse aqui?* → Era a hipótese, mas o resultado morreu: o sentimento adiciona Δ=+0,003 (p=0,49), nenhum efeito detectável neste tamanho amostral; o AUC 0,709 inicial era artefato de janela única.
+3. *Se há trabalhos positivos lá fora, você esperava que funcionasse aqui?* → Era a hipótese, mas o resultado não sobreviveu à avaliação robusta: o sentimento adiciona Δ=+0,003 (p=0,49), nenhum efeito detectável neste tamanho amostral; o AUC 0,709 inicial era artefato de janela única.
 4. *Por que InfoMoney e só essas fontes?* → Cobertura desigual e viés editorial de varejo são limitação declarada; conclusão vale para a representação adotada nesses 3 ativos, com CVM/redes sociais como direção futura.
 5. *FinBERT-PT-BR ser de 2022 limitou seu estudo?* → Não invalida; é justamente o que torna NLP financeiro em português recente e a evidência rara — reforça a lacuna, não a enfraquece.
 **Armadilha:** Não vender a contribuição como "provei que notícias preveem a B3" nem como "notícias não têm valor". A contribuição é metodológica (documentar a reversão de um falso positivo); afirmar valor preditivo aqui seria overclaim — o veredito honesto é Δ=+0,003, p=0,49.
@@ -139,15 +165,15 @@
 2. *Se a acurácia é 76%, por que não confiar no modelo?* → Porque "sempre Sobe" já dá 69,5%; o ganho de ~7 pontos é raso, por isso uso AUC (invariante a threshold), não acurácia, com classe desbalanceada.
 3. *Esse colapso não é só desbalanceamento de classe (devia balancear 50/50)?* → Não reamostrei (quebraria a ordem temporal e a base rate real); compensei por peso na perda (scale_pos_weight no XGBoost). Decisivo: o colapso persiste mesmo com a compensação → desbalanceamento não era a causa raiz.
 4. *Por que não usar acurácia ou F1 como métrica principal?* → AUC é invariante a threshold e mais honesta com 59/41; a acurácia de 76,3% enganava porque o modelo previa quase só a majoritária (balanced accuracy/MCC ficam como trabalho futuro).
-5. *Um único caso ruim de matriz não invalida nada — não pode ser azar pontual?* → Exatamente por isso não aceitei o número: submeti a protocolos mais rigorosos (IC, multi-seed, CV, ablation). O resultado morreu: sentimento Δ=+0,003, p=0,49.
+5. *Um único caso ruim de matriz não invalida nada — não pode ser azar pontual?* → Exatamente por isso não aceitei o número: submeti a protocolos mais rigorosos (IC, multi-seed, CV, ablation). O resultado não sobreviveu: sentimento Δ=+0,003, p=0,49.
 **Armadilha:** Não defenda o 0,709 nem a acurácia de 76,3% como se fossem bons — eles são os sinais de alerta, não conquistas. Este slide é onde você desconfia do próprio resultado, não onde o vende. E nunca harmonize 59% com 69,5%: são subconjuntos distintos por design.
 
 ## Slide 11 — Bateria de investigação: 1.435 execuções (pergunta e métrica definidas a priori)
 **Em uma frase:** Para checar se o resultado bom era real, rodei 8 experimentos somando 1.435 execuções, todos com o mesmo protocolo rígido feito para derrubar — não para favorecer — o resultado positivo.
-**Como explicar (3 falas simples):** "Não confiei em uma única medida, então montei oito experimentos, somando 1.435 execuções." / "Todos usam o mesmo protocolo congelado: hiperparâmetros fixos, scaler só no treino, intervalo de confiança por bootstrap e teste de Wilcoxon." / "A direção é o oposto de garimpar resultado: cada experimento tem uma pergunta definida antes, e o protocolo serve para destruir o positivo, não para escolher o melhor."
+**Como explicar (3 falas simples):** "Não confiei em uma única medida, então montei oito experimentos, somando 1.435 execuções." / "Todos usam o mesmo protocolo congelado: hiperparâmetros fixos, scaler só no treino, intervalo de confiança por bootstrap e teste de Wilcoxon." / "A direção é o oposto de garimpar resultado: cada experimento tem uma pergunta definida antes, e o protocolo serve para testar se o positivo é robusto, não para escolher o melhor caso."
 **Número(s) que importam:** 1.435 (total das 8 baterias); 880 (VALE3 deep-dive, o maior); 225 (ablation do sentimento); 145 (expanding-window CV); 1.000 (resamples do bootstrap CI); |Δ|=0,255 ≈ 6× std (preço vence, passa Bonferroni).
 **Perguntas prováveis (mais provável primeiro):**
-1. *1.435 execuções não é garimpar resultado (p-hacking) / múltiplas comparações?* → Direção oposta: cada experimento tem pergunta e métrica definidas a priori, hiperparâmetros congelados, e serve para destruir o positivo, não selecionar o melhor — nenhuma métrica escolhida a posteriori.
+1. *1.435 execuções não é garimpar resultado (p-hacking) / múltiplas comparações?* → Direção oposta: a métrica principal (AUC) foi mantida fixa e os experimentos de robustez foram desenhados para testar o resultado inicial, não para selecionar o melhor caso — hiperparâmetros congelados, nenhuma métrica trocada a posteriori. (Não dizer "pré-registro formal"; dizer "métrica fixa, experimentos para testar".)
 2. *E a correção de Bonferroni nessas comparações?* → Nas 6 células ativo×horizonte, Bonferroni só reforça o nulo do sentimento; e o positivo "preço vence" (|Δ|=0,255 ≈ 6× std) passa com folga mesmo penalizado.
 3. *Por que o protocolo é idêntico em todos?* → Exatamente para ser justo: hiperparâmetros congelados, StandardScaler só no treino, bootstrap CI de 1.000 resamples e Wilcoxon pareado em todos — variar o protocolo é que abriria espaço para fabricar resultado.
 4. *O total é mesmo 1.435 ou mais de 1.500?* → 1.435 são os 8 experimentos centrais (cada um com pergunta/métrica a priori e p-valor); existem ~80 sanity checks adicionais (~1.515 no total) que não geram teste de hipótese nenhum.
@@ -165,7 +191,7 @@
 3. *Por que esse baseline e não a classe majoritária só?* → Classe majoritária e coin flip ficam em 0,500 e persistência em 0,474; o autoregressivo é a régua forte e honesta que o sentimento tem que vencer — e não vence.
 4. *0,658 aqui e 0,667 no CV: qual é o número?* → São protocolos distintos: 0,658 é janela única (IC largo), 0,667 é média de 5 folds CV; ambos estáveis, o preço vence o sentimento nos dois.
 5. *Por que h=21 e janelas sobrepostas?* → A sobreposição infla a autocorrelação do alvo, o que favorece o baseline de preço — mas isso é reconhecido e não muda a direção da conclusão.
-**Armadilha:** Não reivindicar lucratividade nem "o baseline funciona": AUC ≠ retorno após custos, o backtest foi exploratório e descontinuado. E nunca afirmar que a janela única já separa 0,709 do baseline — só o CV decide.
+**Armadilha:** Não reivindicar lucratividade nem "o baseline funciona": AUC ≠ retorno após custos, o backtest é exploratório e frágil (existe, Sharpe −1,29, reforça o nulo — ver Reserva 23; nunca chamar de "descontinuado"). E nunca afirmar que a janela única já separa 0,709 do baseline — só o CV decide.
 
 ## Slide 13 — Multi-seed: o colapso bimodal
 **Em uma frase:** Repetindo o teste com várias sementes aleatórias, meu modelo se espalha de 0,08 a 0,93 enquanto o baseline fica firme em ~0,65 — e o 0,709 cai bem na ponta direita, ou seja, foi semente sortuda.
@@ -192,7 +218,7 @@
 
 ## Slide 15 — E a exceção VALE3? Deep-dive com 880 execuções
 **Em uma frase:** A VALE3 era o único caso que parecia melhorar com sentimento, então fiz um teste dedicado de 880 execuções só para ela, e o ganho desapareceu — não é estatisticamente significativo.
-**Como explicar (3 falas simples):** "Na bateria de experimentos, dos seis casos (3 ativos × 2 horizontes) só a VALE3 mostrou ganho aparente — exatamente o que se espera por puro acaso." / "Então dei a ela um deep-dive dedicado: 880 execuções, folds expandidos, 10 sementes, 2 modelos." / "O resultado: a média do meu modelo (0,484) ficou abaixo do baseline (0,544) e o teste deu p = 0,194 — a exceção morreu."
+**Como explicar (3 falas simples):** "Na bateria de experimentos, dos seis casos (3 ativos × 2 horizontes) só a VALE3 mostrou ganho aparente — exatamente o que se espera por puro acaso." / "Então dei a ela um deep-dive dedicado: 880 execuções, folds expandidos, 10 sementes, 2 modelos." / "O resultado: a média do meu modelo (0,484) ficou abaixo do baseline (0,544) e o teste deu p = 0,194 — a exceção não sobreviveu ao escrutínio."
 **Número(s) que importam:** 880 execuções (folds, 10 sementes, 2 modelos); p = 0,194 (Wilcoxon, não significativo); 0,484 < 0,544 (média azul abaixo da vermelha); 3×2 = 6 (células ativo×horizonte testadas).
 **Perguntas prováveis (mais provável primeiro):**
 1. *No slide 14 (CV) e no 16 (ablation) a VALE3 dava ganho positivo (+0,036 e +0,058); aqui dá negativo. Qual é o número certo?* → O invariante é que na VALE3 o ganho do sentimento NUNCA é estatisticamente significativo (deep-dive 880 runs, p = 0,194); os três são experimentos distintos — contrastes, modelos e n diferentes — não a mesma medida três vezes, e sinal que muda de magnitude/direção é justamente a evidência de que não é sinal real.
@@ -227,15 +253,15 @@
 **Armadilha:** Não transformar "não adiciona sinal mensurável nesses 3 ativos com esta representação" em "notícias não servem para prever ações" — overclaim; reafirme o escopo (5 features FinBERT, ITUB4/PETR4/VALE3) e, se citarem VALE3, lidere pelo invariante (p = 0,194), nunca pelos números que variam entre slides.
 
 ## Slide 18 — Contribuições e protocolos mínimos propostos
-**Em uma frase:** O trabalho entrega três coisas — um pipeline replicável, a primeira demonstração com números de que avaliar em uma só janela engana, e uma lista de seis cuidados mínimos para quem faz aprendizado de máquina em finanças.
-**Como explicar (3 falas simples):** "Minha contribuição não é dizer que notícia não serve; é mostrar, num caso concreto e brasileiro, como é fácil fabricar um resultado que parece bom." / "Documentei tudo de forma replicável — o README mantém a narrativa inicial de propósito, como registro do viés de confirmação, e a errata no topo já remete ao capítulo 5." / "E proponho seis práticas mínimas, alinhadas a López de Prado, que teriam matado o 0,709 logo no começo."
+**Em uma frase:** O trabalho entrega três coisas — um pipeline replicável, uma demonstração quantificada (em dados brasileiros) de que avaliar em uma só janela engana, e uma lista de seis cuidados mínimos para quem faz aprendizado de máquina em finanças.
+**Como explicar (3 falas simples):** "Minha contribuição não é dizer que notícia não serve; é mostrar, num caso concreto e brasileiro, como é fácil fabricar um resultado que parece bom." / "Documentei tudo de forma replicável — o README mantém a narrativa inicial de propósito, como registro do viés de confirmação, e a errata no topo já remete ao capítulo 5." / "E proponho seis práticas mínimas, alinhadas a López de Prado, que teriam revelado a fragilidade do 0,709 logo no começo."
 **Número(s) que importam:** 1.435 execuções (demonstração quantificada do viés) · 6 práticas mínimas (a proposta prática) · López de Prado 2018 (origem das práticas).
 **Perguntas prováveis (mais provável primeiro):**
 1. *Essas seis práticas são suas ou já existiam?* → Já existem na literatura (López de Prado, 2018); minha contribuição é mostrar a magnitude do dano de ignorá-las — neste caso 0,709 vira ~0,51.
 2. *Por que manter o README com a narrativa positiva do 0,709?* → De propósito, como artefato histórico do viés de confirmação que o trabalho desmonta; a errata no topo remete ao cap. 5 e é verificável em segundos.
 3. *Qual é, afinal, a contribuição se o resultado deu nulo?* → O resultado nulo, obtido com rigor, vale mais que um falso positivo; o ganho do sentimento é só Δ=+0,003 (p=0,49) e o 0,709 era artefato de janela única — a contribuição é metodológica, não "sentimento não funciona".
 4. *Aplicaria essas práticas e o resultado mudaria?* → Aplicadas desde o início elas teriam revelado que o 0,709 era artefato; o protocolo é sensível — o mesmo desenho detecta o sinal de preço (0,667 estável), só não detecta o sentimento.
-5. *Por que "primeira" demonstração em dados brasileiros?* → É a afirmação de escopo: primeira quantificação do viés de janela única em B3/InfoMoney com 1.435 execuções; não reivindico generalização além de ITUB4/PETR4/VALE3 + InfoMoney.
+5. *Você diz "primeira" demonstração no Brasil?* → Evitar "primeira" (difícil de provar): digo "uma demonstração quantificada, em dados brasileiros, do risco de viés de janela única", com 1.435 execuções; não reivindico generalização além de ITUB4/PETR4/VALE3 + InfoMoney.
 **Armadilha:** Não transformar a contribuição em overclaim. Dizer "criei seis protocolos novos" (são da literatura — eu mostro o custo de ignorá-los) ou "provei que notícia não prevê ações" (não — provei que o ganho é indetectável neste n, com Δ=+0,003, p=0,49). A contribuição é metodológica e de escopo limitado.
 
 ## Slide 19 — Limitações e trabalhos futuros
@@ -248,7 +274,7 @@
 3. *Com tantas limitações, a conclusão nula vale algo?* → Vale: o mesmo desenho detecta com folga o sinal de preço (0,667 estável no CV), então o protocolo é sensível quando há efeito real; o sentimento está 44–74× abaixo do detectável por ativo.
 4. *A instabilidade do Transformer não invalida tudo?* → Não, porque a conclusão não depende dele — a ablation usa XGBoost, o modelo mais estável (std 0,012), e mesmo assim Δ=+0,003 (p=0,49).
 5. *E a VALE3, que parecia funcionar?* → O invariante é que na VALE3 o ganho do sentimento NUNCA é estatisticamente significativo: o deep-dive de 880 execuções deu p=0,194; os números diferem entre slides 14/15/16 só porque são protocolos distintos, não a mesma medida.
-6. *Por que descontinuou o backtest?* → Foi exploratório e não atingiu ganho líquido após custos/slippage; sem rigor para reportar Sharpe, por isso não reivindico lucratividade — AUC não é retorno.
+6. *E o backtest / retorno?* → O backtest EXISTE, mas ficou fora do corpo principal por ser exploratório e metodologicamente frágil (filtro val-AUC≥0,5 deixou só 2 de 20 sementes, anticorrelacionadas). Com custo de 10 bps: ensemble Sharpe −1,29 vs buy-and-hold Sharpe 3,25 — ou seja, REFORÇA o nulo, mas não é forte o suficiente para virar contribuição econômica. (NÃO dizer "descontinuado".)
 **Armadilha:** Não transformar o forward-fill numa confissão de vazamento de futuro — ele propaga só o passado; e nunca dizer que as limitações enfraquecem a tese, pois a contribuição é metodológica e a conclusão nula é robusta à direção do viés.
 
 ## Slide 20 — Mensagem final
