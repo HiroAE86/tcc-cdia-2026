@@ -184,7 +184,8 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo é só intradiário (notícia pós-17h no dia $t$), \alert{não auditado}. Como a conclusão é \alert{nula}, qualquer viés que favoreça o sentimento só torna o nulo mais conservador
+    \item \textit{Forward-fill} propaga o passado (não vaza retorno futuro); resíduo só intradiário, não auditado
+    \item \alert{O \textit{ff} afeta só o sentimento; preço e alvo vêm de OHLCV diário sem \textit{ff}}
   \end{itemize}
 \end{frame}
 
@@ -323,7 +324,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos) com p-valor; os $>$65 \textit{sanity checks} até $\sim$1.500 não geram teste de hipótese. As $3\times2=6$ células ativo$\times$horizonte do \textit{ablation} são o único espaço de busca de efeito positivo: 1 deu ganho --- o esperado por acaso. Os contrastes com direção (ITUB4/PETR4: preço vence) sobrevivem a Bonferroni das 6 células.}
+  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. (Bonferroni e as 6 células: reserva de Q\&A.)}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,7 +346,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- nesta janela nem o \textit{baseline} se separa do acaso; a única conclusão honesta de janela única é que ela \alert{não resolve nada}. A separação só aparece no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não lucro} --- não reivindico lucratividade. O 0{,}658 (aqui, janela única) vem de momentum de curto prazo; não contradiz a HME --- separabilidade $\neq$ retorno ajustado a risco após custos (detalhe e \textit{backtest} exploratório na reserva de Q\&A)
+    \item \alert{AUC mede separabilidade, não lucro} --- não reivindico lucratividade (HME, momentum e \textit{backtest} exploratório na reserva de Q\&A)
   \end{itemize}
 \end{frame}
 
@@ -393,7 +394,7 @@
       \end{tabular}
     \end{table}
     \begin{itemize}
-      \item Média XGB dos 3 ativos $=$ \textit{baseline} autoregressivo CV $=$ 0{,}667 (mesma medida, não coincidência; cf.\ 0{,}658 da janela única, slide 12)
+      \item Média XGB dos 3 ativos $=$ \textit{baseline} autoregressivo CV $=$ 0{,}667. O 0{,}658 (1 janela, IC largo) e o 0{,}667 (média 5 \textit{folds}) não comparam como ``melhora'' --- a diferença cabe no IC; o que muda entre janela e CV é a \alert{estabilidade}, não o nível
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
@@ -450,6 +451,8 @@
       \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero --- \emph{não detectável neste $n$} (MDE 0{,}13--0{,}22; sentimento 44--74$\times$ abaixo), não ``efeito zero''
     \end{itemize}
   \end{columns}
+  \vspace{0.5ex}
+  {\scriptsize O 0{,}667 da célula VALE3/P+S é coincidência numérica com a média CV do slide 14 --- medidas distintas (1 célula de \textit{ablation} vs média de 3 ativos).}
 \end{frame}
 
 % ---------------------------------------------------------------- 17. Síntese
@@ -508,7 +511,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado). Resíduo é apenas intradiário (notícia pós-17h atribuída ao dia $t$), escopo limitado e \alert{não auditado}. O \textit{ff} só afeta as \textit{features} de sentimento (o preço vem de OHLCV diário sem \textit{ff}); qualquer viés inflaria o sentimento, nunca o \textit{baseline} --- o $\Delta=+0{,}003$ é teto otimista do sentimento
+      \item \textit{Look-ahead} residual do \textit{forward-fill} (só sentimento; intradiário, não auditado) --- viés inflaria o sentimento, logo $\Delta=+0{,}003$ é teto otimista
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
