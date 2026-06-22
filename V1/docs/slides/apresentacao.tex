@@ -184,7 +184,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill}: propaga passado, não vaza futuro de mercado. Risco residual é intradiário e \alert{robusto à direção do viés}: se favorece o sentimento, o nulo é limite superior otimista; se for contra, o efeito real é ainda menor (não auditado)
+    \item \textit{Forward-fill}: propaga o passado, não vaza futuro de mercado (risco residual é intradiário --- detalhado nas limitações)
   \end{itemize}
 \end{frame}
 
@@ -273,6 +273,8 @@
     \centering\large
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
+  \vspace{1ex}
+  {\footnotesize Estimativa pontual, janela única, 1 semente, sem IC --- refutado como artefato nos slides 13--16.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -282,8 +284,6 @@
     \item \textbf{Acurácia suspeita:} 76{,}3\% supera a classe majoritária da janela de teste (69{,}5\%) por só $\sim$7 pontos
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
-  \vspace{1ex}
-  {\footnotesize Reamostragem 50/50 foi cogitada e descartada: quebraria a ordem temporal e a \textit{base rate} real. Compensei por \alert{peso na perda onde aplicável} (\texttt{pos\_weight}$\approx$1{,}38 nos modelos com \textit{logits}; \texttt{scale\_pos\_weight} no XGBoost; peso de amostra/\textit{threshold} no TCN/Sigmoid, que usa \texttt{BCELoss}). O colapso persiste assim mesmo $\Rightarrow$ o desbalanceamento não é a causa raiz.}
   \vspace{1ex}
   \begin{block}{Decisão}
     Antes de aceitar o resultado: submetê-lo a protocolos progressivamente
@@ -345,7 +345,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não retorno:} esse \textit{baseline} de preço ($\sim$0{,}66 em qualquer recorte) \textbf{não é lucrável} após custos --- não contradiz a EMH (forma semiforte fala de retorno ajustado a risco, não de AUC). \textit{Ensemble}+\textit{backtest} não gerou ganho (descontinuado)
+    \item \alert{AUC mede separabilidade, não retorno:} esse \textit{baseline} de preço ($\sim$0{,}66 em qualquer recorte) não contradiz a EMH (forma semiforte fala de retorno ajustado a risco, não de AUC). \textit{Ensemble}+\textit{backtest} exploratório não converteu o 0{,}66 em retorno e foi descontinuado --- não reivindico estudo formal de lucratividade
   \end{itemize}
 \end{frame}
 
@@ -396,7 +396,7 @@
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: ganho aparente, nunca significativo} --- 3 medidas distintas (slides 14/15/16, modelos/contrastes/$n$ diferentes); magnitude instável = a prova de que não é sinal. \textit{Deep-dive} 880 \textit{runs}: $p=0{,}194$.}
+    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Ganho aparente aqui $+$0{,}036; medidas distintas nos slides 14/15/16 --- ver slide 15.}
   \end{columns}
 \end{frame}
 
@@ -415,7 +415,7 @@
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: ganho instável, nunca significativo} ($p=0{,}194$ no \textit{deep-dive} de 880 \textit{runs}).}
+    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Três experimentos distintos (modelos/contrastes/$n$ diferentes nos slides 14/15/16) $\Rightarrow$ magnitudes diferentes; a instabilidade do sinal é a prova de que não é sinal.}
   \end{columns}
 \end{frame}
 
@@ -451,7 +451,7 @@
       \item \alert{Não é só falta de poder:} o mesmo desenho detecta o sinal de preço (PRICE médio 0{,}662, estável) --- sensível a efeito real quando existe
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: ganho instável, nunca significativo} ($p=0{,}194$ no \textit{deep-dive} de 880 \textit{runs}).}
+    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo.} O $+$0{,}058 desta ablation é isolado e não tem teste por célula; a significância formal vem do \textit{deep-dive} de 880 \textit{runs} ($p=0{,}194$). Três experimentos distintos (slides 14/15/16) $\Rightarrow$ magnitudes diferentes; instabilidade = prova de que não é sinal.}
   \end{columns}
 \end{frame}
 
@@ -511,7 +511,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado); conclusão nula é robusta a ambas as direções do viés (a favor $\Rightarrow$ nulo é limite otimista; contra $\Rightarrow$ efeito ainda menor) --- não auditado
+      \item \textit{Look-ahead} residual do \textit{forward-fill}: propaga passado (não vaza futuro de mercado). Resíduo é apenas intradiário (notícia pós-17h atribuída ao dia $t$), escopo limitado e \alert{não auditado}. A conclusão nula é conservadora sob o cenário adverso e apenas reforçada sob o favorável --- em nenhuma das direções a conclusão muda
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
