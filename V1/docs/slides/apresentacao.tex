@@ -184,8 +184,8 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill} propaga o passado (não vaza retorno futuro); resíduo só intradiário, não auditado. O \textit{ff} afeta só o sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Conclusão nula é robusta à direção do viés: se o \textit{ff} favorece o sentimento, $+$0{,}003 já é limite superior otimista}
+    \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
+    \item \alert{Mesmo o resíduo intradiário não auditado joga A FAVOR do sentimento $\Rightarrow$ $+$0{,}003 já é limite superior otimista}
   \end{itemize}
 \end{frame}
 
@@ -324,7 +324,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. (Múltiplas comparações / Bonferroni e os dois \textit{claims}: reserva de Q\&A.)}
+  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. \alert{Correção por múltiplas comparações só REFORÇA o nulo do sentimento; e o $|\Delta|=0{,}255$ (preço) passa Bonferroni das 6 células com folga ($\sim$6$\times$ o desvio do \textit{baseline}).}}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,10 +345,10 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação do acaso só emerge no CV/multi-seed (slide 14), onde a direção inverte
-    \item \alert{0{,}658 (1 janela, IC largo) e 0{,}667 (média CV) são a MESMA grandeza sob protocolos distintos} --- não comparam como ``melhora''
-    \item \alert{AUC mede separabilidade, não lucro} --- não contradiz a HME: momentum/autocorrelação de curto prazo (h$=$21 sobreposto infla), e \textit{backtest} exploratório não virou retorno após custos
+    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação do acaso só emerge no CV/multi-seed (slide 14), onde a direção inverte. O 0{,}658 (1 janela) e o 0{,}667 (média CV) são a MESMA grandeza sob protocolos distintos
   \end{itemize}
+  \vspace{0.5ex}
+  {\footnotesize AUC mede separabilidade, não lucro; ``\textit{baseline} 0{,}70 refuta a HME?'' --- reserva de Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -440,16 +440,15 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667$^\dagger$ & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
-    {\scriptsize $^\dagger$ coincidência numérica com a média CV do slide 14 --- \alert{medida distinta} (1 célula vs média de 3 ativos).}\\[0.3ex]
     \begin{center}\large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
     \begin{itemize}
-      \item IC 95\% cruza o zero --- \emph{não detectável neste $n$}, não ``efeito zero'' (MDE 0{,}13--0{,}22 na reserva)
+      \item O mesmo desenho detecta o sinal de preço (0{,}667, estável) --- protocolo é sensível quando há efeito; sentimento está 44--74$\times$ abaixo do MDE
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -544,6 +543,31 @@
   \textbf{Obrigado!}\\[1ex]
   \footnotesize André Takeo Loschner Fujiwara --- Ciência de Dados e IA, PUC-SP\\
   Código e dados: repositório versionado do projeto
+\end{frame}
+
+% ---------------------------------------------------------------- Backup: VALE3
+\appendix
+\begin{frame}{Reserva --- VALE3 nos três experimentos}
+  \begin{block}{Invariante (liderar SEMPRE por aqui)}
+    \centering Na VALE3 o ganho do sentimento \alert{nunca é estatisticamente significativo}.
+    O \textit{deep-dive} de 880 execuções deu \textbf{$p = 0{,}194$}.
+  \end{block}
+  \vspace{1ex}
+  \begin{table}
+    \footnotesize
+    \begin{tabular}{llccl}
+      \toprule
+      \textbf{Slide} & \textbf{Experimento} & \textbf{$n$} & \textbf{Modelo} & $\boldsymbol{\Delta}$ \\
+      \midrule
+      14 & CV \textit{expanding} (Transf.\ vs preço) & 5$\times$5 & Transformer & $+$0{,}036 \\
+      16 & Ablation (preço vs preço$+$sent.)        & 225        & XGBoost     & $+$0{,}058 \\
+      15 & \textit{Deep-dive}                       & 880        & 2 modelos   & negativo (azul 0{,}484 $<$ 0{,}544) \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  \vspace{1ex}
+  {\footnotesize Experimentos diferentes, contrastes diferentes, $n$ diferentes $\Rightarrow$ magnitudes diferentes.
+  O invariante é o \textbf{$p$}, não o nível. Sinal instável = a própria evidência de que não é sinal real.}
 \end{frame}
 
 \end{document}
