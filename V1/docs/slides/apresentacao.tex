@@ -577,6 +577,8 @@
   \vspace{1ex}
   {\footnotesize Experimentos diferentes, contrastes diferentes, $n$ diferentes $\Rightarrow$ magnitudes diferentes.
   Os níveis do preço também diferem (0{,}599 CV \textit{vs} 0{,}609 \textit{ablation}) porque $n$ e protocolo diferem; o invariante é o \textbf{$p$}, não o nível. Sinal instável = a própria evidência de que não é sinal real.}
+  \vspace{1ex}
+  {\footnotesize \textbf{Múltiplas comparações:} a VALE3 foi a \alert{única de 6} células (3 ativos $\times$ 2 horizontes) com ganho aparente --- \textbf{exatamente uma positiva é o esperado por puro acaso} sob 6 testes. Bonferroni só \alert{reforça} o nulo; e o \textit{deep-dive} foi análise pós-seleção (testei o melhor caso) --- o que joga \alert{a favor} do nulo, não contra.}
 \end{frame}
 
 % ---------------------------------------------------------------- Backup: MDE/IC
@@ -584,12 +586,14 @@
   {\footnotesize MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno por célula); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação dos 225 \textit{runs} --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
   \vspace{1ex}
   {\footnotesize O IC [$-$0{,}012; $+$0{,}018] é \alert{empírico} --- vem do \textit{bootstrap} dos 225 \textit{runs}, não de uma suposição de independência. Mesmo o teto $+$0{,}018 fica muito abaixo do efeito útil (o MDE por ativo é 0{,}13--0{,}22, $\sim$7$\times$ maior). (Reserva: estrutura de correlação dos \textit{folds} / $n$ efetivo.) O mesmo desenho \alert{detecta preço} (0{,}667): nulo conclusivo no agregado, não por ativo.}
+  \vspace{1ex}
+  {\footnotesize \textbf{Dimensão do nulo:} o ganho do sentimento ($+$0{,}003) está \alert{44--74$\times$ abaixo} do MDE por ativo (0{,}13--0{,}22) --- não é ``quase lá'', é ordens de grandeza fora do detectável. Essa é a frase a dizer na S16 se acusarem subpotência.}
 \end{frame}
 
 % ---------------------------------------------------------------- Backup: por que AUC + backtest
 \begin{frame}{Reserva --- Por que AUC? E o \textit{backtest}}
   \begin{block}{Por que AUC é a métrica}
-    {\footnotesize AUC mede \textbf{separabilidade direcional} --- exatamente a pergunta --- e era a métrica do 0{,}709 que eu auditava (consistência). O nulo é robusto: o mesmo desenho move a AUC no \textbf{preço} (0{,}667) e \alert{não} no sentimento. \textbf{Honestidade:} a ablação decisiva mede só $\Delta$AUC; calibração (Brier/ECE) foi computada na fase diagnóstica, não nos 225 \textit{runs}. Claim restrito: ``nenhum \textbf{ganho discriminativo} detectável''.}
+    {\footnotesize AUC mede \textbf{separabilidade direcional} (capacidade de ordenar ``sobe'' acima de ``desce'') --- exatamente a pergunta --- e era a métrica do 0{,}709 que eu auditava (consistência). O nulo é robusto: o mesmo desenho move a AUC no \textbf{preço} (0{,}667) e \alert{não} no sentimento. \textbf{Honestidade:} a \textit{ablation} (ligar/desligar o sentimento mantendo o resto) mede só $\Delta$AUC; calibração (Brier/ECE) foi computada na fase diagnóstica, não nos 225 \textit{runs}. Claim restrito: ``nenhum \textbf{ganho discriminativo} (de ordenação) detectável''.}
   \end{block}
   \begin{block}{O \textit{backtest} existe --- e confirma o nulo}
     {\footnotesize Com custo de 10 \textit{bps}: \textit{ensemble} Sharpe \alert{$-$1{,}29} ($-$0{,}10\%) \textit{vs} \textit{buy-and-hold} Sharpe 3{,}25 ($+$50{,}30\%). Fora do \textit{slide} principal por fragilidade (filtro \textit{val}-AUC$\geq$0{,}5 deixou 2/20 \textit{seeds}, anticorrelacionadas) --- \textbf{não} por ser desfavorável. Não escondi um positivo; tenho um negativo que \alert{reforça} a tese. \textbf{AUC $\neq$ retorno} nas duas direções.}

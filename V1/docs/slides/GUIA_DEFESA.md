@@ -2,6 +2,15 @@
 
 > Gerado pelo loop noturno. Apresentação 12:30. Leia de cima a baixo uma vez; cada slide tem explicação simples + perguntas mapeadas com resposta de 1 linha. Ground truth: cola_defesa.md.
 
+> **Glossário falado (definir UMA vez ao vivo, para banca mista) — fix dry-run #3:**
+> - **bimodal** (S13/S15): "o modelo ou prevê sempre 'sobe' ou sempre 'desce', nunca no meio" — acumula nas duas pontas.
+> - **ablation** (S16): "ligo e desligo o sentimento mantendo todo o resto igual, e meço a diferença".
+> - **MDE** (S16): "o menor efeito que meu desenho conseguiria enxergar".
+>
+> **Reforços falados (fix dry-run #1 e #2) — já nos slides de reserva, dizer ao vivo se cobrarem:**
+> - **S16 / subpotência:** "o ganho do sentimento (+0,003) está 44–74× ABAIXO do MDE por ativo — não é 'quase lá', é ordens de grandeza fora do detectável." (Reserva 22)
+> - **S15 / VALE3:** "uma positiva em 6 células é o esperado por acaso; Bonferroni só reforça o nulo, e o deep-dive pós-seleção testa o melhor caso — joga A FAVOR do nulo." (Reserva 21)
+
 ---
 
 ## Slide 1 — Página de título: "Predição de Direção de Preços de Ações Brasileiras com Sentimento de Notícias Financeiras" (subtítulo: Pipeline, Ilusão e Autocorreção Metodológica)
