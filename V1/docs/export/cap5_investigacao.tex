@@ -33,7 +33,7 @@ Validação TCN Etapa~5b           & \texttt{tcn\_validation.ipynb}             
 
 Todos os hiperparâmetros dos modelos foram fixados ao longo dos experimentos, sem otimização por \textit{fold}: XGBoost (300 árvores, profundidade 4, \textit{learning rate} 0,05); Transformer (2 camadas, 4 cabeças, $d_\text{model}=64$, \textit{dropout} 0,2, 200 épocas com \textit{early stopping} por perda de validação, paciência 10); TCN ([32,32], \textit{kernel size} 3, \textit{dropout} 0,2). A decisão de não otimizar hiperparâmetros por \textit{fold} foi deliberada: o objetivo não era maximizar desempenho, mas medir a robustez do resultado original sob variação de janela e semente. As 5 \textit{features} de sentimento FinBERT são normalizadas via \texttt{StandardScaler} ajustado exclusivamente no conjunto de treino de cada \textit{fold}.
 
-O experimento \textit{Ensemble + backtest} (20 treinamentos) combinou as predições do Transformer e do XGBoost via média ponderada por AUC de validação e avaliou a estratégia de trading resultante; os resultados não evidenciaram ganho sobre o \textit{baseline} autoregressivo isolado, e o experimento foi descontinuado em favor da análise multi-\textit{seed}.
+O experimento \textit{Ensemble + backtest} (20 treinamentos) combinou as predições do Transformer e do XGBoost via média ponderada por AUC de validação e avaliou a estratégia de \textit{trading} resultante. O resultado foi negativo: a 10 \textit{bps} de custo, a estratégia obteve Sharpe $-1{,}29$ ($-0{,}10\%$) contra Sharpe $3{,}25$ ($+50{,}30\%$) do \textit{buy-and-hold}. Esse resultado é reportado como evidência auxiliar que reforça o nulo, mas fica fora da contribuição principal por fragilidade metodológica --- o filtro de AUC de validação $\geq 0{,}5$ deixou apenas 2 das 20 sementes, anticorrelacionadas com o teste --- e por isso não se reivindica lucratividade.
 
 \section{Baseline autoregressivo e baselines ingênuos}
 
@@ -58,7 +58,7 @@ O controle de dimensionalidade (20 subconjuntos aleatórios de 5 dimensões Olla
 
 \section{Reprodutibilidade e variância de semente}
 
-Sob recompilação com semente 42, o Transformer atinge AUC = 0,442 --- diferença de 0,267 pontos ($22\times$ o desvio-padrão do \textit{baseline}). Sob 20 sementes (Tabela~\ref{tab:multiseed}), o Transformer exibe distribuição bimodal (Figura~\ref{fig:multiseed}): a distribuição é bimodal porque o modelo colapsa para um de dois estados degenerados dependendo da inicialização --- ou prevê quase sempre ``Sobe'' (AUC $\approx$ 0 ou 1, conforme a classe majoritária do teste coincida com a predição) ou quase sempre ``Desce''. Não há um ponto de equilíbrio intermediário discriminativo porque o sinal preditivo real é insuficiente para ancorar a otimização fora desses mínimos locais degenerados.
+Sob recompilação com semente 42, o Transformer atinge AUC = 0,442 --- diferença de 0,267 pontos ($22\times$ o desvio-padrão do \textit{baseline}). Sob 20 sementes (Tabela~\ref{tab:multiseed}), o Transformer exibe distribuição bimodal (Figura~\ref{fig:multiseed}): a distribuição acumula-se nas duas pontas porque, dependendo da inicialização, o modelo converge para estados de \textit{scores} degenerados e mal ordenados --- altamente concentrados, ordenando o teste de forma quase aleatória num sentido (AUC próxima de 1) ou no sentido invertido (AUC próxima de 0). Não há um ponto de equilíbrio intermediário discriminativo porque o sinal preditivo real é insuficiente para ancorar a otimização fora desses mínimos locais degenerados.
 
 \begin{table}[htb]
 \centering
