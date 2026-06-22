@@ -156,6 +156,8 @@
       \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso de classe na perda/amostra}, \alert{não por reamostragem}
     \end{itemize}
   \end{columns}
+  \vspace{1ex}
+  {\footnotesize Reamostragem 50/50 quebraria a ordem temporal (\textit{walk-forward}) e a \textit{base rate} real do mercado; compensado por peso (XGBoost \texttt{scale\_pos\_weight}; neurais \texttt{pos\_weight}$\approx$1{,}38). O colapso bimodal persiste MESMO com a compensação $\Rightarrow$ desbalanceamento não era a causa raiz.}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -185,7 +187,7 @@
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
     \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Mesmo o resíduo intradiário não auditado joga A FAVOR do sentimento $\Rightarrow$ $+$0{,}003 já é limite superior otimista}
+    \item \alert{Resíduo intradiário não auditado sistematicamente --- limitação declarada (slide 19)}
   \end{itemize}
 \end{frame}
 
@@ -275,7 +277,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, janela única, 1 semente, sem IC --- refutado como artefato nos slides 13--16.}
+  {\footnotesize Estimativa pontual, janela única, 1 semente, sem IC --- refutado como artefato nos slides 13--16. O 0{,}670 do XGBoost é janela única (sentimento bruto vs \textit{embeddings}); na avaliação rigorosa (ablation multi-seed, slide 16) o mesmo modelo dá 0{,}665 --- a regra de janela única vale também para o XGBoost.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -324,7 +326,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. \alert{Correção por múltiplas comparações só REFORÇA o nulo do sentimento; e o $|\Delta|=0{,}255$ (preço) passa Bonferroni das 6 células com folga ($\sim$6$\times$ o desvio do \textit{baseline}).}}
+  {\footnotesize \textbf{1.435} execuções pré-registradas = 8 experimentos, cada um com 1 p-valor; os $>$65 \textit{sanity checks} restantes (até $>$1.500) não geram teste de hipótese. \alert{Só os 8 pré-registrados têm p-valor; correção por múltiplas comparações só REFORÇA o nulo do sentimento.}}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,10 +347,10 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação do acaso só emerge no CV/multi-seed (slide 14), onde a direção inverte. O 0{,}658 (1 janela) e o 0{,}667 (média CV) são a MESMA grandeza sob protocolos distintos
+    \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
   \end{itemize}
   \vspace{0.5ex}
-  {\footnotesize AUC mede separabilidade, não lucro; ``\textit{baseline} 0{,}70 refuta a HME?'' --- reserva de Q\&A.}
+  {\footnotesize AUC mede separabilidade, não lucro; captura momentum/autocorrelação de curto prazo (Lo, 2004), que não virou retorno após custos no \textit{backtest} --- compatível com eficiência semi-forte.}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -378,7 +380,9 @@
     Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.
     Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} ($p=0{,}194$).}
     \column{0.42\textwidth}
-    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}); $\Delta$ abaixo vêm de experimentos distintos.}}\\[0.5ex]
+    \begin{block}{Invariante}
+      {\footnotesize Na VALE3 o ganho \alert{NUNCA é significativo} --- \textit{deep-dive} 880 \textit{runs}, $p=0{,}194$. Os $\Delta$ abaixo vêm de experimentos distintos.}
+    \end{block}
     \begin{table}
       \footnotesize
       {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
@@ -429,7 +433,9 @@
     fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
     $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
-    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}); o $+$0{,}058 abaixo é experimento distinto.}}\\[0.5ex]
+    \begin{block}{Invariante}
+      {\footnotesize Na VALE3 o ganho \alert{NUNCA é significativo} --- \textit{deep-dive} 880 \textit{runs}, $p=0{,}194$. O $+$0{,}058 abaixo é experimento distinto.}
+    \end{block}
     \begin{table}
       \footnotesize
       {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
@@ -509,7 +515,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill} (só sentimento; intradiário, não auditado) --- viés inflaria o sentimento, logo $\Delta=+0{,}003$ é teto otimista
+      \item \textit{Look-ahead} residual do \textit{forward-fill} (só sentimento; intradiário, não auditado) --- conclusão nula é robusta à direção do viés: se favorece o sentimento, $\Delta=+0{,}003$ é teto otimista; se for contra, o efeito real é ainda menor
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
