@@ -153,8 +153,9 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso de classe, não por reamostragem}
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda, não por reamostragem}
     \end{itemize}
+    {\footnotesize Reamostrar 50/50 quebraria a ordem temporal e a \textit{base rate} real; o peso na perda dá o mesmo gradiente. E o colapso \alert{persiste mesmo com o peso} $\Rightarrow$ desbalanceamento não era a causa raiz.}
   \end{columns}
 \end{frame}
 
@@ -185,7 +186,7 @@
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
     \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Resíduo intradiário não auditado --- ver slide 19}
+    \item \alert{Resíduo intradiário não auditado} --- mas \textit{ff} só do sentimento: mesmo que vaze a favor, o nulo $+$0{,}003 vira teto otimista. \alert{Leakage não fabrica efeito que não existe} (ver slide 19)
   \end{itemize}
 \end{frame}
 
@@ -275,7 +276,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. (XGBoost 0{,}670 é \textit{janela única}; cai a 0{,}665 \textit{multi-seed} na ablation, s.16 --- a regra ``janela única é artefato'' vale para o XGBoost também.)}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato: cai a 0{,}665 \textit{multi-seed} (s.16) --- a regra ``janela única é artefato'' vale para ele igual ao Transformer.}}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -323,7 +324,7 @@
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
     \end{itemize}
     \begin{block}{8 perguntas = 8 p-valores}
-      {\footnotesize Correção de múltiplas comparações só \alert{reforça o NULO} (Bonferroni torna mais difícil achar positivo).}
+      {\footnotesize 6 células ativo$\times$horizonte (3$\times$2) no \textit{ablation}; 1 com ganho (VALE3) $=$ o esperado por acaso. Corrigir múltiplas comparações só \alert{reforça o NULO} do sentimento; o $|\Delta|=0{,}255$ de preço passa Bonferroni com folga.}
     \end{block}
   \end{columns}
   \vspace{1ex}
@@ -341,7 +342,7 @@
       Classe majoritária    & Sempre prevê ``Sobe''           & 0{,}500 \\
       \textit{Coin flip}    & $P(\text{Sobe}) = \text{prior}$ & 0{,}500 \\
       Persistência ($h=21$) & Direção repete                  & 0{,}474 [0{,}405; 0{,}543] \\
-      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço (janela única)} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
+      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço (janela única, IC largo)} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -349,7 +350,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
-    \item \alert{AUC mede separabilidade, não retorno:} o \textit{backtest} \textit{ensemble} (slide 11) não virou lucro após custos $\Rightarrow$ compatível com eficiência \alert{fraca}, não semi-forte
+    \item \alert{AUC mede separabilidade, não retorno:} o \textit{backtest} \textit{ensemble} (slide 11) \alert{não evidenciou ganho após custos} e foi descontinuado $\Rightarrow$ compatível com eficiência \alert{fraca}, não semi-forte
   \end{itemize}
   \vspace{0.5ex}
   {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ janela única (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV (slide 14) --- protocolos distintos, níveis distintos. O invariante: o preço vence o sentimento nos dois.}}
@@ -383,7 +384,7 @@
     Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} ($p=0{,}194$).}
     \column{0.42\textwidth}
     \begin{block}{Invariante}
-      {\footnotesize Na VALE3 o ganho \alert{NUNCA é significativo} --- \textit{deep-dive} 880 \textit{runs}, $p=0{,}194$. Os $\Delta$ abaixo vêm de experimentos distintos.}
+      {\footnotesize \alert{VALE3: ganho do sentimento nunca significativo ($p=0{,}194$, 880 \textit{runs}); 3 experimentos distintos $=$ magnitudes distintas.}}
     \end{block}
     \begin{table}
       \footnotesize
@@ -415,7 +416,7 @@
     acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
     fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
-    {\footnotesize\alert{VALE3: ganho do sentimento nunca é significativo ($p=0{,}194$, 880 \textit{runs}).}}\\[0.5ex]
+    {\footnotesize\alert{VALE3: ganho do sentimento nunca significativo ($p=0{,}194$, 880 \textit{runs}); 3 experimentos distintos $=$ magnitudes distintas.}}\\[0.5ex]
     \begin{itemize}
       \item Era o único ativo com ganho aparente ($+$0{,}036\,\alert{(n.s.; exp.\ distinto)}) na análise principal --- e a única das $3\times2=6$ células com ganho: sob múltiplas comparações, a esperada por acaso
       \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos, 10 sementes, 2 modelos)
@@ -434,6 +435,7 @@
     fica \textbf{na linha do acaso ou abaixo}. \textcolor{coral}{Vermelho} (preço) $\approx$ azul (preço+sent.)
     $\Rightarrow$ somar sentimento quase não move nada.}
     \column{0.45\textwidth}
+    {\footnotesize\alert{VALE3: ganho do sentimento nunca significativo ($p=0{,}194$, 880 \textit{runs}); 3 experimentos distintos $=$ magnitudes distintas.}}\\[0.5ex]
     \begin{table}
       \footnotesize
       {\footnotesize\itshape XGBoost, 225 treinamentos, $h=21$}\\[0.5ex]
@@ -444,7 +446,7 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; $p=0{,}194$, \textit{deep-dive} 880)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; significância testada no \textit{deep-dive} de 880 \textit{runs}, $p=0{,}194$ --- s.15)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
@@ -452,8 +454,8 @@
     \end{table}
     {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
     \begin{center}\Large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$, \textit{ablation} 225)\\[0.3ex]
-    {\footnotesize IC \textit{bootstrap} do $\Delta$ médio (225 \textit{runs}) [$-$0{,}012; $+$0{,}018] --- cruza o zero; mesmo o teto $+$0{,}018 está muito abaixo de efeito útil. MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno/célula).}\end{center}
-    {\scriptsize O nulo TEM IC; o 0{,}709 não tinha. Detalhes (MDE, \textit{forward-fill}, 0{,}609 vs 0{,}599) na reserva.}
+    {\footnotesize \alert{O mesmo desenho detecta preço (0{,}667 estável) $\Rightarrow$ protocolo é sensível, não cego.} SENT abaixo do acaso.}\end{center}
+    {\scriptsize MDE/IC e \textit{forward-fill} na reserva: MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
   \end{columns}
 \end{frame}
 
