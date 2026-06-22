@@ -187,7 +187,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento propaga só o \alert{passado}; mesmo no pior caso (viés a favor do sentimento) o nulo $\Delta=+0{,}003$ seria limite \alert{superior} otimista (risco intradiário no slide 19)
+    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento propaga só o \alert{passado}; a conclusão nula é robusta \alert{à direção do viés} --- se favorece o sentimento, $\Delta=+0{,}003$ é teto otimista; se for contra, o efeito real é ainda menor (risco intradiário no slide 19)
   \end{itemize}
 \end{frame}
 
@@ -277,7 +277,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{Preço $\sim$0{,}66 é estável; nenhum número é sinal do sentimento:} 0{,}670 (XGB, janela única, sent.\ bruto) $\to$ 0{,}665 (XGB, multi-seed, preço+sent.) $\to$ 0{,}662 (XGB, PRICE-only, \textit{ablation}). Protocolos distintos, todos $\sim$0{,}66.}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -297,7 +297,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Bateria de investigação: 8 experimentos, 1.435 execuções}
+\begin{frame}{Bateria de investigação: 1.435 execuções pré-registradas ($\approx$1.500 com \textit{sanity checks})}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -350,7 +350,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
-    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{O 0{,}667 NÃO é lucrável:} é momentum/autocorrelação, e o \textit{backtest ensemble} não superou custos/\textit{slippage} (s.19) --- não gera alfa
+    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Sem evidência de lucratividade líquida:} é momentum/autocorrelação, e o \textit{backtest exploratório} não superou custos/\textit{slippage} (s.19)
   \end{itemize}
   \vspace{0.5ex}
   {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
@@ -387,6 +387,7 @@
       \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo --- confirmado no \textit{deep-dive} (slide 15).}
       {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}
     \end{block}
+    \alert{\textbf{Na VALE3 o ganho do sentimento nunca é significativo.}}
     \begin{table}
       \footnotesize
       {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
@@ -396,7 +397,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036 (n.s.)} \\
+        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036, $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -405,7 +406,6 @@
     \begin{itemize}
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
     \end{itemize}
-    {\scriptsize VALE3: $\Delta$ varia entre experimentos ($n$ distinto); invariante $=$ nunca significativo, \textit{deep-dive} $p=0{,}194$ (s.15).}
   \end{columns}
 \end{frame}
 
@@ -447,15 +447,14 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058 (n.s.)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058, $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
-    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016). Níveis de preço diferem entre s.14 (CV, Transf.\ vs preço) e s.16 (\textit{ablation}, XGB) por protocolo/$n$ distintos; o invariante é o $p$, não o nível.}
+    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016).}
     \begin{center}\large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$); IC95\% $[-0{,}012;\,+0{,}018]$}\end{center}
-    {\scriptsize Teto $\sim$3$\times$ abaixo do efeito útil; não é só falta de poder --- o mesmo desenho detecta preço (0{,}667). (MDE por ativo e demais reconciliações no Q\&A.)}
   \end{columns}
 \end{frame}
 
