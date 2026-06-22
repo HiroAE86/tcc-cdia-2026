@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59\% ``Sobe'' / 41\% ``Desce''
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)}; a janela de teste calhou 69{,}5/30{,}5 --- ver slide 10
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -184,7 +184,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \alert{Risco conhecido:} \textit{forward-fill} de sentimento em dias sem notícia (discutido na análise)
+    \item \textit{Forward-fill} de sentimento em dias sem notícia \alert{propaga o passado (não vaza futuro de mercado)}; o risco residual é intradiário e \alert{viesa a favor} do sentimento $\Rightarrow$ nosso nulo é um limite superior otimista
   \end{itemize}
 \end{frame}
 
@@ -279,10 +279,12 @@
 \begin{frame}{Três sinais de alerta}
   \begin{enumerate}
     \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}20 --- previu ``Desce'' corretamente em só \alert{11 das 54 quedas reais}
-    \item \textbf{Acurácia suspeita:} 76{,}3\% supera por só $\sim$7 pontos a classe majoritária \emph{da janela de teste} (69{,}5\% ``Sobe'', 123/177)\\{\footnotesize Desbalanceamento difere por período: treino 59/41, janela de teste 69{,}5/30{,}5 (\textit{split} cronológico).}
+    \item \textbf{Acurácia suspeita:} 76{,}3\% supera a classe majoritária da janela de teste (69{,}5\%) por só $\sim$7 pontos
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
-  \vspace{2ex}
+  \vspace{1ex}
+  {\footnotesize Desbalanceamento compensado por \alert{peso na perda} (\texttt{pos\_weight}$\approx$1{,}38 / \texttt{scale\_pos\_weight}), não por reamostragem --- preserva a ordem temporal e a \textit{base rate} real. O colapso persiste assim mesmo $\Rightarrow$ o desbalanceamento não é a causa raiz.}
+  \vspace{1ex}
   \begin{block}{Decisão}
     Antes de aceitar o resultado: submetê-lo a protocolos progressivamente
     mais rigorosos. Se for real, sobrevive.
@@ -319,8 +321,11 @@
       \item \texttt{StandardScaler} ajustado só no treino de cada \textit{fold}
       \item Bootstrap CI com 1.000 reamostras
       \item Teste de Wilcoxon para comparações pareadas
+      \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}. As execuções \alert{destroem} o positivo, não selecionam o melhor (oposto de \textit{p-hacking})
     \end{itemize}
   \end{columns}
+  \vspace{1ex}
+  {\footnotesize 1.435 nos 8 experimentos centrais; $>$1.500 contando os diagnósticos exploratórios.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -342,6 +347,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
+    \item {\footnotesize AUC mede \emph{separabilidade}, não retorno: o \textit{ensemble}+\textit{backtest} não gerou ganho após custos (descontinuado).}
   \end{itemize}
 \end{frame}
 
@@ -380,7 +386,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036 \\
+        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -392,7 +398,7 @@
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
+    {\footnotesize \alert{VALE3: ganho aparente, nunca significativo} --- 3 medidas distintas (slides 14/15/16, modelos/contrastes/$n$ diferentes); magnitude instável = a prova de que não é sinal. \textit{Deep-dive} 880 \textit{runs}: $p=0{,}194$.}
   \end{columns}
 \end{frame}
 
@@ -411,7 +417,7 @@
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
+    {\footnotesize \alert{VALE3: ganho aparente, nunca significativo} --- 3 medidas distintas (slides 14/15/16, modelos/contrastes/$n$ diferentes); magnitude instável = a prova de que não é sinal. \textit{Deep-dive} 880 \textit{runs}: $p=0{,}194$.}
   \end{columns}
 \end{frame}
 
@@ -434,7 +440,7 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058 \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
@@ -446,7 +452,7 @@
       \item Efeito 44--74$\times$ menor que o mínimo detectável (MDE 0{,}13--0{,}22)
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize VALE3: ganho aparente, nunca significativo (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$).}
+    {\footnotesize \alert{VALE3 $+$0{,}058 aqui, mas o \textit{deep-dive} de 880 \textit{runs} (slide 15) mata: $p=0{,}194$.} São 3 medidas distintas (modelos/contrastes/$n$ diferentes) $\Rightarrow$ magnitude instável = a prova de que não é sinal.}
   \end{columns}
 \end{frame}
 

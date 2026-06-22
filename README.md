@@ -5,6 +5,11 @@
 
 ---
 
+> ## ⚠️ ERRATA / AUTOCORREÇÃO (ler antes do restante)
+> O resultado inicial (AUC 0.709) foi demonstrado como **artefato de janela única** em 1.435 execuções nos 8 experimentos centrais (>1.500 com diagnósticos exploratórios). Conclusão corrigida em `docs/capitulo_5.md`: o sentimento adiciona **Δ = +0,003 (p = 0,49)** — sem sinal preditivo mensurável. A contribuição do trabalho é **metodológica** (documentar a reversão), não "o sentimento funciona". O texto abaixo preserva a narrativa inicial por registro histórico — leia-o sob esta ressalva.
+
+---
+
 ## Resumo
 
 Este projeto investiga se notícias financeiras brasileiras podem melhorar a previsão de direção de preços de ações da B3. O pipeline completo coleta notícias do portal InfoMoney, extrai representações semânticas via modelos de linguagem, combina com dados de mercado do Yahoo Finance, e treina modelos de classificação binária (sobe/desce).
