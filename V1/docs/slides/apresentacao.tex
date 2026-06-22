@@ -155,7 +155,7 @@
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
       \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda, não por reamostragem}
     \end{itemize}
-    {\footnotesize Reamostrar 50/50 quebraria a ordem temporal e a \textit{base rate} real; o peso na perda dá o mesmo gradiente. E o colapso \alert{persiste mesmo com o peso} $\Rightarrow$ desbalanceamento não era a causa raiz.}
+    {\footnotesize Peso na perda dá peso equivalente à classe minoritária sem alterar a sequência nem a \textit{base rate}. O colapso \alert{persiste mesmo com o peso} $\Rightarrow$ desbalanceamento não era a causa raiz.}
   \end{columns}
 \end{frame}
 
@@ -185,8 +185,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Resíduo intradiário não auditado} --- mas \textit{ff} só do sentimento: mesmo que vaze a favor, o nulo $+$0{,}003 vira teto otimista. \alert{Leakage não fabrica efeito que não existe} (ver slide 19)
+    \item \textit{ff} só do passado do sentimento (preço e alvo vêm de OHLCV sem \textit{ff}); resíduo intradiário não auditado --- robustez completa no slide 19
   \end{itemize}
 \end{frame}
 
@@ -291,6 +290,8 @@
     Antes de aceitar o resultado: submetê-lo a protocolos progressivamente
     mais rigorosos. Se for real, sobrevive.
   \end{block}
+  \vspace{0.5ex}
+  {\footnotesize Treino 59/41; janela de teste 69{,}5\% (123/177) --- dois subconjuntos diferentes do \textit{split} cronológico, períodos distintos.}
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
@@ -323,12 +324,9 @@
       \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
     \end{itemize}
-    \begin{block}{8 perguntas = 8 p-valores}
-      {\footnotesize 6 células ativo$\times$horizonte (3$\times$2) no \textit{ablation}; 1 com ganho (VALE3) $=$ o esperado por acaso. Corrigir múltiplas comparações só \alert{reforça o NULO} do sentimento; o $|\Delta|=0{,}255$ de preço passa Bonferroni com folga.}
-    \end{block}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize 1.435 pré-registrados $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 total; só os 8 pré-registrados têm p-valor --- os \textit{sanity checks} NÃO geram teste de hipótese.}
+  {\footnotesize 1.435 pré-registrados $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 total --- só os 8 pré-registrados têm p-valor.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -350,10 +348,10 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
-    \item \alert{AUC mede separabilidade, não retorno:} o \textit{backtest} \textit{ensemble} (slide 11) \alert{não evidenciou ganho após custos} e foi descontinuado $\Rightarrow$ compatível com eficiência \alert{fraca}, não semi-forte
+    \item \alert{AUC mede separabilidade direcional, não retorno:} a autocorrelação de curto prazo é conhecida (Lo, 2004 --- mercados adaptativos) e $h=21$ com janelas sobrepostas a infla; o \textit{backtest} \textit{ensemble} \alert{não virou retorno após custos} e foi descontinuado
   \end{itemize}
   \vspace{0.5ex}
-  {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ janela única (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV (slide 14) --- protocolos distintos, níveis distintos. O invariante: o preço vence o sentimento nos dois.}}
+  {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -395,7 +393,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.; $p=0{,}194$ no \textit{deep-dive} 880 \textit{runs})} \\
+        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(Transf.\ vs preço, 5$\times$5; n.s.; $p=0{,}194$)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -446,7 +444,7 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; significância testada no \textit{deep-dive} de 880 \textit{runs}, $p=0{,}194$ --- s.15)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(XGB, P vs P+S, 225; n.s.; $p=0{,}194$ --- s.15)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
@@ -455,7 +453,6 @@
     {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
     \begin{center}\Large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$, \textit{ablation} 225)\\[0.3ex]
     {\footnotesize \alert{O mesmo desenho detecta preço (0{,}667 estável) $\Rightarrow$ protocolo é sensível, não cego.} SENT abaixo do acaso.}\end{center}
-    {\scriptsize MDE/IC e \textit{forward-fill} na reserva: MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
   \end{columns}
 \end{frame}
 
@@ -515,7 +512,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill} (só sentimento; intradiário, não auditado) --- conclusão nula é robusta à direção do viés: se favorece o sentimento, $\Delta=+0{,}003$ é teto otimista; se for contra, o efeito real é ainda menor. O argumento garante que o \textit{ff} \alert{não FABRICA um efeito positivo inexistente} --- não precisa distinguir zero de negativo, pois ambos sustentam a conclusão
+      \item \textit{Look-ahead} residual do \textit{forward-fill} (intradiário, não auditado): o \textit{ff} toca \alert{só o sentimento} --- preço e alvo vêm de OHLCV sem \textit{ff}. Argumento estrutural: qualquer vazamento só poderia inflar o sentimento, e ainda assim o ganho é $+$0{,}003. O \textit{ff} \alert{não FABRICA um efeito positivo inexistente}
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
@@ -574,6 +571,11 @@
   \vspace{1ex}
   {\footnotesize Experimentos diferentes, contrastes diferentes, $n$ diferentes $\Rightarrow$ magnitudes diferentes.
   O invariante é o \textbf{$p$}, não o nível. Sinal instável = a própria evidência de que não é sinal real.}
+\end{frame}
+
+% ---------------------------------------------------------------- Backup: MDE/IC
+\begin{frame}{Reserva --- MDE \textit{vs} IC do $\Delta$ agregado}
+  {\footnotesize MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno por célula); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação dos 225 \textit{runs} --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
 \end{frame}
 
 \end{document}
