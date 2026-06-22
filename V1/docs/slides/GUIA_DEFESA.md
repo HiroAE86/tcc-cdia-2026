@@ -4,8 +4,6 @@
 
 ---
 
-I have everything. Slide 1 is the title page.
-
 ## Slide 1 — Página de título: "Predição de Direção de Preços de Ações Brasileiras com Sentimento de Notícias Financeiras" (subtítulo: Pipeline, Ilusão e Autocorreção Metodológica)
 **Em uma frase:** É a capa que apresenta o tema (usar notícias para prever se ações da B3 sobem ou descem), o autor e o orientador, já sinalizando que o trabalho vira uma história de autocorreção.
 **Como explicar (3 falas simples):** "Bom dia, sou André Takeo Fujiwara, orientado pelo Prof. Eric Bacconi Gonçalves." / "Investiguei se notícias financeiras brasileiras ajudam a prever a direção de preço de ações da B3." / "O subtítulo já entrega o arco: construí o pipeline, obtive uma ilusão de resultado positivo, e o trabalho é a autocorreção que desmonta essa ilusão."
@@ -27,8 +25,6 @@ I have everything. Slide 1 is the title page.
 3. *1.435 execuções não é garimpar resultado (p-hacking)?* → Direção oposta: as execuções servem para destruir um resultado positivo, com pergunta e métrica definidas a priori e hiperparâmetros congelados — não para selecionar o melhor.
 4. *Por que 1.435 e não os "mais de 1.500" que aparecem em outro lugar?* → 1.435 são os 8 experimentos centrais, cada um com p-valor; os ~80 restantes são sanity checks sem teste de hipótese (≈1.515 no total).
 **Armadilha:** Não vender o 0,709 como conquista nem prometer "sentimento não funciona" — o roteiro deve anunciar desde já que o resultado foi revertido e que a contribuição é metodológica; superdimensionar o número inicial cria expectativa que você mesmo vai derrubar.
-
-Slide 3 is "Contexto e motivação" (the third frame: titlepage=1, Roteiro=2, Contexto=3).
 
 ## Slide 3 — Contexto e motivação
 **Em uma frase:** Usar notícias para prever ações já funciona lá fora, mas quase ninguém testou isso com rigor no mercado brasileiro, que é diferente — e essa é a lacuna que o trabalho ataca.
@@ -138,8 +134,6 @@ Slide 3 is "Contexto e motivação" (the third frame: titlepage=1, Roteiro=2, Co
 4. *Por que não usar acurácia ou F1 como métrica principal?* → AUC é invariante a threshold e mais honesta com 59/41; a acurácia de 76,3% enganava porque o modelo previa quase só a majoritária (balanced accuracy/MCC ficam como trabalho futuro).
 5. *Um único caso ruim de matriz não invalida nada — não pode ser azar pontual?* → Exatamente por isso não aceitei o número: submeti a protocolos mais rigorosos (IC, multi-seed, CV, ablation). O resultado morreu: sentimento Δ=+0,003, p=0,49.
 **Armadilha:** Não defenda o 0,709 nem a acurácia de 76,3% como se fossem bons — eles são os sinais de alerta, não conquistas. Este slide é onde você desconfia do próprio resultado, não onde o vende. E nunca harmonize 59% com 69,5%: são subconjuntos distintos por design.
-
-This is the slide titled "Bateria de investigação: 1.435 execuções". It is the 11th frame after the plain cover (Roteiro=2 with cover, but as numbered content slide). The cola explicitly ties slide 11 to the 1.435/Bonferroni content, confirming this is slide 11.
 
 ## Slide 11 — Bateria de investigação: 1.435 execuções (pergunta e métrica definidas a priori)
 **Em uma frase:** Para checar se o resultado bom era real, rodei 8 experimentos somando 1.435 execuções, todos com o mesmo protocolo rígido feito para derrubar — não para favorecer — o resultado positivo.
