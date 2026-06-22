@@ -153,8 +153,9 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso de classe na perda/amostra}, \alert{não por reamostragem}
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por peso de classe (XGB \texttt{scale\_pos\_weight}; \texttt{pos\_weight}$\approx$1{,}38 no \texttt{BCEWithLogits}), \alert{não por reamostragem}
     \end{itemize}
+    {\scriptsize \alert{50/50 (sugestão do orientador) avaliada e preterida:} reamostrar quebra a ordem temporal e a \textit{base rate} real (59/41). O colapso bimodal persiste mesmo com peso de classe $\Rightarrow$ desbalanceamento não era a causa raiz.}
   \end{columns}
 \end{frame}
 
@@ -185,7 +186,7 @@
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
     \item \textit{Forward-fill} propaga só o passado do sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
-    \item \alert{Resíduo intradiário não auditado --- conclusão nula é robusta à direção do viés: se o \textit{ff} favorece o sentimento, $+$0{,}003 já é teto otimista (slide 19)}
+    \item \alert{Resíduo intradiário não auditado --- conclusão nula é robusta à direção do viés: SE o \textit{ff} favorece o sentimento, $+$0{,}003 é limite superior; SE for contra, o efeito real é ainda menor --- nos dois casos o nulo se mantém (slide 19)}
   \end{itemize}
 \end{frame}
 
@@ -275,7 +276,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16.}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. (XGBoost 0{,}670 é \textit{janela única}; cai a 0{,}665 \textit{multi-seed} na ablation, s.16.)}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -293,7 +294,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Investigação metodológica: 8 experimentos, 1.435 execuções}
+\begin{frame}{8 experimentos pré-registrados (1.435 execuções)}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -322,9 +323,12 @@
       \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
     \end{itemize}
+    \begin{block}{8 perguntas = 8 p-valores}
+      {\footnotesize Correção de múltiplas comparações só \alert{reforça o NULO} (Bonferroni torna mais difícil achar positivo).}
+    \end{block}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \alert{\textbf{1.435 execuções pré-registradas = 8 experimentos, 8 p-valores.}} Os $\sim$65 \textit{sanity checks} restantes (até $>$1.500) NÃO geram teste de hipótese. Só os 8 pré-registrados têm p-valor.}
+  {\footnotesize Só os 8 pré-registrados têm p-valor; os $\sim$65 \textit{sanity checks} restantes (até $>$1.500) NÃO geram teste de hipótese.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -346,9 +350,10 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
+    \item \alert{AUC mede separabilidade, não retorno:} o \textit{backtest} \textit{ensemble} (slide 11) não virou lucro após custos $\Rightarrow$ compatível com eficiência \alert{fraca}, não semi-forte
   \end{itemize}
   \vspace{0.5ex}
-  {\footnotesize AUC mede separabilidade, não lucro; captura momentum/autocorrelação de curto prazo (Lo, 2004). $h=21$ com janelas sobrepostas infla a autocorrelação do alvo; o \textit{backtest} \textit{ensemble} (slide 11) não converteu a separabilidade em retorno após custos --- compatível com eficiência fraca, não semi-forte.}
+  {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo.}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -390,7 +395,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.; exp.\ distinto)} \\
+        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036\,\alert{(n.s.; $p=0{,}194$ no \textit{deep-dive} 880 \textit{runs})} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -398,7 +403,6 @@
     \end{table}
     \begin{itemize}
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
-      \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -441,16 +445,16 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; $p=0{,}194$, 880 \textit{runs})} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
     {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
-    \begin{center}\Large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
-    {\scriptsize Mesmo desenho detecta preço (0{,}667 estável); sentimento 44--74$\times$ abaixo do MDE.\\
-    Preço VALE3 = 0{,}609 (ablation) vs 0{,}599 (CV, s.14): protocolos/$n$ distintos; invariante é o $p$, não o nível.}
+    \begin{center}\Large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\\[0.3ex]
+    {\footnotesize IC \textit{bootstrap} [$-$0{,}012; $+$0{,}018] --- cruza o zero; MDE absoluto 0{,}13--0{,}22}\end{center}
+    {\scriptsize O nulo TEM IC; o 0{,}709 não tinha. Detalhes (MDE, \textit{forward-fill}, 0{,}609 vs 0{,}599) na reserva.}
   \end{columns}
 \end{frame}
 
