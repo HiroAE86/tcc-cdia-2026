@@ -158,7 +158,7 @@
     \end{itemize}
   \end{columns}
   \vspace{0.5ex}
-  {\footnotesize O colapso bimodal persiste no XGBoost (modelo da \textit{ablation}) $\Rightarrow$ desbalanceamento não é a causa raiz. Reamostrar 50/50 quebraria a ordem temporal e a \textit{base rate} (59/41); compensei por peso de classe (detalhe no Q\&A).}
+  {\footnotesize Não reamostrei 50/50: quebraria a ordem temporal do \textit{walk-forward} e a \textit{base rate} real (59/41); compensei por peso de classe (detalhe no Q\&A). Decisivo: o colapso persiste no XGBoost $\Rightarrow$ desbalanceamento não é a causa raiz.}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -187,7 +187,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento propaga só o \alert{passado}; mesmo no pior caso (viés a favor do sentimento) o nulo $\Delta=+0{,}003$ seria limite \alert{superior} otimista. Risco intradiário (artigo pós-fechamento) não auditado --- detalhe no slide 19
+    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento propaga só o \alert{passado}; mesmo no pior caso (viés a favor do sentimento) o nulo $\Delta=+0{,}003$ seria limite \alert{superior} otimista (risco intradiário no slide 19)
   \end{itemize}
 \end{frame}
 
@@ -277,7 +277,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato de janela única} --- reaparece no \textit{ablation} como 0{,}665 (multi-seed); protocolos distintos, ambos não-estáveis.}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{Preço $\sim$0{,}66 é estável; nenhum número é sinal do sentimento:} 0{,}670 (XGB, janela única, sent.\ bruto) $\to$ 0{,}665 (XGB, multi-seed, preço+sent.) $\to$ 0{,}662 (XGB, PRICE-only, \textit{ablation}). Protocolos distintos, todos $\sim$0{,}66.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -328,7 +328,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize 1.435 execuções pré-registradas (pergunta e métrica a priori, têm p-valor) $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 --- nenhum \textit{sanity check} gera teste de hipótese.}
+  {\footnotesize Só os 8 experimentos centrais geram teste de hipótese; os $\sim$80 extras são \textit{sanity checks} sem p-valor. Logo: 1.435 pré-registradas (pergunta e métrica a priori) $+$ $\sim$80 \textit{sanity checks} $\approx$ 1.515 --- o número maior não é \textit{padding}.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -350,7 +350,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
-    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação)
+    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{O 0{,}667 NÃO é lucrável:} é momentum/autocorrelação, e o \textit{backtest ensemble} não superou custos/\textit{slippage} (s.19) --- não gera alfa
   \end{itemize}
   \vspace{0.5ex}
   {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
@@ -453,9 +453,9 @@
         \bottomrule
       \end{tabular}}
     \end{table}
-    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016). O 0{,}662 é a média PRICE-only do \textit{ablation} (XGBoost, 225 \textit{runs}); difere do 0{,}667 do CV por desenho --- todos estáveis $\sim$0{,}66, o sentimento não move.}
-    \begin{center}\Large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$)} --- estatisticamente zero\end{center}
-    {\scriptsize VALE3: $\Delta$ varia entre experimentos ($n$ distinto); invariante $=$ nunca significativo, \textit{deep-dive} $p=0{,}194$ (s.15).}
+    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016). Níveis de preço diferem entre s.14 (CV, Transf.\ vs preço) e s.16 (\textit{ablation}, XGB) por protocolo/$n$ distintos; o invariante é o $p$, não o nível.}
+    \begin{center}\large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$); IC95\% $[-0{,}012;\,+0{,}018]$}\end{center}
+    {\scriptsize Teto $\sim$3$\times$ abaixo do efeito útil; não é só falta de poder --- o mesmo desenho detecta preço (0{,}667). (MDE por ativo e demais reconciliações no Q\&A.)}
   \end{columns}
 \end{frame}
 
