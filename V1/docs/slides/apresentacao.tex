@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda}, \alert{não por reamostragem} --- preserva ordem temporal e \textit{base rate}
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- compensado por \alert{peso na perda}, \alert{não por reamostragem}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -323,7 +323,7 @@
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções nos 8 experimentos pré-registrados (cada um com $p$-valor); os demais até $\sim$1.500 são \textit{sanity checks} sem teste de hipótese.}
+  {\footnotesize \textbf{1.435} execuções nos 8 experimentos pré-registrados; contrastes formais por Wilcoxon pareado / bootstrap CI conforme o desenho. As $3\times2=6$ células ativo$\times$horizonte do \textit{ablation} são o único espaço de busca de efeito positivo --- 1 deu ganho, o esperado por acaso. Os demais até $\sim$1.500 são \textit{sanity checks} sem teste de hipótese.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,7 +345,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não retorno} --- e não reivindico nada sobre lucratividade (fora do escopo). O 0{,}667 vem de momentum/autocorrelação de curto prazo (alvo $h=21$ com janelas sobrepostas infla autocorrelação); não contradiz a HME semiforte, que fala de retorno ajustado a risco após custos. O \textit{backtest} exploratório não deu sinal e foi descontinuado justamente por isso
+    \item \alert{AUC mede separabilidade, não lucro} --- não reivindico lucratividade. O 0{,}658 (aqui, janela única) vem de momentum de curto prazo; não contradiz a HME --- separabilidade $\neq$ retorno ajustado a risco após custos (detalhe e \textit{backtest} exploratório na reserva de Q\&A)
   \end{itemize}
 \end{frame}
 
@@ -373,7 +373,8 @@
     \includegraphics[width=\textwidth]{expanding_cv_overtime.png}\\[0.5ex]
     {\footnotesize\itshape Como ler: 3 ativos, eixo X = tempo (\textit{folds}).
     \textcolor{coral}{Vermelho} = preço, \textcolor{verdeagua}{azul} = meu modelo.
-    Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.}
+    Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.
+    Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} ($p=0{,}194$).}
     \column{0.42\textwidth}
     {\footnotesize\alert{Leia primeiro: o ganho do sentimento na VALE3 nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Os $\Delta$ VALE3 abaixo vêm de \emph{experimentos distintos --- não comparáveis}.}\\[0.5ex]
     \begin{table}
@@ -445,8 +446,7 @@
     \end{table}
     \begin{center}\large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
     \begin{itemize}
-      \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero; SENT sozinho \alert{abaixo do acaso}
-      \item \emph{Não detectável neste $n$}, não ``efeito zero'': MDE 0{,}13--0{,}22 em AUC (sentimento 44--74$\times$ abaixo) --- ver slide 17
+      \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero --- \emph{não detectável neste $n$} (MDE 0{,}13--0{,}22; sentimento 44--74$\times$ abaixo), não ``efeito zero''
     \end{itemize}
   \end{columns}
 \end{frame}
