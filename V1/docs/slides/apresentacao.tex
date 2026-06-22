@@ -117,8 +117,7 @@
     \column{0.48\textwidth}
     \begin{block}{(b) Robustez metodológica}
       O \textit{walk-forward split} único sobrevive a CV, múltiplas
-      sementes e testes formais? \alert{Não:} $\Delta$ sentimento
-      $= +0{,}003$ ($p=0{,}49$); o 0{,}709 é artefato de janela única.
+      sementes e testes formais?
     \end{block}
   \end{columns}
   \vspace{1.5ex}
@@ -158,7 +157,7 @@
     \end{itemize}
   \end{columns}
   \vspace{0.5ex}
-  {\footnotesize Não reamostrei 50/50: quebraria a ordem temporal do \textit{walk-forward} e a \textit{base rate} real (59/41). Compensei por família: XGBoost \texttt{scale\_pos\_weight}; \textit{sklearn} \texttt{class\_weight}; neurais com \texttt{BCEWithLogitsLoss} \texttt{pos\_weight}$\approx$1{,}38; TCN (\texttt{Sigmoid}+\texttt{BCELoss}) por peso de amostra/\textit{threshold}. Decisivo: o colapso persiste no XGBoost (modelo da \textit{ablation}), compensado $\Rightarrow$ desbalanceamento não é a causa raiz.}
+  {\footnotesize 50/50 quebraria a ordem temporal do \textit{walk-forward} e a \textit{base rate} real (59/41) --- o teste continua 59/41. Compensei por peso na perda/amostra, sem reamostrar. Decisivo: o colapso persiste no XGBoost (modelo da \textit{ablation}) compensado $\Rightarrow$ desbalanceamento não é a causa raiz (detalhe por família no Q\&A).}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -187,7 +186,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textbf{Risco conhecido:} \textit{forward-fill} de sentimento propaga só o \alert{passado}. O viés intradiário não auditado (artigo pós-fechamento atribuído ao dia $t$) só poderia \alert{inflar} o sentimento; como mesmo inflado $\Delta=+0{,}003$ ($p=0{,}49$), corrigi-lo \alert{só reforça o nulo} --- nunca o reverte para positivo (slide 19)
+    \item \textbf{Risco conhecido:} \textit{forward-fill} propaga só o \alert{passado}; viés intradiário não auditado (discutido no slide 19)
   \end{itemize}
 \end{frame}
 
@@ -277,7 +276,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. XGBoost 0{,}670 $=$ janela única (sentimento bruto \textit{vs embeddings}); o valor multi-seed está no slide 16.}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. Os vários $\sim$0{,}66 do XGBoost (0{,}670 janela única; 0{,}662 só-preço; 0{,}665 preço$+$sent.; 0{,}667 CV) diferem só por protocolo/$n$ --- todos estáveis, o sentimento não move. A regra ``janela única $=$ artefato'' vale também para o XGBoost.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -297,7 +296,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Bateria de investigação: 1.435 execuções pré-registradas ($\approx$1.500 com \textit{sanity checks})}
+\begin{frame}{Bateria de investigação: 1.435 execuções pré-registradas}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -323,12 +322,14 @@
     \textbf{Protocolo (idêntico em todos)}
     \begin{itemize}
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
+      \item O espaço de busca de efeito positivo é 6 células ($3$ ativos $\times$ $2$ horizontes); Bonferroni só reforça o nulo
       \item Cada experimento = 1 pergunta e métrica pré-especificadas; nunca escolhidas \textit{a posteriori}
-      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico e pré-registrado \alert{destrói} o positivo, não seleciona o melhor (Bonferroni / espaço de busca no Q\&A)
+      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico e pré-registrado \alert{destrói} o positivo, não seleciona o melhor
+      \item $\approx$1.500 contando \textit{sanity checks}: os $\sim$80 \alert{não geram teste de hipótese} --- só os 8 centrais têm $p$
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Só os 8 experimentos centrais geram teste de hipótese (reconciliação dos $\sim$80 \textit{sanity checks} no Q\&A).}
+  {\footnotesize Reconciliação dos $\sim$80 \textit{sanity checks} no Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -349,7 +350,7 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
+    \item Nesta janela única o IC é largo demais para separar 0{,}709 do \textit{baseline} --- a separação \textbf{só} emerge no CV (0{,}667 vs 0{,}509, slide 14). Janela única não decide nada; é exatamente o ponto do trabalho
     \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Não reivindico lucratividade:} é momentum/autocorrelação; o \textit{backtest} foi exploratório e descontinuado por não mostrar ganho líquido aparente --- reportar Sharpe exigiria rigor fora do escopo (s.19)
   \end{itemize}
   \vspace{0.5ex}
@@ -396,7 +397,7 @@
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize $+$0{,}036; $p=0{,}194$ (n.s., s.15)} \\
+        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize ganho aparente; signif.\ no \textit{deep-dive} (s.15): $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -447,7 +448,7 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize $+$0{,}058; $p=0{,}194$ (n.s., s.15)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize ganho aparente; signif.\ no \textit{deep-dive} (s.15): $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
@@ -455,7 +456,7 @@
     \end{table}
     {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016).}
     \begin{center}\large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$); IC95\% $[-0{,}012;\,+0{,}018]$}\end{center}
-    {\scriptsize IC estreito por agregação (225 \textit{runs}); o MDE 0{,}13--0{,}22 é \alert{por ativo} ($n$ pequeno) --- não há contradição. Todos os \textit{baselines} de preço $\sim$0{,}66 (variação é protocolo, não sinal). Espaço de busca de efeito positivo $=$ 6 células ($3\times2$); Bonferroni só reforça o nulo.}
+    {\scriptsize IC do $\Delta$ MÉDIO é estreito porque agrega 225 \textit{runs}; MDE 0{,}13--0{,}22 é \alert{por ativo} ($n$ pequeno). Não há contradição: o MESMO desenho detecta preço (0{,}667 estável). O nulo TEM IC; o 0{,}709 nunca teve. (Bonferroni / espaço de busca no Q\&A.)}
   \end{columns}
 \end{frame}
 
