@@ -352,7 +352,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item Nesta janela única o IC é largo demais para separar 0{,}709 do \textit{baseline} --- a separação \textbf{só} emerge no CV (0{,}667 vs 0{,}509, slide 14). Janela única não decide nada; é exatamente o ponto do trabalho
-    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Não reivindico lucratividade:} é momentum/autocorrelação; o \textit{backtest} foi exploratório e descontinuado por não mostrar ganho líquido aparente --- reportar Sharpe exigiria rigor fora do escopo (s.19)
+    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Não reivindico lucratividade:} é momentum/autocorrelação; o \textit{backtest} exploratório foi \textbf{negativo} (Sharpe $-$1{,}29) --- reforça o nulo, mas fica fora da contribuição por fragilidade (s.19/reserva)
   \end{itemize}
   \vspace{0.5ex}
   {\footnotesize \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
@@ -519,7 +519,7 @@
       \item Representação textual específica (5 \textit{features} agregadas)
       \item \textit{Look-ahead} residual do \textit{ff} toca só o sentimento; no pior caso favorece-o $\Rightarrow$ o nulo $\Delta=+0{,}003$ é limite superior otimista. Risco intradiário não auditado
       \item Instabilidade arquitetural do Transformer
-      \item \textit{Backtest ensemble} descontinuado: não atingiu ganho líquido positivo após custos/\textit{slippage}; exploratório, sem rigor para reportar Sharpe --- por isso não reivindico lucratividade
+      \item \textit{Backtest ensemble} exploratório e \textbf{negativo} (Sharpe $-$1{,}29 \textit{vs} \textit{buy-and-hold} 3{,}25 a 10 \textit{bps}): reforça o nulo, mas fica fora da contribuição principal por fragilidade metodológica (2/20 \textit{seeds} sobreviventes) --- não reivindico lucratividade
     \end{itemize}
     \column{0.48\textwidth}
     \textbf{Trabalhos futuros}
