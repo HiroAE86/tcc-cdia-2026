@@ -153,7 +153,7 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)}; a janela de teste calhou 69{,}5/30{,}5 --- e isso \alert{reforça} o alerta: acurácia 76{,}3\% mal supera 69{,}5\% (slide 10)
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)} --- tratado por peso na perda (\texttt{pos\_weight}$\approx$1{,}38 / \texttt{scale\_pos\_weight}), não por reamostragem (preserva ordem temporal e \textit{base rate})
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -184,7 +184,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill}: propaga o passado, não vaza futuro de mercado (risco residual é intradiário --- detalhado nas limitações)
+    \item \textit{Forward-fill}: propaga o passado, não vaza retorno futuro de mercado; resíduo intradiário tratado nas limitações. A direção do viés favorece o sentimento $\Rightarrow$ a conclusão nula é \alert{conservadora} (limite superior)
   \end{itemize}
 \end{frame}
 
@@ -281,7 +281,7 @@
 \begin{frame}{Três sinais de alerta}
   \begin{enumerate}
     \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}20 --- previu ``Desce'' corretamente em só \alert{11 das 54 quedas reais}
-    \item \textbf{Acurácia suspeita:} 76{,}3\% supera a classe majoritária da janela de teste (69{,}5\%) por só $\sim$7 pontos
+    \item \textbf{Acurácia suspeita:} 76{,}3\% supera a classe majoritária da janela de teste (69{,}5\%; \textit{base rate} de treino 59/41) por só $\sim$7 pontos --- um ``sempre Sobe'' já acerta 69{,}5\%
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
   \vspace{1ex}
@@ -320,6 +320,7 @@
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor. Sem correção para múltiplas comparações --- ela só tornaria o nulo mais forte
+      \item O próprio 0{,}709 já era o \alert{máximo} selecionado de 8 células (slide 9) --- outra face do mesmo viés; as 1.435 execuções testam hipótese pré-registrada, não o melhor
     \end{itemize}
   \end{columns}
   \vspace{1ex}
@@ -345,7 +346,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação só se resolve no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não retorno:} esse \textit{baseline} de preço ($\sim$0{,}66 em qualquer recorte) não contradiz a EMH (forma semiforte fala de retorno ajustado a risco, não de AUC). \textit{Ensemble}+\textit{backtest} exploratório não converteu o 0{,}66 em retorno e foi descontinuado --- não reivindico estudo formal de lucratividade
+    \item \alert{AUC mede separabilidade, não retorno} --- e não reivindico nada sobre lucratividade (fora do escopo). O \textit{backtest} exploratório não deu sinal e foi descontinuado justamente por isso
   \end{itemize}
 \end{frame}
 
@@ -396,7 +397,7 @@
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Ganho aparente aqui $+$0{,}036; medidas distintas nos slides 14/15/16 --- ver slide 15.}
+    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo} (\textit{deep-dive} 880 \textit{runs}, $p=0{,}194$). Ganho aparente aqui $+$0{,}036; no \textit{deep-dive} (880 \textit{runs}) a VALE3 \alert{perde} (0{,}484 $<$ 0{,}544): magnitudes \emph{e até sinal} diferentes --- ver slide 15.}
   \end{columns}
 \end{frame}
 
@@ -445,13 +446,11 @@
       \end{tabular}}
     \end{table}
     \begin{itemize}
-      \item $\Delta = +0{,}003$; Wilcoxon $p = 0{,}49$; IC 95\% $[-0{,}012;\ +0{,}018]$
-      \item SENT sozinho: \alert{abaixo do acaso}
-      \item Efeito 44--74$\times$ menor que o mínimo detectável (MDE 0{,}13--0{,}22)
-      \item \alert{Não é só falta de poder:} o mesmo desenho detecta o sinal de preço (PRICE médio 0{,}662, estável) --- sensível a efeito real quando existe
+      \item \alert{Veredito: $\Delta = +0{,}003$} (Wilcoxon $p = 0{,}49$; IC 95\% $[-0{,}012;\ +0{,}018]$) --- SENT sozinho \alert{abaixo do acaso}
+      \item Conclusão: ``nenhum efeito \emph{detectável} neste $n$'' (exclui efeitos $\geq$0{,}13 em AUC; menores ficam indistinguíveis de zero --- não é ``efeito zero''). Aumentar $n$ é direção futura
     \end{itemize}
     \vspace{0.5ex}
-    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo.} O $+$0{,}058 desta ablation é isolado e não tem teste por célula; a significância formal vem do \textit{deep-dive} de 880 \textit{runs} ($p=0{,}194$). Três experimentos distintos (slides 14/15/16) $\Rightarrow$ magnitudes diferentes; instabilidade = prova de que não é sinal.}
+    {\footnotesize \alert{VALE3: o ganho do sentimento nunca é estatisticamente significativo.} O $+$0{,}058 desta ablation é isolado; significância formal só no \textit{deep-dive} de 880 \textit{runs} ($p=0{,}194$).}
   \end{columns}
 \end{frame}
 
