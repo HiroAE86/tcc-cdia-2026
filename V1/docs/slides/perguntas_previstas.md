@@ -83,5 +83,5 @@ Aplicar os 6 protocolos desde o dia 1: IC bootstrap, ≥10 sementes, expanding-w
 | 0,667 vs 0,509 | AUC médio CV: baseline vs Transformer (inversão) |
 | +0,003, p=0,49 | Ganho do sentimento na ablation (225 runs) |
 | p=0,194 | VALE3 deep-dive, 880 runs — não significativo |
-| 1.435 | Execuções nos 8 experimentos pré-registrados (cada um com p-valor); + ~80 sanity checks (sem teste de hipótese) = ~1.515 |
+| 1.435 | Execuções nos 8 experimentos centrais — pergunta e métrica definidas a priori (cada um com p-valor); + ~80 sanity checks (sem teste de hipótese) = ~1.515 |
 | 5.872 | Artigos InfoMoney (2.572 ITUB4 / 1.775 PETR4 / 1.525 VALE3) |

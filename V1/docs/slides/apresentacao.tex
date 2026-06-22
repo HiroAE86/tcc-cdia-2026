@@ -157,7 +157,7 @@
     \end{itemize}
   \end{columns}
   \vspace{0.5ex}
-  {\footnotesize 50/50 quebraria a ordem temporal do \textit{walk-forward} e a \textit{base rate} real (59/41) --- o teste continua 59/41. Compensei por peso na perda/amostra, sem reamostrar. Decisivo: o colapso persiste no XGBoost (modelo da \textit{ablation}) compensado $\Rightarrow$ desbalanceamento não é a causa raiz (detalhe por família no Q\&A).}
+  {\footnotesize Desbalanceamento 59/41 tratado por peso, não reamostragem (argumento XGBoost-persiste no Q\&A).}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -249,6 +249,8 @@
 
 % ---------------------------------------------------------------- 9. AUC 0.709
 \begin{frame}{O resultado que ``confirmou'' a hipótese}
+  {\footnotesize\alert{Estimativa pontual --- 1 janela, 1 semente, sem IC. Refutado nos slides 13--16.}}
+  \vspace{0.5ex}
   \begin{columns}[T]
     \column{0.5\textwidth}
     \begin{table}
@@ -269,14 +271,14 @@
     \begin{itemize}
       \item Transformer + FinBERT: \alert{ROC-AUC = 0{,}709}, acurácia 76{,}3\% \alert{($\approx$ classe majoritária da janela de TESTE 69{,}5\%; treino 59/41)}
       \item Narrativa coerente: ``sentimento específico supera \textit{embeddings} genéricos''
-      \item Resultado compatível com a literatura internacional
+      \item \alert{Aparência} de resultado compatível com a literatura internacional --- eis a armadilha
     \end{itemize}
     \vspace{1ex}
     \centering\large
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. Os vários $\sim$0{,}66 do XGBoost (0{,}670 janela única; 0{,}662 só-preço; 0{,}665 preço$+$sent.; 0{,}667 CV) diferem só por protocolo/$n$ --- todos estáveis, o sentimento não move. A regra ``janela única $=$ artefato'' vale também para o XGBoost.}
+  {\footnotesize \alert{0{,}709 $=$ 1 janela, 1 semente, sem IC} --- refutado nos slides 13--16. Reconciliação dos vários $\sim$0{,}66 do XGBoost: detalhe no Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -296,7 +298,7 @@
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Bateria de investigação: 1.435 execuções pré-registradas}
+\begin{frame}{Bateria de investigação: 1.435 execuções --- pergunta e métrica definidas a priori}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -322,14 +324,13 @@
     \textbf{Protocolo (idêntico em todos)}
     \begin{itemize}
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
-      \item O espaço de busca de efeito positivo é 6 células ($3$ ativos $\times$ $2$ horizontes); Bonferroni só reforça o nulo
-      \item Cada experimento = 1 pergunta e métrica pré-especificadas; nunca escolhidas \textit{a posteriori}
-      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico e pré-registrado \alert{destrói} o positivo, não seleciona o melhor
-      \item $\approx$1.500 contando \textit{sanity checks}: os $\sim$80 \alert{não geram teste de hipótese} --- só os 8 centrais têm $p$
+      \item Cada experimento = 1 pergunta e métrica definidas a priori; nunca escolhidas \textit{a posteriori}
+      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico \alert{destrói} o positivo, não seleciona o melhor
+      \item Bonferroni (6 células) \alert{reforça o nulo} do sentimento \alert{e} o positivo ``preço vence'' ($|\Delta|=0{,}255\approx6\times$ std passa com folga)
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Reconciliação dos $\sim$80 \textit{sanity checks} no Q\&A.}
+  {\footnotesize Bonferroni / espaço de busca e reconciliação dos $\sim$80 \textit{sanity checks}: detalhe no Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
