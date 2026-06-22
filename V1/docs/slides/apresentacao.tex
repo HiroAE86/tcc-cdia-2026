@@ -184,8 +184,8 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \textit{Forward-fill} propaga o passado (não vaza retorno futuro); resíduo só intradiário, não auditado
-    \item \alert{O \textit{ff} afeta só o sentimento; preço e alvo vêm de OHLCV diário sem \textit{ff}}
+    \item \textit{Forward-fill} propaga o passado (não vaza retorno futuro); resíduo só intradiário, não auditado. O \textit{ff} afeta só o sentimento; preço e alvo vêm de OHLCV sem \textit{ff}
+    \item \alert{Conclusão nula é robusta à direção do viés: se o \textit{ff} favorece o sentimento, $+$0{,}003 já é limite superior otimista}
   \end{itemize}
 \end{frame}
 
@@ -320,11 +320,11 @@
     \begin{itemize}
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta pré-registrada; métrica nunca escolhida \textit{a posteriori}
-      \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor. Sem correção para múltiplas comparações --- ela só tornaria o nulo mais forte
+      \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
     \end{itemize}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. (Bonferroni e as 6 células: reserva de Q\&A.)}
+  {\footnotesize \textbf{1.435} execuções pré-registradas (8 experimentos); os $>$65 \textit{sanity checks} não geram p-valor. (Múltiplas comparações / Bonferroni e os dois \textit{claims}: reserva de Q\&A.)}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -345,8 +345,9 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- nesta janela nem o \textit{baseline} se separa do acaso; a única conclusão honesta de janela única é que ela \alert{não resolve nada}. A separação só aparece no multi-seed/CV (slides 13--16), onde a direção inverte
-    \item \alert{AUC mede separabilidade, não lucro} --- não reivindico lucratividade (HME, momentum e \textit{backtest} exploratório na reserva de Q\&A)
+    \item A estimativa de janela única é tão incerta (IC largo) que \alert{não distingue} 0{,}709 do \textit{baseline} --- a separação do acaso só emerge no CV/multi-seed (slide 14), onde a direção inverte
+    \item \alert{0{,}658 (1 janela, IC largo) e 0{,}667 (média CV) são a MESMA grandeza sob protocolos distintos} --- não comparam como ``melhora''
+    \item \alert{AUC mede separabilidade, não lucro} --- não contradiz a HME: momentum/autocorrelação de curto prazo (h$=$21 sobreposto infla), e \textit{backtest} exploratório não virou retorno após custos
   \end{itemize}
 \end{frame}
 
@@ -394,7 +395,6 @@
       \end{tabular}
     \end{table}
     \begin{itemize}
-      \item Média XGB dos 3 ativos $=$ \textit{baseline} autoregressivo CV $=$ 0{,}667. O 0{,}658 (1 janela, IC largo) e o 0{,}667 (média 5 \textit{folds}) não comparam como ``melhora'' --- a diferença cabe no IC; o que muda entre janela e CV é a \alert{estabilidade}, não o nível
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
       \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
@@ -440,19 +440,18 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667$^\dagger$ & $+$0{,}058\,\alert{(n.s.; exp.\ distinto)} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
+    {\scriptsize $^\dagger$ coincidência numérica com a média CV do slide 14 --- \alert{medida distinta} (1 célula vs média de 3 ativos).}\\[0.3ex]
     \begin{center}\large\alert{$\Delta = +0{,}003$}\ \ ($p = 0{,}49$)\end{center}
     \begin{itemize}
-      \item IC 95\% $[-0{,}012;\ +0{,}018]$ cruza o zero --- \emph{não detectável neste $n$} (MDE 0{,}13--0{,}22; sentimento 44--74$\times$ abaixo), não ``efeito zero''
+      \item IC 95\% cruza o zero --- \emph{não detectável neste $n$}, não ``efeito zero'' (MDE 0{,}13--0{,}22 na reserva)
     \end{itemize}
   \end{columns}
-  \vspace{0.5ex}
-  {\scriptsize O 0{,}667 da célula VALE3/P+S é coincidência numérica com a média CV do slide 14 --- medidas distintas (1 célula de \textit{ablation} vs média de 3 ativos).}
 \end{frame}
 
 % ---------------------------------------------------------------- 17. Síntese
