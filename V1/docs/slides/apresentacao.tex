@@ -154,6 +154,7 @@
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
       \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)}
+      \item {\footnotesize (a janela de teste cronológica calha em 69{,}5\% ``Sobe'' --- períodos distintos)}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -275,7 +276,7 @@
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
   \vspace{1ex}
-  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato de janela única} (0{,}670 = s.9, janela única; 0{,}665 = s.16, \textit{multi-seed} --- reconciliação em Q\&A).}
+  {\footnotesize Estimativa pontual, 1 janela, 1 semente, sem IC --- refutado nos slides 13--16. \alert{O XGBoost 0{,}670 também é artefato de janela única} (reconciliação 0{,}670 vs 0{,}665 em Q\&A).}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
@@ -323,7 +324,7 @@
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta e métrica pré-especificadas; nunca escolhidas \textit{a posteriori}
       \item \alert{Oposto de \textit{p-hacking}:} as execuções \alert{destroem} o positivo, não selecionam o melhor
-      \item Único claim positivo (preço vence, $|\Delta|\approx$0{,}255 $\approx$ 6$\times$ o desvio do \textit{baseline}) sobrevive a Bonferroni das 6 células; a correção só \alert{reforça} o nulo do sentimento
+      \item Claim científico central $=$ o \alert{nulo do sentimento}: múltiplas comparações só o \alert{reforçam}. ``Preço vence'' é secundário e robusto por \textbf{magnitude} ($|\Delta|\approx$0{,}255 $\approx$ 6$\times$ o desvio do \textit{baseline}) --- sobrevive a correção bem além de $/6$
     \end{itemize}
   \end{columns}
   \vspace{1ex}
@@ -349,7 +350,7 @@
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
     \item O IC de janela única é tão largo que engloba o 0{,}709 --- a separação do \textit{baseline} só aparece no CV (slide 14)
-    \item \alert{AUC mede separabilidade direcional, não retorno:} a autocorrelação de curto prazo é conhecida (Lo, 2004 --- mercados adaptativos) e $h=21$ com janelas sobrepostas a infla; o \textit{backtest} \textit{ensemble} foi descontinuado \alert{sem evidência de lucro após custos} --- não reivindico lucratividade
+    \item \alert{AUC mede separabilidade direcional, não retorno:} a autocorrelação de curto prazo é conhecida (Lo, 2004 --- mercados adaptativos) e $h=21$ com janelas sobrepostas a infla; o \textit{backtest} \textit{ensemble} foi descontinuado \alert{após não evidenciar ganho líquido de trading após custos/slippage} --- resultado negativo reportado, não omitido; não reivindico lucratividade
   \end{itemize}
   \vspace{0.5ex}
   {\footnotesize Captura momentum/autocorrelação de curto prazo (Lo, 2004); $h=21$ com janelas sobrepostas infla a autocorrelação do alvo. \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
@@ -452,7 +453,7 @@
     \end{table}
     {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016); a média $+$0{,}003 não é diluição de um efeito --- é ausência dele.}
     \begin{center}\Large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$)} --- estatisticamente zero\end{center}
-    {\scriptsize Agregado: \alert{potência suficiente} (IC exclui efeito útil) $\Rightarrow$ nulo conclusivo. Por ativo: subpotenciado (por isso agrego). MDE e IC do $\Delta$ na reserva.}
+    {\scriptsize Por \textbf{ativo} subpotenciado (MDE 0{,}13--0{,}22); por isso \textbf{agrego} os 225 \textit{runs} $\Rightarrow$ IC do $\Delta$ médio [$-$0{,}012; $+$0{,}018], estreito, exclui efeito útil. O mesmo desenho \alert{detecta preço} (0{,}667). Logo: nulo conclusivo no agregado, não por ativo.}
   \end{columns}
 \end{frame}
 
@@ -482,7 +483,7 @@
     \column{0.46\textwidth}
     \textbf{Três contribuições}
     \begin{enumerate}
-      \item Pipeline replicável e versionado (InfoMoney + FinBERT-PT-BR + Yahoo Finance)
+      \item Pipeline replicável e versionado (o README preserva a narrativa inicial \alert{de propósito}, como registro do viés de confirmação --- errata no topo aponta para o cap. 5)
       \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
@@ -512,7 +513,7 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill} (intradiário, não auditado): o \textit{ff} toca \alert{só o sentimento} --- preço e alvo vêm de OHLCV sem \textit{ff}. Argumento estrutural: qualquer vazamento só poderia inflar o sentimento, e ainda assim o ganho é $+$0{,}003. O \textit{ff} \alert{não FABRICA um efeito positivo inexistente}
+      \item \textit{Look-ahead} residual do \textit{forward-fill} (intradiário, não auditado): o \textit{ff} toca \alert{só o sentimento} --- preço e alvo vêm de OHLCV sem \textit{ff}. Argumento estrutural: o canal de vazamento plausível (notícia pós-fechamento $\sim$17h) atua \alert{a favor} do sentimento --- não auditado, mas mesmo no pior caso o ganho observado é $+$0{,}003. O \textit{ff} \alert{não FABRICA um efeito positivo inexistente}
       \item Instabilidade arquitetural do Transformer
     \end{itemize}
     \column{0.48\textwidth}
