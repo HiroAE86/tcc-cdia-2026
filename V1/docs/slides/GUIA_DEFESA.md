@@ -74,7 +74,17 @@
 5. *~1.200 dias por ativo é suficiente para treinar esses modelos?* → É a limitação central: o MDE por ativo (0,13–0,22) deixa o sentimento 44–74× abaixo do detectável; mas o mesmo desenho detecta o sinal de preço (0,667 estável), então o protocolo é sensível a efeito real quando existe.
 **Armadilha:** Não vender o pipeline como prova de que o método "funciona" — ele é só a infraestrutura; o veredito honesto é que o ganho do sentimento é Δ=+0,003 (p=0,49) e o 0,709 é artefato de janela única. E ao falar de forward-fill, dizer "propaga o passado", nunca "preenche com o futuro".
 
-## Slide 7 — Etapa 4: sentimento específico (FinBERT-PT-BR)
+## Slide 7 — Etapa 3: embeddings genéricos (perto do acaso)
+**Em uma frase:** Minha primeira tentativa foi transformar cada notícia em 1.024 números genéricos (embeddings), e isso ficou perto do acaso — o que motivou trocar para sentimento específico.
+**Como explicar (3 falas simples):** "Usei embeddings genéricos do Ollama: 1.024 dimensões por artigo, média diária, reduzidas por PCA a 32 componentes (61,4% da variância), ajustadas só no treino." / "O melhor modelo (XGBoost) deu só 0,610, e os demais ficaram perto ou abaixo de 0,50." / "A leitura: representação genérica de alta dimensão carrega muito ruído semântico irrelevante para finanças — por isso parti para o FinBERT no próximo slide."
+**Número(s) que importam:** 1.024 dims (embedding genérico); 32 componentes PCA (61,4% variância, só treino); 0,610 (melhor, XGBoost); 0,568 / 0,505 / 0,443 (Transformer / BiLSTM red. / BiLSTM orig.) — perto do acaso.
+**Perguntas prováveis (mais provável primeiro):**
+1. *Por que os embeddings genéricos falharam?* → Alta dimensionalidade (1.024) carrega ruído semântico não-financeiro; o melhor (XGBoost) deu só 0,610 e os sequenciais ficaram ≤0,568.
+2. *Por que reduzir com PCA só no treino?* → Para não vazar informação do teste; o PCA é ajustado apenas no treino e aplicado ao resto (mesma disciplina do scaler).
+3. *Isso não prova que notícia não serve?* → Não — prova que ESTA representação (embedding genérico) não serve; por isso testei o sentimento específico FinBERT a seguir.
+**Armadilha:** Não apresentar 0,610 como "quase bom" — é perto do acaso e o motivo de trocar de representação; não confundir com o 0,709 (que vem depois e também cai).
+
+## Slide 8 — Etapa 4: sentimento específico (FinBERT-PT-BR)
 **Em uma frase:** Em vez de usar 1.024 números genéricos por notícia, troquei por um modelo treinado em finanças em português que resume cada dia em 5 medidas de sentimento.
 **Como explicar (3 falas simples):** "O FinBERT-PT-BR é um BERT ajustado em textos financeiros brasileiros, então entende 'guidance', 'rating', 'alavancagem'." / "Para cada artigo ele dá três notas — positivo, negativo, neutro — e eu agrego isso em 5 features por dia." / "A aposta era simples: uma representação compacta e específica do domínio deveria informar mais que 1.024 dimensões genéricas."
 **Número(s) que importam:** 3 logits (por artigo: pos/neg/neu); 5 features (diárias por ativo); 1.024 dims (genéricas que estou substituindo)
@@ -86,7 +96,7 @@
 5. *Agregar por média não joga fora informação?* → Sim, é uma simplificação deliberada (representação compacta); a perda de granularidade é limitação declarada e motiva representações mais ricas no futuro.
 **Armadilha:** Não vender este slide como "a melhoria que confirmou a hipótese". Aqui é só a hipótese e a representação; o ganho aparente vem no próximo slide e morre depois (sentimento Δ = +0,003, p = 0,49). Não afirmar que FinBERT "captura o sentimento do mercado" — só extrai 5 features cujo valor preditivo acabou sendo nulo neste n.
 
-## Slide 8 — O resultado que "confirmou" a hipótese
+## Slide 9 — O resultado que "confirmou" a hipótese
 **Em uma frase:** O modelo Transformer com sentimento FinBERT atingiu AUC 0,709 e pareceu confirmar a hipótese, mas esse número veio de uma única janela, uma única semente e sem intervalo de confiança — é a armadilha que o resto do trabalho desmonta.
 **Como explicar (3 falas simples):**
 - "Aqui o Transformer com sentimento dá AUC 0,709, e o sentimento parece superar os embeddings genéricos: narrativa bonita, coerente com a literatura."
@@ -107,18 +117,6 @@
 4. *Por que 59/41 no treino mas 69,5% no teste?* → Split cronológico sem embaralhar: treino e teste são períodos distintos, e a janela de teste calhou de ter mais altas.
 5. *Por que esse Δ +0,141 do Transformer e não os dos outros modelos?* → Justamente porque ele é o maior e mais sedutor; mas no multi-seed o Transformer é o mais instável (std 0,261) — esse +0,141 foi sorte de semente, não efeito real.
 **Armadilha:** Não vender o 0,709 com orgulho nem deixá-lo no ar como conquista — apresentá-lo explicitamente como isca/artefato que será derrubado, senão a banca cobra a contradição com o veredito final (+0,003, p=0,49). Nunca chamar a acurácia de 76,3% de "boa".
-
-## Slide 9 — O resultado que "confirmou" a hipótese
-**Em uma frase:** É o slide do falso "win": o Transformer com sentimento FinBERT chegou a AUC 0,709 e pareceu confirmar a hipótese, mas esse número veio de uma única janela, uma semente, sem intervalo de confiança — e o resto da defesa o derruba.
-**Como explicar (3 falas simples):** "Aqui o Transformer com FinBERT deu AUC 0,709 e bateu os embeddings genéricos — parecia confirmar tudo." "A narrativa era até coerente com a literatura internacional, e essa aparência é exatamente a armadilha." "Mas é uma estimativa pontual: uma janela, uma semente, sem IC — e nos próximos slides eu mostro que ela não sobrevive."
-**Número(s) que importam:** 0,709 (AUC Transformer, o artefato); 0,670 (XGBoost janela única — sentimento bruto); +0,141 (delta Transformer E3→E4); 76,3% (acurácia que mal supera majoritária); 69,5% (classe majoritária no teste).
-**Perguntas prováveis (mais provável primeiro):**
-1. *Se o XGBoost dá 0,670 aqui e 0,665 na ablation, qual é o número certo?* → São protocolos distintos: 0,670 é janela única (sentimento bruto vs embeddings); 0,665 é multi-seed (preço+sentimento) — nenhum dos dois é sinal estável, a regra "janela única é artefato" vale para o XGBoost também.
-2. *AUC de 0,709 com sentimento não confirma a hipótese?* → Não: é uma janela, uma semente, sem IC — no multi-seed o Transformer espalha de 0,080 a 0,931 e a semente 42 dá 0,442; o 0,709 foi sorte de janela.
-3. *76,3% de acurácia não é bom?* → Engana: a janela de teste é 69,5% "Sobe", então 76,3% mal supera o "chutar sempre Sobe" — por isso uso AUC, não acurácia.
-4. *Por que então o sentimento parece bater os embeddings genéricos?* → A diferença E3→E4 não se sustenta: o controle de dimensionalidade (5 dims aleatórias) já dá 0,509, e fora desta janela a vantagem inverte.
-5. *Os 59/41 do treino contradizem os 69,5% do teste?* → Não, são subconjuntos diferentes do split cronológico: treino 59/41, janela de teste 69,5/30,5 — a janela calhou de ter mais altas, o que reforça o sinal de alerta.
-**Armadilha:** Apresentar o 0,709 (ou o 0,670 do XGBoost) com qualquer tom de conquista. Enquadre desde a primeira frase como estimativa pontual/artefato de janela única que será refutado — nunca diga que o sentimento "funcionou" ou "superou" de forma estável.
 
 ## Slide 10 — Três sinais de alerta
 **Em uma frase:** Antes de comemorar o AUC 0,709, três pistas mostraram que o resultado provavelmente era frágil: o modelo quase só dizia "Sobe", a acurácia mal batia o chute óbvio, e o número saiu de um único teste sem margem de erro.
@@ -160,17 +158,16 @@
 5. *Por que h=21 e janelas sobrepostas?* → A sobreposição infla a autocorrelação do alvo, o que favorece o baseline de preço — mas isso é reconhecido e não muda a direção da conclusão.
 **Armadilha:** Não reivindicar lucratividade nem "o baseline funciona": AUC ≠ retorno após custos, o backtest foi exploratório e descontinuado. E nunca afirmar que a janela única já separa 0,709 do baseline — só o CV decide.
 
-## Slide 13 — Expanding-window CV: a inversão
-**Em uma frase:** Quando troco a única janela de teste por cinco fatias de tempo, o resultado vira do avesso: o preço sozinho passa a vencer meu modelo, e o sinal que parecia bom desaparece.
-**Como explicar (3 falas simples):** "Aqui eu paro de avaliar numa só janela e uso cinco fatias do tempo." "Em ITUB4 e PETR4 o preço sozinho ganha do meu modelo — a média cai de 0,667 para 0,509." "Na VALE3 as faixas se cruzam: parece haver ganho, mas ele nunca é estatisticamente significativo."
-**Número(s) que importam:** 0,667 (média preço, CV) — baseline ganha estável; 0,509 (média meu modelo, CV) — colapsa abaixo do preço; -0,255 (Δ ITUB4 e PETR4) — preço vence com folga; 0,599 vs 0,635 (VALE3 preço vs modelo) — ganho aparente não significativo.
+## Slide 13 — Multi-seed: o colapso bimodal
+**Em uma frase:** Repetindo o teste com várias sementes aleatórias, meu modelo se espalha de 0,08 a 0,93 enquanto o baseline fica firme em ~0,65 — e o 0,709 cai bem na ponta direita, ou seja, foi semente sortuda.
+**Como explicar (3 falas simples):** "Cada barra do gráfico é uma semente aleatória diferente." / "O baseline (vermelho) fica apertado em ~0,65; meu modelo (azul) se espalha de 0,08 a 0,93, e o 0,709 cai na ponta direita — sorte de sorteio." / "Trocando só a semente para 42, o AUC despenca para 0,442; o desvio do Transformer é 0,261, 21× o do baseline (0,012). A distribuição é bimodal: o modelo colapsa para 'sempre Sobe' ou 'sempre Desce'."
+**Número(s) que importam:** 0,08–0,93 (espalhamento do meu modelo); ~0,65 (baseline, estável); 0,442 (semente 42 — o 0,709 vira isso); std 0,261 vs 0,012 (Transformer vs baseline, 21×); bimodal = colapso "sempre Sobe/Desce".
 **Perguntas prováveis (mais provável primeiro):**
-1. *E a VALE3, que aqui parece ganhar (0,635 > 0,599)?* → Invariante primeiro: na VALE3 o ganho do sentimento nunca é estatisticamente significativo — o deep-dive de 880 execuções (slide 15) deu p=0,194; este 0,635 é ganho aparente, não sinal.
-2. *Esse Δ aqui é o ganho do sentimento?* → Não: este Δ é Transformer menos XGBoost-preço (contraste de modelo), não a ablation de sentimento; o ganho do sentimento isolado é +0,003 (p=0,49) no slide 16.
-3. *Por que confiar no CV e não na janela única que deu 0,709?* → A janela única não tinha IC, semente nem replicação; trocando 1 janela por 5 folds o resultado inverte (0,667 vs 0,509) — isso mostra que o 0,709 era artefato de janela única.
-4. *Folds sobrepostos/adjacentes não violam independência no teste?* → Sim, reconhecido; o efeito é conservador (sobreposição infla correlação mas não cria significância espúria), e como as conclusões são nulas o viés não as ameaça.
-5. *Por que não otimizou hiperparâmetros por fold?* → Deliberado: o objetivo era medir robustez do resultado original sob variação de janela/semente, não maximizar desempenho — otimizar por fold adicionaria variância e confundiria a comparação.
-**Armadilha:** Não chamar o Δ desta tabela de "ganho do sentimento" — é Transformer vs XGBoost-preço. E não tentar harmonizar o 0,635 da VALE3 com slides 14/15/16: são experimentos distintos por design; lidere sempre pelo invariante (p não significativo), nunca pelo número.
+1. *Esse colapso não é só o Transformer ser um modelo ruim?* → A conclusão não depende dele: a ablation (slide 16) usa XGBoost, o mais estável (std 0,012), e mesmo assim o sentimento dá Δ=+0,003 (p=0,49).
+2. *O 0,709 não continua sendo um resultado real, já que aconteceu?* → É reproduzível com aquela semente, mas é a ponta de uma distribuição enorme (0,08–0,93) — a média desmente; foi sorte, não sinal.
+3. *Por que a distribuição é bimodal?* → O modelo colapsa: aposta quase tudo em "Sobe" ou quase tudo em "Desce", acumulando nas pontas (0 e 1) — instabilidade, não aprendizado de sinal.
+4. *21× mais variância já não invalida o modelo por si só?* → Invalida o número único: um estimador com std 0,261 não permite ler 0,709 como efeito; é exatamente por isso que IC e multi-seed são protocolos obrigatórios.
+**Armadilha:** Não tratar o 0,709 como "pico de desempenho" — é cauda de uma distribuição instável. E não dizer "o Transformer é ruim, logo descartei" sem lembrar que a ablation com XGBoost (estável) dá o MESMO nulo.
 
 ## Slide 14 — Expanding-window CV: a inversão
 **Em uma frase:** Quando troco a janela única por validação em 5 dobras ao longo do tempo, o resultado se inverte — o baseline de preço passa a vencer meu modelo de sentimento, exceto na VALE3, onde o ganho aparente não é estatisticamente significativo.
@@ -256,3 +253,23 @@
 4. *Se a contribuição é "cuidado com o método", isso já não é sabido (López de Prado)?* → Os protocolos vêm de López de Prado (2018); a contribuição é mostrar a magnitude do dano de ignorá-los em dados BR (0,709 → ~0,51) e operacionalizá-los em 6 passos mínimos.
 5. *E sobre a VALE3, que parecia funcionar?* → O invariante é que na VALE3 o ganho do sentimento nunca é estatisticamente significativo (deep-dive de 880 execuções, p=0,194); ela é a exceção que não sobrevive ao escrutínio, e na média dos 3 ativos o efeito é só +0,003.
 **Armadilha:** Não escorregue para "provei que notícias/sentimento não têm valor" — o escopo é a representação adotada (5 features FinBERT) nesses 3 ativos e InfoMoney; afirme contribuição metodológica e veredito nulo qualificado (+0,003, p=0,49), nunca uma conclusão universal.
+
+---
+
+# Slides de RESERVA (não apresentar; só se a banca cruzar números)
+
+## Reserva 21 — VALE3 nos três experimentos
+**Quando puxar:** se a banca cruzar os slides 14/15/16 e apontar que a VALE3 tem números diferentes.
+**Como usar (1 fala):** "São três experimentos diferentes, não a mesma medida três vezes. O invariante é o p: na VALE3 o ganho do sentimento NUNCA é estatisticamente significativo — o deep-dive de 880 execuções deu p=0,194."
+**Tabela de duelo (decorar a leitura, não os números):**
+- Slide 14 — CV expanding (Transformer vs preço), n=5×5, AUC preço 0,599, Δ **+0,036**
+- Slide 16 — Ablation (preço vs preço+sent), n=225, XGBoost, AUC preço 0,609, Δ **+0,058**
+- Slide 15 — Deep-dive, n=880, 2 modelos, **negativo** (azul 0,484 < 0,544)
+**Fecho:** "Contrastes, modelos e n diferentes ⇒ magnitudes diferentes; os níveis de preço também diferem (0,599 vs 0,609) porque o protocolo difere. O invariante é o p, não o nível. Sinal instável é a própria evidência de que não é sinal real."
+**Armadilha:** Nunca defender um número específico da VALE3 nem tentar harmonizá-los — lidere SEMPRE pelo invariante (p nunca significativo).
+
+## Reserva 22 — MDE vs IC do Δ agregado
+**Quando puxar:** se perguntarem "como o IC do Δ é estreito [−0,012; +0,018] se o MDE é 0,13–0,22? Não é contradição?"
+**Como usar (1 fala):** "Não há contradição: o MDE 0,13–0,22 é POR ATIVO (n pequeno por célula); o IC [−0,012; +0,018] é do Δ MÉDIO agregado, estreito porque agrega os 225 runs. O nulo TEM IC; o 0,709 não tinha."
+**Reforço:** "O IC é empírico (bootstrap dos 225 runs), não suposição de independência; mesmo o teto +0,018 fica ~7× abaixo do efeito útil (MDE por ativo). E o mesmo desenho DETECTA preço (0,667) — nulo conclusivo no agregado, não por falta de poder."
+**Armadilha:** Não confundir os dois níveis — sempre dizer "MDE por ativo, IC do Δ médio agregado".
