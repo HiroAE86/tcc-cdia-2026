@@ -65,3 +65,33 @@ class CausalConv1dBlock(nn.Module):
         return self.relu(out + res)
 \end{lstlisting}
 
+\chapter{Exemplos de artigos e classificação de sentimento}\label{ap:artigos}
+
+Este apêndice ilustra, com artigos reais do corpus InfoMoney, como o FinBERT-PT-BR \cite{souza2023} converte o texto de uma notícia nas \textit{features} de sentimento usadas pelos modelos. Para cada artigo, o modelo produz três \textit{logits} --- pontuações brutas não normalizadas associadas às classes POSITIVO, NEGATIVO e NEUTRO. Aplicando a função \textit{softmax} aos \textit{logits} obtêm-se probabilidades que somam~1; a classe atribuída é a de maior probabilidade (\textit{argmax}). A coluna \texttt{mean\_logit\_pos/neg/neu} do \textit{dataset} (Seção~\ref{cap:sentimento}) é a média diária desses \textit{logits} sobre todos os artigos do dia, e \texttt{mean\_sentiment} é o código numérico da classe predominante.
+
+A Tabela~\ref{tab:exemplos_artigos} reproduz seis manchetes reais do corpus --- duas por classe --- com seus \textit{logits} e probabilidades efetivamente computados pelo modelo. As entradas foram extraídas dos arquivos \texttt{petr4\_noticias.json}, \texttt{vale3\_noticias.json} e \texttt{itub4\_noticias.json} e processadas exatamente como no \textit{pipeline} de extração (entrada \texttt{título}, truncamento em 512 \textit{tokens}).
+
+\begin{table}[htb]
+\centering
+\caption{Manchetes reais do corpus InfoMoney e respectiva classificação de sentimento pelo FinBERT-PT-BR. \textit{Logits} na ordem (POS, NEG, NEU); probabilidades obtidas via \textit{softmax}. A classe atribuída é o \textit{argmax}.}\label{tab:exemplos_artigos}
+\footnotesize
+\begin{tabularx}{\textwidth}{Xccc}
+\toprule
+\textbf{Manchete} & \textbf{\textit{Logits} (POS,\,NEG,\,NEU)} & \textbf{Prob.\ (POS,\,NEG,\,NEU)} & \textbf{Classe} \\
+\midrule
+``Hypera projeta aceleração das vendas e tem semaglutida como principal aposta em 2026'' & $(1{,}33;\ -1{,}85;\ -1{,}36)$ & $(0{,}90;\ 0{,}04;\ 0{,}06)$ & POSITIVO \\
+\addlinespace
+``Com maior peso de estatais na AL, Brasil abre oportunidade assimétrica na B3, diz BBI'' & $(0{,}88;\ -2{,}07;\ -0{,}88)$ & $(0{,}82;\ 0{,}04;\ 0{,}14)$ & POSITIVO \\
+\addlinespace
+``Ibovespa fecha abaixo de 178 mil pontos sem alívio em preocupações com guerra no Irã'' & $(-1{,}73;\ 1{,}45;\ -1{,}80)$ & $(0{,}04;\ 0{,}93;\ 0{,}04)$ & NEGATIVO \\
+\addlinespace
+``Ibovespa fecha com nova queda e emenda terceira semana seguida no negativo'' & $(-1{,}59;\ 1{,}41;\ -1{,}82)$ & $(0{,}05;\ 0{,}92;\ 0{,}04)$ & NEGATIVO \\
+\addlinespace
+``Mini-índice (WINJ26): petróleo, PIB dos EUA e inflação guiam traders hoje'' & $(-1{,}45;\ -1{,}30;\ 0{,}91)$ & $(0{,}08;\ 0{,}09;\ 0{,}83)$ & NEUTRO \\
+\addlinespace
+``Mini-índice (WINJ26): guerra, petróleo e agenda da semana guiam traders'' & $(-1{,}69;\ -0{,}99;\ 0{,}80)$ & $(0{,}07;\ 0{,}13;\ 0{,}80)$ & NEUTRO \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Os exemplos evidenciam o comportamento esperado: manchetes com projeções de crescimento ou oportunidade recebem alta probabilidade POSITIVA; quedas e quadros de aversão a risco, alta probabilidade NEGATIVA; e manchetes meramente descritivas de agenda, alta probabilidade NEUTRA. Vale notar, contudo, que a confiança do modelo é sensível à formulação da manchete --- um mesmo evento econômico pode receber rótulos distintos conforme o enquadramento jornalístico. Essa variância na rotulagem de manchetes curtas é coerente com o ruído de sinal discutido no Capítulo~\ref{cap:investigacao} e ajuda a explicar por que a agregação diária dos \textit{logits} agrega, na prática, pouca informação preditiva sobre a direção dos preços.
