@@ -61,7 +61,7 @@
 }
 
 \title[Sentimento de Notícias e Predição na B3]{Predição de Direção de Preços de Ações Brasileiras\\com Sentimento de Notícias Financeiras}
-\subtitle{Pipeline, Ilusão e Autocorreção Metodológica}
+\subtitle{Pipeline, Evidência Aparente e Autocorreção Metodológica}
 \author[André Takeo L. Fujiwara]{André Takeo Loschner Fujiwara\\[1ex]{\small Orientador: Prof.\ Eric Bacconi Gonçalves}}
 \institute[PUC-SP]{Ciência de Dados e Inteligência Artificial --- PUC-SP}
 \date{Junho de 2026}
@@ -285,8 +285,8 @@
 % ---------------------------------------------------------------- 10. Alerta
 \begin{frame}{Três sinais de alerta}
   \begin{enumerate}
-    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}15 --- o modelo previu ``Desce'' apenas \alert{11 vezes em 177 amostras}
-    \item \textbf{Acurácia suspeita:} 76{,}3\% próxima da classe majoritária ($\sim$69\% ``Sobe'')
+    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}20 --- o modelo acertou apenas \alert{11 das 54 quedas reais}
+    \item \textbf{Acurácia suspeita:} 76{,}3\% vs.\ \alert{69{,}5\%} da classe majoritária na janela de teste (\textit{base rate} de treino 59/41)
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
   \vspace{2ex}
@@ -348,8 +348,8 @@
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item O IC do \textit{baseline} \alert{já engloba o 0{,}709} do Transformer + FinBERT
-    \item Controle de dimensionalidade (20 subconjuntos aleatórios de 5 dims Ollama): AUC $0{,}509 \pm 0{,}057$
+    \item Nesta janela o IC é \alert{largo demais} para separar 0{,}709 do \textit{baseline}; a separação só emerge no CV
+    \item Controle de dimensionalidade (20 subconjuntos aleatórios de 5 dims Ollama): AUC $\approx 0{,}509$
   \end{itemize}
 \end{frame}
 
@@ -404,7 +404,7 @@
     \column{0.38\textwidth}
     \begin{itemize}
       \item Único ativo com $\Delta > 0$ ($+$0{,}036) na análise principal
-      \item Protocolo reforçado: \textbf{52 \textit{folds} $\times$ 10 sementes}
+      \item Protocolo reforçado: \textbf{880 execuções} (\textit{folds} expandidos $\times$ 10 sementes $\times$ 2 modelos)
       \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$)
       \item Transformer: bimodal severo --- picos em AUC $<0{,}05$ e $>0{,}95$, assinatura de classificador degenerado
     \end{itemize}
@@ -467,7 +467,7 @@
     \textbf{Três contribuições}
     \begin{enumerate}
       \item Pipeline replicável e versionado (InfoMoney + FinBERT-PT-BR + Yahoo Finance)
-      \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
+      \item Demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
     \column{0.5\textwidth}

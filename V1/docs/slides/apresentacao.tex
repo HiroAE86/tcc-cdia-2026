@@ -97,8 +97,8 @@
   \end{itemize}
   \vspace{1ex}
   \begin{block}{Lacuna}
-    Pouca evidência empírica para o mercado brasileiro --- e quase nenhuma
-    com avaliação metodologicamente rigorosa.
+    Evidência empírica ainda limitada para o mercado brasileiro, sobretudo
+    com avaliação multi-janela e testes de hipótese formais.
   \end{block}
 \end{frame}
 
@@ -325,7 +325,7 @@
     \begin{itemize}
       \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
       \item Cada experimento = 1 pergunta e métrica definidas a priori; nunca escolhidas \textit{a posteriori}
-      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico \alert{destrói} o positivo, não seleciona o melhor
+      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico, fixo a priori, \alert{testa} o positivo, não seleciona o melhor
       \item Bonferroni (6 células) \alert{reforça o nulo} do sentimento \alert{e} o positivo ``preço vence'' ($|\Delta|=0{,}255\approx6\times$ std passa com folga)
     \end{itemize}
   \end{columns}
@@ -424,7 +424,7 @@
     \begin{itemize}
       \item Recebeu \textit{deep-dive} dedicado por ser a \alert{única} das $3\times2=6$ células com ganho aparente --- a esperada por acaso sob múltiplas comparações
       \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos, 10 sementes, 2 modelos)
-      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
+      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção não sobrevive ao escrutínio
       \item {\footnotesize Sinais opostos ($+$0{,}036/$+$0{,}058 no CV/ablation \textit{vs} azul$<$vermelho aqui) $=$ \alert{contrastes distintos} (Transf.-vs-preço; preço-vs-preço+sent.; modelo-vs-baseline), não medida única. O invariante é o $p$.}
     \end{itemize}
   \end{columns}
@@ -488,7 +488,7 @@
     \textbf{Três contribuições}
     \begin{enumerate}
       \item Pipeline replicável e versionado (o README preserva a narrativa inicial \alert{de propósito}, como registro do viés de confirmação --- \alert{errata no TOPO do README} (verificável agora) remete ao cap. 5)
-      \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
+      \item Demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
     \column{0.5\textwidth}
