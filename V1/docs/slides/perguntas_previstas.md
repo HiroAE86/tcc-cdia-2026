@@ -27,6 +27,12 @@ Sim, foi cogitado, e a decisão de **não** balancear via reamostragem foi delib
 
 E o ponto decisivo: o desbalanceamento foi **investigado, não ignorado**. Mesmo com a compensação de peso, o Transformer ainda colapsou (previu "Desce" só 11×/177). Isso **prova** que o desbalanceamento não era a causa raiz do colapso — era a instabilidade da arquitetura/sinal fraco. Métricas robustas a desbalanceamento (balanced accuracy, MCC) ficam como trabalho futuro.
 
+**5c. "O slide 5 diz 59% Sobe, mas o slide 10 fala em ~69% de classe majoritária. Qual é?"** *(cruzamento de tabelas — ter resposta pronta)*
+Os dois estão certos, são subconjuntos diferentes. O split é cronológico, sem embaralhar: treino e teste são períodos distintos.
+- **Treino:** 59% Sobe / 41% Desce (prevalência do período de treino).
+- **Teste** (janela jun/2025–fev/2026, 177 amostras): **69,5% Sobe (123/177), 30,5% Desce (54)**.
+A janela de teste calhou de ter mais altas. E isso **reforça** o sinal de alerta: a acurácia de 76,3% supera a classe majoritária do teste (69,5%) por apenas ~7 pontos — o modelo mal bate o "chutar sempre Sobe". Por isso AUC, não acurácia, é a métrica honesta aqui.
+
 ## Bloco B — Prováveis (ler 2x)
 
 **6. "Por que não otimizou hiperparâmetros por fold?"**
@@ -72,10 +78,10 @@ Aplicar os 6 protocolos desde o dia 1: IC bootstrap, ≥10 sementes, expanding-w
 | Número | O que é |
 |---|---|
 | 0,709 | AUC Transformer+FinBERT, janela única (o artefato) |
-| 0,658 [0,565; 0,744] | Baseline autoregressivo, janela única — IC já engloba 0,709 |
+| 0,658 [0,565; 0,744] | Baseline autoregressivo, janela única — IC tão largo que não distingue 0,709 do baseline (separação só no CV/multi-seed) |
 | 0,261 vs 0,012 | std multi-seed: Transformer vs baseline (21×) |
 | 0,667 vs 0,509 | AUC médio CV: baseline vs Transformer (inversão) |
 | +0,003, p=0,49 | Ganho do sentimento na ablation (225 runs) |
 | p=0,194 | VALE3 deep-dive, 880 runs — não significativo |
-| 1.435 | Total de execuções da investigação |
+| 1.435 | Execuções nos 8 experimentos centrais — pergunta e métrica definidas a priori (cada um com p-valor); + ~80 sanity checks (sem teste de hipótese) = ~1.515 |
 | 5.872 | Artigos InfoMoney (2.572 ITUB4 / 1.775 PETR4 / 1.525 VALE3) |

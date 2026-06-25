@@ -1,6 +1,6 @@
 % ============================================================================
 % Slides TCC — Predição de Direção de Preços de Ações Brasileiras
-% Apresentação ~20 min | Beamer | pt-BR
+% Apresentação ~15 min | Beamer | pt-BR
 % Compilar: pdflatex apresentacao.tex (2x)
 % ============================================================================
 \documentclass[10pt,aspectratio=169]{beamer}
@@ -55,7 +55,7 @@
 }
 
 \title[Sentimento de Notícias e Predição na B3]{Predição de Direção de Preços de Ações Brasileiras\\com Sentimento de Notícias Financeiras}
-\subtitle{Pipeline, Ilusão e Autocorreção Metodológica}
+\subtitle{Pipeline, Evidência Aparente e Autocorreção Metodológica}
 \author[André Takeo L. Fujiwara]{André Takeo Loschner Fujiwara\\[1ex]{\small Orientador: Prof.\ Eric Bacconi Gonçalves}}
 \institute[PUC-SP]{Ciência de Dados e Inteligência Artificial --- PUC-SP}
 \date{Junho de 2026}
@@ -97,8 +97,8 @@
   \end{itemize}
   \vspace{1ex}
   \begin{block}{Lacuna}
-    Pouca evidência empírica para o mercado brasileiro --- e quase nenhuma
-    com avaliação metodologicamente rigorosa.
+    Evidência empírica ainda limitada para o mercado brasileiro, sobretudo
+    com avaliação multi-janela e testes de hipótese formais.
   \end{block}
 \end{frame}
 
@@ -116,8 +116,8 @@
     \end{block}
     \column{0.48\textwidth}
     \begin{block}{(b) Robustez metodológica}
-      Resultados de \textit{walk-forward split} único sobrevivem a
-      CV \textit{expanding-window}, múltiplas sementes e testes formais?
+      O \textit{walk-forward split} único sobrevive a CV, múltiplas
+      sementes e testes formais?
     \end{block}
   \end{columns}
   \vspace{1.5ex}
@@ -144,7 +144,6 @@
         \bottomrule
       \end{tabular}
     \end{table}
-    \footnotesize REST API do WordPress, retentativas com \textit{backoff}, extração paralela.
     \column{0.48\textwidth}
     \textbf{Dados de mercado (Yahoo Finance)}
     \begin{itemize}
@@ -154,9 +153,11 @@
     \textbf{Alvo binário}
     \begin{itemize}
       \item $1$ se $\text{Close}[t+h] > \text{Close}[t]$
-      \item Desbalanceamento: 59\% ``Sobe'' / 41\% ``Desce''
+      \item Desbalanceamento: 59/41 ``Sobe''/``Desce'' \emph{(treino)}
     \end{itemize}
   \end{columns}
+  \vspace{0.5ex}
+  {\footnotesize Desbalanceamento 59/41 tratado por peso, não reamostragem (argumento XGBoost-persiste no Q\&A).}
 \end{frame}
 
 % ---------------------------------------------------------------- 6. Pipeline
@@ -185,7 +186,7 @@
   \vspace{2ex}
   \begin{itemize}
     \item Dataset final: $\sim$1.200 dias úteis por ativo; janelas de 30 dias para modelos sequenciais
-    \item \alert{Risco conhecido:} \textit{forward-fill} de sentimento em dias sem notícia (discutido na análise)
+    \item \textbf{Risco conhecido:} \textit{forward-fill} propaga só o \alert{passado}; viés intradiário não auditado (discutido no slide 19)
   \end{itemize}
 \end{frame}
 
@@ -248,6 +249,8 @@
 
 % ---------------------------------------------------------------- 9. AUC 0.709
 \begin{frame}{O resultado que ``confirmou'' a hipótese}
+  {\footnotesize\alert{Estimativa pontual --- 1 janela, 1 semente, sem IC. Refutado nos slides 13--16.}}
+  \vspace{0.5ex}
   \begin{columns}[T]
     \column{0.5\textwidth}
     \begin{table}
@@ -266,32 +269,36 @@
     \end{table}
     \column{0.46\textwidth}
     \begin{itemize}
-      \item Transformer + FinBERT: \alert{ROC-AUC = 0{,}709}, acurácia 76{,}3\%
+      \item Transformer + FinBERT: \alert{ROC-AUC = 0{,}709}, acurácia 76{,}3\% \alert{($\approx$ classe majoritária da janela de TESTE 69{,}5\%; treino 59/41)}
       \item Narrativa coerente: ``sentimento específico supera \textit{embeddings} genéricos''
-      \item Resultado compatível com a literatura internacional
+      \item \alert{Aparência} de resultado compatível com a literatura internacional --- eis a armadilha
     \end{itemize}
     \vspace{1ex}
     \centering\large
     Caso encerrado? \alert{\textbf{Não.}}
   \end{columns}
+  \vspace{1ex}
+  {\footnotesize \alert{0{,}709 $=$ 1 janela, 1 semente, sem IC} --- refutado nos slides 13--16. Reconciliação dos vários $\sim$0{,}66 do XGBoost: detalhe no Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 10. Alerta
 \begin{frame}{Três sinais de alerta}
   \begin{enumerate}
-    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}15 --- o modelo previu ``Desce'' apenas \alert{11 vezes em 177 amostras}
-    \item \textbf{Acurácia suspeita:} 76{,}3\% próxima da classe majoritária ($\sim$69\% ``Sobe'')
+    \item \textbf{Matriz de confusão assimétrica:} \textit{precision}(Desce) = 1{,}00 com \textit{recall}(Desce) = 0{,}20 --- previu ``Desce'' corretamente em só \alert{11 das 54 quedas reais}
+    \item \textbf{Acurácia suspeita:} 76{,}3\% supera a classe majoritária da janela de teste (69{,}5\%; \textit{base rate} de treino 59/41) por só $\sim$7 pontos --- um ``sempre Sobe'' já acerta 69{,}5\%
     \item \textbf{Protocolo frágil:} estimativa pontual --- \alert{sem} intervalo de confiança, \alert{uma} semente, \alert{uma} janela temporal
   \end{enumerate}
-  \vspace{2ex}
+  \vspace{1ex}
   \begin{block}{Decisão}
     Antes de aceitar o resultado: submetê-lo a protocolos progressivamente
     mais rigorosos. Se for real, sobrevive.
   \end{block}
+  \vspace{0.5ex}
+  {\footnotesize Treino 59/41; janela de teste 69{,}5\% (123/177) --- dois subconjuntos diferentes do \textit{split} cronológico, períodos distintos.}
 \end{frame}
 
 % ---------------------------------------------------------------- 11. Investigação
-\begin{frame}{Investigação metodológica: 8 experimentos, 1.435 execuções}
+\begin{frame}{Bateria de investigação: 1.435 execuções --- pergunta e métrica definidas a priori}
   \begin{columns}[T]
     \column{0.55\textwidth}
     \begin{table}
@@ -314,14 +321,16 @@
       \end{tabular}
     \end{table}
     \column{0.42\textwidth}
-    \textbf{Regras fixas em todos os experimentos}
+    \textbf{Protocolo (idêntico em todos)}
     \begin{itemize}
-      \item Hiperparâmetros congelados (sem otimização por \textit{fold})
-      \item \texttt{StandardScaler} ajustado só no treino de cada \textit{fold}
-      \item Bootstrap CI com 1.000 reamostras
-      \item Teste de Wilcoxon para comparações pareadas
+      \item Hiperparâmetros congelados; \texttt{StandardScaler} só no treino; bootstrap CI 1.000; Wilcoxon pareado
+      \item Cada experimento = 1 pergunta e métrica definidas a priori; nunca escolhidas \textit{a posteriori}
+      \item \alert{Oposto de \textit{p-hacking}:} protocolo idêntico, fixo a priori, \alert{testa} o positivo, não seleciona o melhor
+      \item Bonferroni (6 células) \alert{reforça o nulo} do sentimento \alert{e} o positivo ``preço vence'' ($|\Delta|=0{,}255\approx6\times$ std passa com folga)
     \end{itemize}
   \end{columns}
+  \vspace{1ex}
+  {\footnotesize Bonferroni / espaço de busca e reconciliação dos $\sim$80 \textit{sanity checks}: detalhe no Q\&A.}
 \end{frame}
 
 % ---------------------------------------------------------------- 12. Baselines
@@ -335,16 +344,18 @@
       Classe majoritária    & Sempre prevê ``Sobe''           & 0{,}500 \\
       \textit{Coin flip}    & $P(\text{Sobe}) = \text{prior}$ & 0{,}500 \\
       Persistência ($h=21$) & Direção repete                  & 0{,}474 [0{,}405; 0{,}543] \\
-      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
+      \textbf{Autoregressivo (XGB)} & \textbf{5 \textit{features} de preço (janela única, IC largo)} & \textbf{0{,}658 [0{,}565; 0{,}744]} \\
       \bottomrule
     \end{tabular}
   \end{table}
   \vspace{1ex}
   \begin{itemize}
     \item XGBoost com só \texttt{return}, \texttt{lag\_1}, \texttt{lag\_5}, \texttt{Volume}, \texttt{std21} já atinge \textbf{0{,}658}
-    \item O IC do \textit{baseline} \alert{já engloba o 0{,}709} do Transformer + FinBERT
-    \item Controle de dimensionalidade (20 subconjuntos aleatórios de 5 dims Ollama): AUC $0{,}509 \pm 0{,}057$
+    \item Nesta janela única o IC é largo demais para separar 0{,}709 do \textit{baseline} --- a separação \textbf{só} emerge no CV (0{,}667 vs 0{,}509, slide 14). Janela única não decide nada; é exatamente o ponto do trabalho
+    \item \alert{AUC mede separabilidade, não retorno} (Lo, 2004; $h=21$ sobreposto infla a autocorrelação). \textbf{Não reivindico lucratividade:} é momentum/autocorrelação; o \textit{backtest} exploratório foi \textbf{negativo} (Sharpe $-$1{,}29) --- reforça o nulo, mas fica fora da contribuição por fragilidade (s.19/reserva)
   \end{itemize}
+  \vspace{0.5ex}
+  {\footnotesize \alert{0{,}658 $=$ 1 janela (IC largo); 0{,}667 $=$ média 5 \textit{folds} CV. \textbf{O preço vence o sentimento nos dois.}}}
 \end{frame}
 
 % ---------------------------------------------------------------- 13. Multi-seed
@@ -371,18 +382,23 @@
     \includegraphics[width=\textwidth]{expanding_cv_overtime.png}\\[0.5ex]
     {\footnotesize\itshape Como ler: 3 ativos, eixo X = tempo (\textit{folds}).
     \textcolor{coral}{Vermelho} = preço, \textcolor{verdeagua}{azul} = meu modelo.
-    Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.}
+    Em ITUB4 e PETR4 o \textbf{vermelho fica por cima} $\Rightarrow$ o preço ganha.
+    Na VALE3 as faixas se cruzam e o ganho \textbf{não é significativo} --- confirmado no \textit{deep-dive} (slide 15).}
     \column{0.42\textwidth}
+    \begin{block}{Invariante (liderar por aqui)}
+      \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo --- confirmado no \textit{deep-dive} (slide 15).}
+      {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}
+    \end{block}
     \begin{table}
       \footnotesize
-      {\footnotesize\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes)}\\[0.5ex]
+      {\small\itshape AUC médio (5 \textit{folds} $\times$ 5 sementes); \alert{$\Delta=$ Transf.$-$XGB(preço), \textbf{não} ablation de sentimento}}\\[0.5ex]
       \begin{tabular}{lccc}
         \toprule
         \textbf{Ativo} & \textbf{XGB} & \textbf{Transf.} & $\boldsymbol{\Delta}$ \\
         \midrule
         ITUB4 & \textbf{0{,}700} & 0{,}445 & $-$0{,}255 \\
         PETR4 & \textbf{0{,}702} & 0{,}447 & $-$0{,}255 \\
-        VALE3 & 0{,}599 & 0{,}635 & $+$0{,}036 \\
+        VALE3 & 0{,}599 & 0{,}635 & {\footnotesize ganho aparente; signif.\ no \textit{deep-dive} (s.15): $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}667} & 0{,}509 & $-$0{,}158 \\
         \bottomrule
@@ -390,7 +406,6 @@
     \end{table}
     \begin{itemize}
       \item Trocando 1 janela por 5 \textit{folds}: \alert{o resultado inverte}
-      \item Diferença de 0{,}255 em ITUB4 $\approx 6\times$ o desvio do \textit{baseline}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -404,10 +419,13 @@
     acumula nas \textbf{duas pontas} (perto de 0 e de 1) = colapso. A média azul (0{,}484)
     fica à \textbf{esquerda} da \textcolor{coral}{vermelha} (0{,}544) $\Rightarrow$ perde até aqui.}
     \column{0.38\textwidth}
+    \alert{Na VALE3 o ganho do sentimento \textbf{nunca} é significativo ($p=0{,}194$).}\\
+    {\footnotesize Magnitudes distintas $=$ experimentos distintos; o invariante é o $p$.}\\[0.5ex]
     \begin{itemize}
-      \item Era o único ativo com ganho aparente ($+$0{,}036) na análise principal
-      \item Reforço: \textbf{52 \textit{folds} $\times$ 10 sementes} = 880 execuções
-      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção morreu
+      \item Recebeu \textit{deep-dive} dedicado por ser a \alert{única} das $3\times2=6$ células com ganho aparente --- a esperada por acaso sob múltiplas comparações
+      \item Reforço: \textbf{880 execuções} (\textit{folds} expandidos, 10 sementes, 2 modelos)
+      \item Resultado: \alert{não significativo} (Wilcoxon $p = 0{,}194$) --- a exceção não sobrevive ao escrutínio
+      \item {\footnotesize Sinais opostos ($+$0{,}036/$+$0{,}058 no CV/ablation \textit{vs} azul$<$vermelho aqui) $=$ \alert{contrastes distintos} (Transf.-vs-preço; preço-vs-preço+sent.; modelo-vs-baseline), não medida única. O invariante é o $p$.}
     \end{itemize}
   \end{columns}
 \end{frame}
@@ -431,17 +449,15 @@
         \midrule
         ITUB4 & 0{,}684 & 0{,}436 & 0{,}651 & $-$0{,}033 \\
         PETR4 & 0{,}692 & 0{,}494 & 0{,}676 & $-$0{,}016 \\
-        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & $+$0{,}058 \\
+        VALE3 & 0{,}609 & 0{,}510 & 0{,}667 & {\footnotesize ganho aparente; signif.\ no \textit{deep-dive} (s.15): $p=0{,}194$} \\
         \midrule
         \textbf{Média} & \textbf{0{,}662} & 0{,}480 & 0{,}665 & \alert{\textbf{$+$0{,}003}} \\
         \bottomrule
       \end{tabular}}
     \end{table}
-    \begin{itemize}
-      \item $\Delta = +0{,}003$; Wilcoxon $p = 0{,}49$; IC 95\% $[-0{,}012;\ +0{,}018]$
-      \item SENT sozinho: \alert{abaixo do acaso}
-      \item Efeito 44--74$\times$ menor que o mínimo detectável (MDE 0{,}13--0{,}22)
-    \end{itemize}
+    {\scriptsize Dois de três ativos \alert{pioram} com sentimento (ITUB4 $-$0{,}033; PETR4 $-$0{,}016).}
+    \begin{center}\large\alert{$\Delta = +0{,}003$ \ ($p = 0{,}49$); IC95\% $[-0{,}012;\,+0{,}018]$}\end{center}
+    {\scriptsize IC do $\Delta$ MÉDIO é estreito porque agrega 225 \textit{runs}; MDE 0{,}13--0{,}22 é \alert{por ativo} ($n$ pequeno). Não há contradição: o MESMO desenho detecta preço (0{,}667 estável). O nulo TEM IC; o 0{,}709 nunca teve. (Bonferroni / espaço de busca no Q\&A.)}
   \end{columns}
 \end{frame}
 
@@ -471,8 +487,8 @@
     \column{0.46\textwidth}
     \textbf{Três contribuições}
     \begin{enumerate}
-      \item Pipeline replicável e versionado (InfoMoney + FinBERT-PT-BR + Yahoo Finance)
-      \item Primeira demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
+      \item Pipeline replicável e versionado (o README preserva a narrativa inicial \alert{de propósito}, como registro do viés de confirmação --- \alert{errata no TOPO do README} (verificável agora) remete ao cap. 5)
+      \item Demonstração quantificada do viés de janela única em dados brasileiros (1.435 execuções)
       \item Proposição de protocolos mínimos para ML financeiro
     \end{enumerate}
     \column{0.5\textwidth}
@@ -501,8 +517,9 @@
       \item 3 ativos de grande capitalização
       \item Horizontes restritos ($h=5$, $h=21$)
       \item Representação textual específica (5 \textit{features} agregadas)
-      \item \textit{Look-ahead} residual do \textit{forward-fill} --- mas joga \emph{contra} a conclusão nula
+      \item \textit{Look-ahead} residual do \textit{ff} toca só o sentimento; no pior caso favorece-o $\Rightarrow$ o nulo $\Delta=+0{,}003$ é limite superior otimista. Risco intradiário não auditado
       \item Instabilidade arquitetural do Transformer
+      \item \textit{Backtest ensemble} exploratório e \textbf{negativo} (Sharpe $-$1{,}29 \textit{vs} \textit{buy-and-hold} 3{,}25 a 10 \textit{bps}): reforça o nulo, mas fica fora da contribuição principal por fragilidade metodológica (2/20 \textit{seeds} sobreviventes) --- não reivindico lucratividade
     \end{itemize}
     \column{0.48\textwidth}
     \textbf{Trabalhos futuros}
@@ -535,6 +552,52 @@
   \textbf{Obrigado!}\\[1ex]
   \footnotesize André Takeo Loschner Fujiwara --- Ciência de Dados e IA, PUC-SP\\
   Código e dados: repositório versionado do projeto
+\end{frame}
+
+% ---------------------------------------------------------------- Backup: VALE3
+\appendix
+\begin{frame}{Reserva --- VALE3 nos três experimentos}
+  \begin{block}{Invariante (liderar SEMPRE por aqui)}
+    \centering Na VALE3 o ganho do sentimento \alert{nunca é estatisticamente significativo}.
+    O \textit{deep-dive} de 880 execuções deu \textbf{$p = 0{,}194$}.
+  \end{block}
+  \vspace{1ex}
+  \begin{table}
+    \footnotesize
+    \begin{tabular}{llcccl}
+      \toprule
+      \textbf{Slide} & \textbf{Experimento} & \textbf{$n$} & \textbf{Modelo} & \textbf{AUC preço} & $\boldsymbol{\Delta}$ \\
+      \midrule
+      14 & CV \textit{expanding} (Transf.\ vs preço) & 5$\times$5 & Transformer & 0{,}599 & $+$0{,}036 \\
+      16 & Ablation (preço vs preço$+$sent.)        & 225        & XGBoost     & 0{,}609 & $+$0{,}058 \\
+      15 & \textit{Deep-dive}                       & 880        & 2 modelos   & ---      & negativo (azul 0{,}484 $<$ 0{,}544) \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+  \vspace{1ex}
+  {\footnotesize Experimentos diferentes, contrastes diferentes, $n$ diferentes $\Rightarrow$ magnitudes diferentes.
+  Os níveis do preço também diferem (0{,}599 CV \textit{vs} 0{,}609 \textit{ablation}) porque $n$ e protocolo diferem; o invariante é o \textbf{$p$}, não o nível. Sinal instável = a própria evidência de que não é sinal real.}
+  \vspace{1ex}
+  {\footnotesize \textbf{Múltiplas comparações:} a VALE3 foi a \alert{única de 6} células (3 ativos $\times$ 2 horizontes) com ganho aparente --- \textbf{exatamente uma positiva é o esperado por puro acaso} sob 6 testes. Bonferroni só \alert{reforça} o nulo; e o \textit{deep-dive} foi análise pós-seleção (testei o melhor caso) --- o que joga \alert{a favor} do nulo, não contra.}
+\end{frame}
+
+% ---------------------------------------------------------------- Backup: MDE/IC
+\begin{frame}{Reserva --- MDE \textit{vs} IC do $\Delta$ agregado}
+  {\footnotesize MDE 0{,}13--0{,}22 é \textit{por ativo} ($n$ pequeno por célula); o IC do $\Delta$ MÉDIO agregado [$-$0{,}012; $+$0{,}018] é estreito por agregação dos 225 \textit{runs} --- não há contradição. O nulo TEM IC; o 0{,}709 não tinha.}
+  \vspace{1ex}
+  {\footnotesize O IC [$-$0{,}012; $+$0{,}018] é \alert{empírico} --- vem do \textit{bootstrap} dos 225 \textit{runs}, não de uma suposição de independência. Mesmo o teto $+$0{,}018 fica muito abaixo do efeito útil (o MDE por ativo é 0{,}13--0{,}22, $\sim$7$\times$ maior). (Reserva: estrutura de correlação dos \textit{folds} / $n$ efetivo.) O mesmo desenho \alert{detecta preço} (0{,}667): nulo conclusivo no agregado, não por ativo.}
+  \vspace{1ex}
+  {\footnotesize \textbf{Dimensão do nulo:} o ganho do sentimento ($+$0{,}003) está \alert{44--74$\times$ abaixo} do MDE por ativo (0{,}13--0{,}22) --- não é ``quase lá'', é ordens de grandeza fora do detectável. Essa é a frase a dizer na S16 se acusarem subpotência.}
+\end{frame}
+
+% ---------------------------------------------------------------- Backup: por que AUC + backtest
+\begin{frame}{Reserva --- Por que AUC? E o \textit{backtest}}
+  \begin{block}{Por que AUC é a métrica}
+    {\footnotesize AUC mede \textbf{separabilidade direcional} (capacidade de ordenar ``sobe'' acima de ``desce'') --- exatamente a pergunta --- e era a métrica do 0{,}709 que eu auditava (consistência). O nulo é robusto: o mesmo desenho move a AUC no \textbf{preço} (0{,}667) e \alert{não} no sentimento. \textbf{Honestidade:} a \textit{ablation} (ligar/desligar o sentimento mantendo o resto) mede só $\Delta$AUC; calibração (Brier/ECE) foi computada na fase diagnóstica, não nos 225 \textit{runs}. Claim restrito: ``nenhum \textbf{ganho discriminativo} (de ordenação) detectável''.}
+  \end{block}
+  \begin{block}{O \textit{backtest} existe --- e confirma o nulo}
+    {\footnotesize Com custo de 10 \textit{bps}: \textit{ensemble} Sharpe \alert{$-$1{,}29} ($-$0{,}10\%) \textit{vs} \textit{buy-and-hold} Sharpe 3{,}25 ($+$50{,}30\%). Fora do \textit{slide} principal por fragilidade (filtro \textit{val}-AUC$\geq$0{,}5 deixou 2/20 \textit{seeds}, anticorrelacionadas) --- \textbf{não} por ser desfavorável. Não escondi um positivo; tenho um negativo que \alert{reforça} a tese. \textbf{AUC $\neq$ retorno} nas duas direções.}
+  \end{block}
 \end{frame}
 
 \end{document}

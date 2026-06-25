@@ -1,7 +1,12 @@
 # Predição de Direção de Preços de Ações com NLP e Sentimento de Notícias
 
 **Trabalho de Conclusão de Curso**
-**Ação analisada:** ITUB4 (Itaú Unibanco)
+**Ações analisadas:** ITUB4, PETR4, VALE3
+
+---
+
+> ## ⚠️ ERRATA / AUTOCORREÇÃO (ler antes do restante)
+> O resultado inicial (AUC 0.709) foi demonstrado como **artefato de janela única** em 1.435 execuções nos 8 experimentos centrais (>1.500 com diagnósticos exploratórios). Conclusão corrigida em `docs/capitulo_5.md`: o sentimento adiciona **Δ = +0,003 (p = 0,49)** — sem sinal preditivo mensurável. A contribuição do trabalho é **metodológica** (documentar a reversão), não "o sentimento funciona". O texto abaixo preserva a narrativa inicial por registro histórico — leia-o sob esta ressalva.
 
 ---
 
@@ -135,7 +140,7 @@ Duas mudanças foram testadas simultaneamente:
 | Transformer | 0.709 | 0.588 | -0.121 |
 | XGBoost | 0.670 | 0.528 | -0.142 |
 
-Resultado negativo, porém informativo: a análise de feature importance do XGBoost revelou que **6 das 10 features mais importantes são derivadas de sentimento**, com a média de 21 dias do logit negativo como a #1. Isso confirma que as features derivadas capturam sinal relevante, mas o horizonte de 5 dias é curto demais para o tipo de notícia do InfoMoney (que reflete tendências de médio prazo).
+Resultado negativo, porém informativo: a análise de feature importance do XGBoost revelou que **6 das 10 features mais importantes são derivadas de sentimento**, com a média de 21 dias do logit negativo como a #1. Isso confirma que as features derivadas capturam sinal relevante, mas o horizonte de 5 dias é curto demais para o tipo de notícia do InfoMoney (que reflete tendências de médio prazo). **NOTA (errata):** importância no split de janela única; sob multi-seed/ablation o ganho preditivo é Δ=+0,003 (p=0,49) — importância de feature ≠ poder preditivo estável (ver cap. 5).
 
 ### Conclusão da Etapa 5
 
