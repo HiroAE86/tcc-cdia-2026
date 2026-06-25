@@ -1,0 +1,45 @@
+% ============================================================================
+% GLOSSÁRIO --- definição dos termos técnicos (atende observação da banca)
+% Elemento pós-textual (ABNT NBR 14724). Termos em ordem alfabética.
+% ============================================================================
+\chapter*{Glossário}
+\addcontentsline{toc}{chapter}{Glossário}
+\begin{description}[style=nextline,leftmargin=0pt,labelindent=0pt]
+
+\item[\textit{Ablation} (ablação de \textit{features})] Procedimento experimental que remove deliberadamente um subconjunto de \textit{features} (por exemplo, todas as variáveis de sentimento) e reavalia o modelo, isolando a contribuição marginal desse subconjunto para o desempenho.
+
+\item[\textit{BCEWithLogitsLoss}] Função de perda do PyTorch para classificação binária que combina, em uma única operação numericamente estável, a sigmoide e a entropia cruzada binária (\textit{Binary Cross-Entropy}). Recebe diretamente os \textit{logits} (ver \textit{logit}), sem aplicação prévia da sigmoide.
+
+\item[Classificador degenerado] Modelo que colapsa para uma predição praticamente constante, ignorando a entrada --- por exemplo, atribuindo sempre a mesma probabilidade a todas as amostras. Produz distribuições de predição bimodais ou concentradas e AUC instável entre execuções.
+
+\item[{$\text{Close}[t]$}] Preço de fechamento do ativo no dia de pregão~$t$. A notação $\text{Close}[t+h]$ refere-se ao fechamento $h$ dias úteis à frente; o alvo binário ``sobe/desce'' é definido por $\text{Close}[t+h] > \text{Close}[t]$.
+
+\item[$d_\text{model}$] Dimensionalidade dos vetores internos (\textit{embeddings} de estado) de um modelo Transformer; controla a largura das representações que fluem entre as camadas de atenção. Neste trabalho, $d_\text{model}=64$.
+
+\item[\textit{Dropout}] Técnica de regularização que, durante o treino, zera aleatoriamente uma fração das ativações de uma camada a cada passo, reduzindo a coadaptação de neurônios e o sobreajuste. A fração (ex.: 0,2 = 20\%) é um hiperparâmetro.
+
+\item[\textit{Early stopping}] Critério de parada antecipada do treino: o ajuste é interrompido quando a métrica de validação deixa de melhorar por um número fixo de épocas (a ``paciência''), evitando sobreajuste ao conjunto de treino.
+
+\item[\textit{Fold}] Cada partição temporal de uma validação cruzada. Na avaliação \textit{multi-fold} (ou \textit{expanding-window}), o modelo é treinado e avaliado em múltiplos \textit{folds} sucessivos, e as métricas são agregadas --- em contraste com a avaliação por janela única, que usa um único corte temporal.
+
+\item[\textit{Forward-fill} (preenchimento para a frente)] Operação que propaga o último valor conhecido de uma série para os instantes seguintes sem observação. Aqui, repete o sentimento do último dia com notícia nos dias sem publicação.
+
+\item[$h$ (horizonte)] Número de dias úteis à frente sobre o qual se prevê a direção do preço. Os horizontes investigados são $h=5$ e $h=21$ dias.
+
+\item[\textit{Left join}] Operação de junção de tabelas por uma chave (aqui, a data) que preserva todas as linhas da tabela à esquerda (preços) e anexa as colunas correspondentes da tabela à direita (sentimento), inserindo valores ausentes quando não há correspondência.
+
+\item[\textit{Logit}] Pontuação bruta, não normalizada, produzida pela última camada de um classificador antes de qualquer função de ativação. Valores em $(-\infty, +\infty)$; tornam-se probabilidades ao passar por sigmoide (binário) ou \textit{softmax} (multiclasse).
+
+\item[\textit{Look-ahead} (vazamento temporal)] Erro metodológico em que informação disponível apenas após o instante~$t$ é usada como \textit{feature} para prever~$t$, inflando artificialmente o desempenho medido.
+
+\item[\textit{Multi-seed} (multissemente)] Protocolo que repete o treino com várias sementes aleatórias (no mínimo 10 neste trabalho) e reporta a distribuição das métricas, revelando instabilidade que uma única execução ocultaria.
+
+\item[\textit{pos\_weight}] Parâmetro da \textit{BCEWithLogitsLoss} (modelos PyTorch) que pondera a classe positiva na perda para compensar desbalanceamento de classes; definido como $n_\text{negativos}/n_\text{positivos}$.
+
+\item[\textit{scale\_pos\_weight}] Parâmetro análogo ao \textit{pos\_weight}, próprio do XGBoost, que escala o peso da classe positiva no gradiente para tratar desbalanceamento de classes.
+
+\item[\textit{Softmax}] Função que converte um vetor de \textit{logits} em uma distribuição de probabilidade (valores positivos que somam~1), atribuindo maior probabilidade aos maiores \textit{logits}. Usada na classificação multiclasse (POSITIVO/NEGATIVO/NEUTRO do FinBERT).
+
+\item[\textit{StandardScaler}] Transformador do scikit-learn que padroniza cada \textit{feature} subtraindo a média e dividindo pelo desvio-padrão (escore-z). É ajustado exclusivamente no conjunto de treino de cada \textit{fold} para evitar vazamento de dados.
+
+\end{description}
